@@ -12,6 +12,10 @@ export function useProjectEvents(projectId: string) {
     const [isConnected, setIsConnected] = useState(false);
 
     const fetchTasks = useCallback(async () => {
+        if (!projectId) {
+            setTasks([]);
+            return;
+        }
         try {
             const data = await apiGet<Task[]>(`/api/projects/${projectId}/tasks`);
             setTasks(data);
@@ -21,6 +25,12 @@ export function useProjectEvents(projectId: string) {
     }, [projectId]);
 
     useEffect(() => {
+        if (!projectId) {
+            setIsConnected(false);
+            setTasks([]);
+            return;
+        }
+
         fetchTasks();
 
         const eventSource = new EventSource(`/api/projects/${projectId}/events`);

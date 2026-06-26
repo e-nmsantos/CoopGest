@@ -259,7 +259,7 @@ export function ProjectsListPage() {
 
       const blob = await response.blob();
       const disposition = response.headers.get("Content-Disposition") || "";
-      const fileMatch = disposition.match(/filename="?([^\"]+)"?/i);
+      const fileMatch = disposition.match(/filename="?([^"]+)"?/i);
       const fileName = fileMatch?.[1] || `backup-projetos-${new Date().toISOString().slice(0, 10)}.zip`;
 
       const url = URL.createObjectURL(blob);

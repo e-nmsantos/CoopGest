@@ -49,10 +49,8 @@ function parseTask(raw: Record<string, unknown>): Task {
 
 export function KanbanPage() {
   const { id } = useParams<{ id: string }>();
-  if (!id) {
-    return <div>Project ID not found</div>;
-  }
-  const { tasks: allTasks, isConnected, refetchTasks } = useProjectEvents(id);
+  const projectId = id ?? "";
+  const { tasks: allTasks, isConnected, refetchTasks } = useProjectEvents(projectId);
   const [loading, setLoading] = useState(true);
   const [projectName, setProjectName] = useState("Kanban");
   const { setActiveProjectId } = useProjectContext();
@@ -75,12 +73,12 @@ export function KanbanPage() {
   };
 
   useEffect(() => {
-    if (id) {
-      setActiveProjectId(id);
+    if (projectId) {
+      setActiveProjectId(projectId);
       const loadProjectName = async () => {
         try {
-            const proj = await apiGet<{ projeto?: { nome?: string } }>(`/api/projects/${id}`);
-            setProjectName(proj.projeto?.nome ? `${proj.projeto.nome} — Kanban` : "Kanban");
+            const proj = await apiGet<{ projeto?: { nome?: string } }>(`/api/projects/${projectId}`);
+            setProjectName(proj.projeto?.nome ? `${proj.projeto.nome} - Kanban` : "Kanban");
         } catch {
           toast.error("Erro ao carregar o nome do projeto");
         } finally {
@@ -89,7 +87,11 @@ export function KanbanPage() {
       };
       loadProjectName();
     }
-  }, [id, setActiveProjectId]);
+  }, [projectId, setActiveProjectId]);
+
+  if (!projectId) {
+    return <div>Project ID not found</div>;
+  }
 
   const tasks = allTasks.map(parseTask);
 
