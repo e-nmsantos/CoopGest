@@ -1,4 +1,4 @@
-import { LayoutDashboard, FolderKanban, Users, Vote, Target, BookUser, FolderOpen, UserCog, CalendarDays, LayoutList, Shield, X, Layers, ListChecks, Banknote, Lightbulb, ShoppingCart, LayoutGrid, GitBranch } from "lucide-react";
+import { LayoutDashboard, FolderKanban, Users, Vote, Target, BookUser, FolderOpen, UserCog, CalendarDays, LayoutList, Shield, X, Layers, ListChecks, Banknote, Lightbulb, ShoppingCart, LayoutGrid, GitBranch, GanttChart, Network } from "lucide-react";
 import { Link, useLocation } from "react-router";
 import { useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
@@ -8,6 +8,7 @@ const menuItems = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/" },
   { icon: FolderKanban, label: "Projetos", path: "/projetos" },
   { icon: ListChecks, label: "O Meu Trabalho", path: "/meu-trabalho" },
+  { icon: GanttChart, label: "Gantt", path: "/gantt" },
   { icon: Users, label: "Parceiros", path: "/parceiros" },
   { icon: Vote, label: "Votações", path: "/votacoes" },
   { icon: FolderOpen, label: "Documentos", path: "/documentos" },
@@ -19,6 +20,7 @@ const menuItems = [
   { icon: GitBranch, label: "Teoria Mudança", path: "/teoria-mudanca" },
   { icon: Lightbulb, label: "Lições", path: "/licoes" },
   { icon: ShoppingCart, label: "Contratos", path: "/contratos" },
+  { icon: Network, label: "Stakeholders", path: "/stakeholders" },
   { icon: BookUser, label: "Competências", path: "/competencias" },
   { icon: Layers, label: "MethodKit", path: "/methodkit" },
 ];

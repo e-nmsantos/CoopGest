@@ -2,10 +2,12 @@ from flask import Flask
 
 
 def register_blueprints(app: Flask) -> None:
+    from .alerts import bp as alerts_bp
     from .auth import bp as auth_bp
     from .backups import bp as backups_bp
     from .exports import bp as exports_bp
     from .procurement import bp as procurement_bp
+    from .stakeholders import bp as stakeholders_bp
     from .beneficiaries import bp as beneficiaries_bp
     from .budget import bp as budget_bp
     from .comments import bp as comments_bp
@@ -36,10 +38,12 @@ def register_blueprints(app: Flask) -> None:
     from .work_overview import bp as work_overview_bp
     from .work_tracking import bp as work_tracking_bp
 
+    app.register_blueprint(alerts_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(backups_bp)
     app.register_blueprint(exports_bp)
     app.register_blueprint(procurement_bp)
+    app.register_blueprint(stakeholders_bp)
     app.register_blueprint(beneficiaries_bp)
     app.register_blueprint(budget_bp)
     app.register_blueprint(comments_bp)

@@ -188,6 +188,29 @@ MIGRATIONS: tuple[Migration, ...] = (
             "CREATE INDEX IF NOT EXISTS idx_procurement_projeto ON procurement(projeto_id)",
         ),
     ),
+    (
+        "202606270006_stakeholders",
+        (
+            """CREATE TABLE IF NOT EXISTS stakeholders (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                projeto_id INTEGER NOT NULL,
+                nome TEXT NOT NULL,
+                organizacao TEXT DEFAULT '',
+                papel TEXT DEFAULT '',
+                interesse TEXT DEFAULT 'Médio',
+                influencia TEXT DEFAULT 'Médio',
+                posicao TEXT DEFAULT 'Neutro',
+                estrategia TEXT DEFAULT '',
+                contacto TEXT DEFAULT '',
+                notas TEXT DEFAULT '',
+                criado_por TEXT DEFAULT '',
+                criado_em TEXT DEFAULT CURRENT_TIMESTAMP,
+                atualizado_em TEXT DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (projeto_id) REFERENCES projetos(id) ON DELETE CASCADE
+            )""",
+            "CREATE INDEX IF NOT EXISTS idx_stakeholders_projeto ON stakeholders(projeto_id)",
+        ),
+    ),
 )
 
 

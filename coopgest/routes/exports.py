@@ -11,6 +11,7 @@ from coopgest.http_helpers import api_error, login_required
 from coopgest.services.excel_export import generate_project_excel
 from coopgest.services.donor_reports import generate_eu_prag_report, generate_usaid_report
 from coopgest.services.reports import build_project_executive_report, build_portfolio_executive_report
+from coopgest.services.iati_export import generate_iati_xml
 
 bp = Blueprint("exports", __name__)
 
@@ -107,6 +108,28 @@ def donor_report_usaid(id: int):
             mimetype="application/pdf",
             headers={"Content-Disposition": f'attachment; filename="{filename}"'},
         )
+    finally:
+        conn.close()
+
+
+# ── IATI XML export ───────────────────────────────────────────────────────────
+
+@bp.route("/api/projects/<int:id>/export/iati", methods=["GET"])
+@login_required
+def export_iati(id: int):
+    conn = get_db()
+    try:
+        err = require_project_permission(conn, id, "membro")
+        if err:
+            return err
+        projeto = row_to_dict(conn.execute("SELECT * FROM projetos WHERE id=?", (id,)).fetchone() or {})
+        if not projeto:
+            return api_error("Projeto não encontrado", 404, "NOT_FOUND")
+        xml_bytes = generate_iati_xml(conn, id)
+        nome = projeto.get("nome", "projeto")
+        safe = "".join(c if c.isalnum() or c in "-_" else "_" for c in nome)
+        return Response(xml_bytes, mimetype="application/xml",
+                       headers={"Content-Disposition": f'attachment; filename="iati_{safe}.xml"'})
     finally:
         conn.close()
 

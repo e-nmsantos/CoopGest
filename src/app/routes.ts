@@ -172,6 +172,20 @@ export const router = createBrowserRouter([
         },
       },
       {
+        path: "gantt",
+        lazy: async () => {
+          const { GanttPage } = await import("./pages/GanttPage");
+          return { Component: GanttPage };
+        },
+      },
+      {
+        path: "stakeholders",
+        lazy: async () => {
+          const { StakeholdersPage } = await import("./pages/StakeholdersPage");
+          return { Component: StakeholdersPage };
+        },
+      },
+      {
         path: "perfil",
         lazy: async () => {
           const { ProfilePage } = await import("./pages/ProfilePage");
