@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block title %}Projetos{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h4 class="fw-bold mb-0">Projetos de Cooperação</h4>
+  <a href="{{ url_for('projeto_create') }}" class="btn btn-primary">
+    <i class="bi bi-plus-lg me-1"></i>Novo Projeto
+  </a>
+</div>
+
+{% if projetos %}
+<div class="row g-3">
+  {% for p in projetos %}
+  <div class="col-md-6 col-xl-4">
+    <div class="card h-100 p-3">
+      <div class="d-flex justify-content-between">
+        <span class="badge
+          {% if p.estado == 'Concluído' %}bg-success
+          {% elif p.estado == 'Em curso' %}bg-primary
+          {% elif p.estado == 'Suspenso' %}bg-warning text-dark
+          {% else %}bg-secondary{% endif %}">
+          {{ p.estado }}
+        </span>
+        <div class="dropdown">
+          <button class="btn btn-sm btn-light" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="{{ url_for('projeto_edit', id=p.id) }}"><i class="bi bi-pencil me-2"></i>Editar</a></li>
+            <li>
+              <form method="post" action="{{ url_for('projeto_delete', id=p.id) }}"
+                    onsubmit="return confirm('Eliminar este projeto?')">
+                <button class="dropdown-item text-danger"><i class="bi bi-trash me-2"></i>Eliminar</button>
+              </form>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <h6 class="fw-bold mt-2 mb-1">
+        <a href="{{ url_for('projeto_detail', id=p.id) }}" class="text-decoration-none text-dark">{{ p.nome }}</a>
+      </h6>
+      <p class="text-muted small mb-2">{{ (p.descricao or '')[:120] }}{% if p.descricao and p.descricao|length > 120 %}…{% endif %}</p>
+      <div class="mt-auto text-muted small">
+        <i class="bi bi-calendar me-1"></i>
+        {{ p.data_inicio or '?' }} → {{ p.data_fim or '?' }}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="card p-5 text-center">
+  <i class="bi bi-folder2-open fs-1 text-muted mb-3"></i>
+  <p class="text-muted">Ainda não há projetos.<br>
+    <a href="{{ url_for('projeto_create') }}">Cria o primeiro projeto de cooperação.</a>
+  </p>
+</div>
+{% endif %}
+{% endblock %}

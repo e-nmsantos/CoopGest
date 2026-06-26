@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block title %}Parceiros{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h4 class="fw-bold mb-0">Parceiros</h4>
+  <a href="{{ url_for('parceiro_create') }}" class="btn btn-primary">
+    <i class="bi bi-plus-lg me-1"></i>Novo Parceiro
+  </a>
+</div>
+
+{% if parceiros %}
+<div class="card">
+  <table class="table table-hover mb-0">
+    <thead>
+      <tr><th>Nome</th><th>Tipo</th><th>Contacto</th><th>Email</th><th>Telefone</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for p in parceiros %}
+      <tr>
+        <td class="fw-semibold">{{ p.nome }}</td>
+        <td class="small">{{ p.tipo or '—' }}</td>
+        <td class="small">{{ p.contacto or '—' }}</td>
+        <td class="small">{{ p.email or '—' }}</td>
+        <td class="small">{{ p.telefone or '—' }}</td>
+        <td class="d-flex gap-1">
+          <a href="{{ url_for('parceiro_edit', id=p.id) }}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></a>
+          <form method="post" action="{{ url_for('parceiro_delete', id=p.id) }}"
+                onsubmit="return confirm('Eliminar parceiro?')">
+            <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="card p-5 text-center">
+  <i class="bi bi-people fs-1 text-muted mb-3"></i>
+  <p class="text-muted">Sem parceiros registados.<br>
+    <a href="{{ url_for('parceiro_create') }}">Adicionar o primeiro parceiro.</a>
+  </p>
+</div>
+{% endif %}
+{% endblock %}

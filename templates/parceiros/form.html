@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}{{ 'Editar' if parceiro else 'Novo' }} Parceiro{% endblock %}
+{% block content %}
+<div class="d-flex align-items-center mb-4">
+  <a href="{{ url_for('parceiros_list') }}" class="btn btn-light me-3"><i class="bi bi-arrow-left"></i></a>
+  <h4 class="fw-bold mb-0">{{ 'Editar Parceiro' if parceiro else 'Novo Parceiro' }}</h4>
+</div>
+
+<div class="card p-4" style="max-width:520px;">
+  <form method="post">
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Nome *</label>
+      <input type="text" name="nome" class="form-control"
+             value="{{ parceiro.nome if parceiro else '' }}" required>
+    </div>
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Tipo de Organização</label>
+      <select name="tipo" class="form-select">
+        <option value="">— Selecionar —</option>
+        {% for t in ['Universidade', 'Empresa', 'ONG', 'Câmara Municipal', 'Associação', 'Hospital', 'Escola', 'Outro'] %}
+        <option {% if parceiro and parceiro.tipo == t %}selected{% endif %}>{{ t }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Nome do Contacto</label>
+      <input type="text" name="contacto" class="form-control"
+             value="{{ parceiro.contacto if parceiro else '' }}">
+    </div>
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Email</label>
+      <input type="email" name="email" class="form-control"
+             value="{{ parceiro.email if parceiro else '' }}">
+    </div>
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Telefone</label>
+      <input type="tel" name="telefone" class="form-control"
+             value="{{ parceiro.telefone if parceiro else '' }}">
+    </div>
+    <div class="d-flex gap-2">
+      <button type="submit" class="btn btn-primary px-4">
+        <i class="bi bi-check-lg me-1"></i>{{ 'Guardar' if parceiro else 'Criar Parceiro' }}
+      </button>
+      <a href="{{ url_for('parceiros_list') }}" class="btn btn-light">Cancelar</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

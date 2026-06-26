@@ -1,0 +1,300 @@
+{% extends 'base.html' %}
+{% block title %}{{ projeto.nome }}{% endblock %}
+{% block content %}
+
+<!-- Header -->
+<div class="d-flex align-items-start mb-4 gap-3">
+  <a href="{{ url_for('projetos_list') }}" class="btn btn-light mt-1"><i class="bi bi-arrow-left"></i></a>
+  <div class="flex-grow-1">
+    <div class="d-flex align-items-center gap-2 mb-1">
+      <h4 class="fw-bold mb-0">{{ projeto.nome }}</h4>
+      <span class="badge
+        {% if projeto.estado == 'Concluído' %}bg-success
+        {% elif projeto.estado == 'Em curso' %}bg-primary
+        {% elif projeto.estado == 'Suspenso' %}bg-warning text-dark
+        {% else %}bg-secondary{% endif %}">{{ projeto.estado }}</span>
+    </div>
+    <span class="text-muted small">
+      <i class="bi bi-calendar me-1"></i>{{ projeto.data_inicio or '?' }} → {{ projeto.data_fim or '?' }}
+    </span>
+  </div>
+  <a href="{{ url_for('projeto_edit', id=projeto.id) }}" class="btn btn-outline-secondary btn-sm">
+    <i class="bi bi-pencil me-1"></i>Editar
+  </a>
+</div>
+
+{% if projeto.descricao %}
+<div class="card p-3 mb-3">
+  <h6 class="fw-semibold mb-1">Descrição</h6>
+  <p class="mb-0 text-muted">{{ projeto.descricao }}</p>
+</div>
+{% endif %}
+{% if projeto.objetivos %}
+<div class="card p-3 mb-4">
+  <h6 class="fw-semibold mb-1">Objetivos</h6>
+  <p class="mb-0 text-muted">{{ projeto.objetivos }}</p>
+</div>
+{% endif %}
+
+<!-- Tabs -->
+<ul class="nav nav-tabs mb-3" id="projectTabs">
+  <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#tab-tarefas"><i class="bi bi-check2-square me-1"></i>Tarefas ({{ tarefas|length }})</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-milestones"><i class="bi bi-flag me-1"></i>Milestones ({{ milestones|length }})</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-parceiros"><i class="bi bi-people me-1"></i>Parceiros ({{ parceiros|length }})</a></li>
+  <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tab-orcamento"><i class="bi bi-cash me-1"></i>Orçamento</a></li>
+</ul>
+
+<div class="tab-content">
+
+  <!-- TAREFAS -->
+  <div class="tab-pane fade show active" id="tab-tarefas">
+    <div class="card p-3 mb-3">
+      <h6 class="fw-semibold mb-3">Nova Tarefa</h6>
+      <form method="post" action="{{ url_for('tarefa_create', projeto_id=projeto.id) }}">
+        <div class="row g-2">
+          <div class="col-md-4"><input type="text" name="nome" class="form-control form-control-sm" placeholder="Nome da tarefa *" required></div>
+          <div class="col-md-3"><input type="text" name="responsavel" class="form-control form-control-sm" placeholder="Responsável"></div>
+          <div class="col-md-2"><input type="date" name="data_inicio" class="form-control form-control-sm"></div>
+          <div class="col-md-2"><input type="date" name="data_fim" class="form-control form-control-sm"></div>
+          <div class="col-md-1 d-flex gap-1">
+            <select name="prioridade" class="form-select form-select-sm">
+              <option>Normal</option><option>Alta</option><option>Baixa</option>
+            </select>
+          </div>
+          <div class="col-12"><textarea name="descricao" class="form-control form-control-sm" placeholder="Descrição (opcional)" rows="1"></textarea></div>
+          <div class="col-md-3">
+            <select name="estado" class="form-select form-select-sm">
+              <option>Por fazer</option><option>Em progresso</option><option>Concluída</option>
+            </select>
+          </div>
+          <div class="col-auto"><button class="btn btn-primary btn-sm">Adicionar</button></div>
+        </div>
+      </form>
+    </div>
+
+    {% if tarefas %}
+    <div class="card p-3">
+      <table class="table table-hover mb-0">
+        <thead><tr><th>Tarefa</th><th>Responsável</th><th>Prazo</th><th>Prioridade</th><th>Estado</th><th></th></tr></thead>
+        <tbody>
+          {% for t in tarefas %}
+          <tr>
+            <td>
+              {% if t.estado == 'Concluída' %}<s class="text-muted">{{ t.nome }}</s>{% else %}{{ t.nome }}{% endif %}
+              {% if t.descricao %}<br><small class="text-muted">{{ t.descricao }}</small>{% endif %}
+            </td>
+            <td class="small">{{ t.responsavel or '—' }}</td>
+            <td class="small">{{ t.data_fim or '—' }}</td>
+            <td><span class="priority-{{ t.prioridade }} small fw-semibold">{{ t.prioridade }}</span></td>
+            <td>
+              <form method="post" action="{{ url_for('tarefa_update_estado', id=t.id) }}" class="d-inline">
+                <select name="estado" class="form-select form-select-sm" onchange="this.form.submit()">
+                  {% for e in ['Por fazer', 'Em progresso', 'Concluída'] %}
+                  <option {% if t.estado == e %}selected{% endif %}>{{ e }}</option>
+                  {% endfor %}
+                </select>
+              </form>
+            </td>
+            <td>
+              <form method="post" action="{{ url_for('tarefa_delete', id=t.id) }}"
+                    onsubmit="return confirm('Eliminar tarefa?')">
+                <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="text-muted small">Sem tarefas criadas.</p>
+    {% endif %}
+  </div>
+
+  <!-- MILESTONES -->
+  <div class="tab-pane fade" id="tab-milestones">
+    <div class="card p-3 mb-3">
+      <h6 class="fw-semibold mb-3">Novo Milestone</h6>
+      <form method="post" action="{{ url_for('milestone_create', projeto_id=projeto.id) }}">
+        <div class="row g-2">
+          <div class="col-md-4"><input type="text" name="nome" class="form-control form-control-sm" placeholder="Nome do milestone *" required></div>
+          <div class="col-md-3"><input type="date" name="data_prevista" class="form-control form-control-sm"></div>
+          <div class="col-md-2">
+            <select name="estado" class="form-select form-select-sm">
+              <option>Pendente</option><option>Em progresso</option><option>Concluído</option>
+            </select>
+          </div>
+          <div class="col-auto"><button class="btn btn-primary btn-sm">Adicionar</button></div>
+          <div class="col-12"><textarea name="descricao" class="form-control form-control-sm" placeholder="Descrição (opcional)" rows="1"></textarea></div>
+        </div>
+      </form>
+    </div>
+
+    {% if milestones %}
+    <div class="card p-3">
+      <table class="table table-hover mb-0">
+        <thead><tr><th>Milestone</th><th>Data Prevista</th><th>Concluído em</th><th>Estado</th><th></th></tr></thead>
+        <tbody>
+          {% for m in milestones %}
+          <tr>
+            <td>{{ m.nome }}{% if m.descricao %}<br><small class="text-muted">{{ m.descricao }}</small>{% endif %}</td>
+            <td class="small">{{ m.data_prevista or '—' }}</td>
+            <td class="small">{{ m.data_concluida or '—' }}</td>
+            <td>
+              <span class="badge {% if m.estado == 'Concluído' %}bg-success{% elif m.estado == 'Em progresso' %}bg-primary{% else %}bg-secondary{% endif %}">
+                {{ m.estado }}
+              </span>
+            </td>
+            <td class="d-flex gap-1">
+              {% if m.estado != 'Concluído' %}
+              <form method="post" action="{{ url_for('milestone_concluir', id=m.id) }}">
+                <button class="btn btn-sm btn-outline-success" title="Marcar como concluído"><i class="bi bi-check2"></i></button>
+              </form>
+              {% endif %}
+              <form method="post" action="{{ url_for('milestone_delete', id=m.id) }}"
+                    onsubmit="return confirm('Eliminar milestone?')">
+                <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="text-muted small">Sem milestones criados.</p>
+    {% endif %}
+  </div>
+
+  <!-- PARCEIROS -->
+  <div class="tab-pane fade" id="tab-parceiros">
+    <div class="card p-3 mb-3">
+      <h6 class="fw-semibold mb-3">Associar Parceiro</h6>
+      {% if todos_parceiros %}
+      <form method="post" action="{{ url_for('projeto_adicionar_parceiro', projeto_id=projeto.id) }}">
+        <div class="row g-2">
+          <div class="col-md-5">
+            <select name="parceiro_id" class="form-select form-select-sm" required>
+              <option value="">— Selecionar parceiro —</option>
+              {% for p in todos_parceiros %}
+              <option value="{{ p.id }}">{{ p.nome }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-4">
+            <input type="text" name="papel" class="form-control form-control-sm" placeholder="Papel no projeto (ex: Líder)">
+          </div>
+          <div class="col-auto"><button class="btn btn-primary btn-sm">Associar</button></div>
+        </div>
+      </form>
+      {% else %}
+      <p class="text-muted small mb-0">Sem parceiros cadastrados. <a href="{{ url_for('parceiro_create') }}">Adicionar parceiro.</a></p>
+      {% endif %}
+    </div>
+
+    {% if parceiros %}
+    <div class="card p-3">
+      <table class="table table-hover mb-0">
+        <thead><tr><th>Parceiro</th><th>Tipo</th><th>Contacto</th><th>Email</th><th>Papel</th><th></th></tr></thead>
+        <tbody>
+          {% for p in parceiros %}
+          <tr>
+            <td class="fw-semibold">{{ p.nome }}</td>
+            <td class="small">{{ p.tipo or '—' }}</td>
+            <td class="small">{{ p.contacto or '—' }}</td>
+            <td class="small">{{ p.email or '—' }}</td>
+            <td><span class="badge bg-light text-dark">{{ p.papel or '—' }}</span></td>
+            <td>
+              <form method="post" action="{{ url_for('projeto_remover_parceiro', projeto_id=projeto.id, parceiro_id=p.id) }}"
+                    onsubmit="return confirm('Remover parceiro do projeto?')">
+                <button class="btn btn-sm btn-outline-danger"><i class="bi bi-x"></i></button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="text-muted small">Sem parceiros associados.</p>
+    {% endif %}
+  </div>
+
+  <!-- ORÇAMENTO -->
+  <div class="tab-pane fade" id="tab-orcamento">
+    <div class="row g-3 mb-3">
+      <div class="col-md-3">
+        <div class="card p-3 text-center" style="background:#e8f8f0;">
+          <div class="small text-muted">Receitas (Previsto)</div>
+          <div class="fs-5 fw-bold text-success">{{ '%.2f €'|format(receitas) }}</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card p-3 text-center" style="background:#fce8e8;">
+          <div class="small text-muted">Despesas (Previsto)</div>
+          <div class="fs-5 fw-bold text-danger">{{ '%.2f €'|format(despesas) }}</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card p-3 text-center" style="background:#e8f4fd;">
+          <div class="small text-muted">Receitas (Real)</div>
+          <div class="fs-5 fw-bold text-primary">{{ '%.2f €'|format(receitas_real) }}</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card p-3 text-center" style="background:#fff8e1;">
+          <div class="small text-muted">Saldo (Previsto)</div>
+          <div class="fs-5 fw-bold {% if receitas - despesas >= 0 %}text-success{% else %}text-danger{% endif %}">
+            {{ '%.2f €'|format(receitas - despesas) }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card p-3 mb-3">
+      <h6 class="fw-semibold mb-3">Adicionar Rubrica</h6>
+      <form method="post" action="{{ url_for('orcamento_create', projeto_id=projeto.id) }}">
+        <div class="row g-2">
+          <div class="col-md-2">
+            <select name="tipo" class="form-select form-select-sm" required>
+              <option>Despesa</option><option>Receita</option>
+            </select>
+          </div>
+          <div class="col-md-2"><input type="text" name="categoria" class="form-control form-control-sm" placeholder="Categoria" required></div>
+          <div class="col-md-3"><input type="text" name="descricao" class="form-control form-control-sm" placeholder="Descrição"></div>
+          <div class="col-md-2"><input type="number" step="0.01" name="valor_previsto" class="form-control form-control-sm" placeholder="Previsto (€)"></div>
+          <div class="col-md-2"><input type="number" step="0.01" name="valor_real" class="form-control form-control-sm" placeholder="Real (€)"></div>
+          <div class="col-auto"><button class="btn btn-primary btn-sm">Adicionar</button></div>
+        </div>
+      </form>
+    </div>
+
+    {% if orcamento %}
+    <div class="card p-3">
+      <table class="table table-hover mb-0">
+        <thead><tr><th>Tipo</th><th>Categoria</th><th>Descrição</th><th class="text-end">Previsto</th><th class="text-end">Real</th><th></th></tr></thead>
+        <tbody>
+          {% for o in orcamento %}
+          <tr>
+            <td><span class="badge {% if o.tipo == 'Receita' %}bg-success{% else %}bg-danger{% endif %}">{{ o.tipo }}</span></td>
+            <td class="small fw-semibold">{{ o.categoria }}</td>
+            <td class="small text-muted">{{ o.descricao or '—' }}</td>
+            <td class="text-end small">{{ '%.2f €'|format(o.valor_previsto) }}</td>
+            <td class="text-end small">{{ '%.2f €'|format(o.valor_real) }}</td>
+            <td>
+              <form method="post" action="{{ url_for('orcamento_delete', id=o.id) }}"
+                    onsubmit="return confirm('Eliminar rubrica?')">
+                <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="text-muted small">Sem rubricas de orçamento.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
