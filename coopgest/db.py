@@ -117,6 +117,8 @@ def init_db():
             entidade TEXT DEFAULT '',
             referencia TEXT DEFAULT '',
             valor REAL NOT NULL DEFAULT 0,
+            moeda TEXT DEFAULT 'EUR',
+            taxa_cambio REAL DEFAULT 1.0,
             data_movimento TEXT NOT NULL DEFAULT CURRENT_DATE,
             estado TEXT DEFAULT 'Confirmado',
             notas TEXT DEFAULT '',
@@ -147,14 +149,19 @@ def init_db():
         CREATE TABLE IF NOT EXISTS impacto_quadro_logico (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             projeto_id INTEGER NOT NULL,
+            nivel TEXT DEFAULT 'Resultado',
             resultado TEXT NOT NULL,
             indicador TEXT NOT NULL,
+            unidade TEXT DEFAULT '',
             fonte_verificacao TEXT DEFAULT '',
             baseline REAL DEFAULT 0,
             meta REAL DEFAULT 0,
             valor_atual REAL DEFAULT 0,
             estado TEXT DEFAULT 'Em acompanhamento',
             proxima_revisao TEXT DEFAULT '',
+            frequencia_medicao TEXT DEFAULT 'Trimestral',
+            responsavel_medicao TEXT DEFAULT '',
+            pressupostos TEXT DEFAULT '',
             criado_em TEXT DEFAULT CURRENT_TIMESTAMP,
             atualizado_em TEXT DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (projeto_id) REFERENCES projetos(id) ON DELETE CASCADE
@@ -270,6 +277,7 @@ def init_db():
             tipo TEXT DEFAULT 'Fundo Europeu',
             valor_aprovado REAL DEFAULT 0,
             valor_executado REAL DEFAULT 0,
+            moeda TEXT DEFAULT 'EUR',
             data_inicio TEXT,
             data_fim TEXT,
             referencia TEXT DEFAULT '',
@@ -296,6 +304,9 @@ def init_db():
             impacto TEXT DEFAULT 'Médio',
             estado TEXT DEFAULT 'Identificado',
             mitigacao TEXT DEFAULT '',
+            dono TEXT DEFAULT '',
+            proxima_revisao TEXT DEFAULT '',
+            plano_contingencia TEXT DEFAULT '',
             criado_em TEXT DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (projeto_id) REFERENCES projetos(id) ON DELETE CASCADE
         );
@@ -307,7 +318,21 @@ def init_db():
             tipo TEXT DEFAULT 'Individual',
             numero INTEGER DEFAULT 1,
             descricao TEXT DEFAULT '',
+            localizacao TEXT DEFAULT '',
+            arquivado INTEGER DEFAULT 0,
             data_registo TEXT DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (projeto_id) REFERENCES projetos(id) ON DELETE CASCADE
+        );
+
+        CREATE TABLE IF NOT EXISTS beneficiarios_desagregacao (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            beneficiario_id INTEGER NOT NULL,
+            projeto_id INTEGER NOT NULL,
+            dimensao TEXT NOT NULL,
+            categoria TEXT NOT NULL,
+            numero INTEGER DEFAULT 0,
+            criado_em TEXT DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (beneficiario_id) REFERENCES beneficiarios(id) ON DELETE CASCADE,
             FOREIGN KEY (projeto_id) REFERENCES projetos(id) ON DELETE CASCADE
         );
 
@@ -454,6 +479,71 @@ def init_db():
             usado INTEGER DEFAULT 0,
             criado_em TEXT DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (user_id) REFERENCES utilizadores(id) ON DELETE CASCADE
+        );
+
+        CREATE TABLE IF NOT EXISTS impacto_quadro_logico_historico (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            indicador_id INTEGER NOT NULL,
+            projeto_id INTEGER NOT NULL,
+            valor REAL NOT NULL,
+            notas TEXT DEFAULT '',
+            registado_por TEXT DEFAULT '',
+            criado_em TEXT DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (indicador_id) REFERENCES impacto_quadro_logico(id) ON DELETE CASCADE,
+            FOREIGN KEY (projeto_id) REFERENCES projetos(id) ON DELETE CASCADE
+        );
+
+        CREATE TABLE IF NOT EXISTS impacto_metricas_historico (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            metrica_id INTEGER NOT NULL,
+            projeto_id INTEGER,
+            valor REAL NOT NULL,
+            notas TEXT DEFAULT '',
+            registado_por TEXT DEFAULT '',
+            criado_em TEXT DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (metrica_id) REFERENCES impacto_metricas(id) ON DELETE CASCADE
+        );
+
+        CREATE TABLE IF NOT EXISTS indicador_evidencias (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            indicador_id INTEGER NOT NULL,
+            documento_id INTEGER,
+            descricao TEXT DEFAULT '',
+            url_externa TEXT DEFAULT '',
+            tipo TEXT DEFAULT 'documento',
+            criado_por TEXT DEFAULT '',
+            criado_em TEXT DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (indicador_id) REFERENCES impacto_quadro_logico(id) ON DELETE CASCADE,
+            FOREIGN KEY (documento_id) REFERENCES documentos(id) ON DELETE SET NULL
+        );
+
+        CREATE TABLE IF NOT EXISTS licoes_aprendidas (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            projeto_id INTEGER NOT NULL,
+            titulo TEXT NOT NULL,
+            descricao TEXT DEFAULT '',
+            area TEXT DEFAULT 'Gestão',
+            fase_projeto TEXT DEFAULT 'Execução',
+            tipo TEXT DEFAULT 'Positiva',
+            impacto TEXT DEFAULT 'Médio',
+            recomendacao TEXT DEFAULT '',
+            criado_por TEXT DEFAULT '',
+            criado_em TEXT DEFAULT CURRENT_TIMESTAMP,
+            atualizado_em TEXT DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (projeto_id) REFERENCES projetos(id) ON DELETE CASCADE
+        );
+
+        CREATE TABLE IF NOT EXISTS orcamento_revisoes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            orcamento_id INTEGER NOT NULL,
+            projeto_id INTEGER NOT NULL,
+            campo TEXT NOT NULL,
+            valor_anterior TEXT,
+            valor_novo TEXT,
+            alterado_por TEXT DEFAULT '',
+            criado_em TEXT DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (orcamento_id) REFERENCES orcamento(id) ON DELETE CASCADE,
+            FOREIGN KEY (projeto_id) REFERENCES projetos(id) ON DELETE CASCADE
         );
     """)
 

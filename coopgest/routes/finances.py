@@ -58,11 +58,18 @@ def api_finance_transactions():
         conn.close()
         return attachment_error
 
+    moeda = str(payload.get("moeda") or "EUR").strip().upper()
+    if len(moeda) != 3:
+        moeda = "EUR"
+    taxa_cambio = float(payload.get("taxa_cambio") or 1.0)
+    if taxa_cambio <= 0:
+        taxa_cambio = 1.0
+
     cursor = conn.execute(
         """INSERT INTO movimentos_financeiros
-           (projeto_id, tipo, categoria, descricao, entidade, referencia, valor, data_movimento, estado, notas,
-            anexo_nome, anexo_ficheiro, anexo_tipo, anexo_tamanho, criado_por)
-           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+           (projeto_id, tipo, categoria, descricao, entidade, referencia, valor, moeda, taxa_cambio,
+            data_movimento, estado, notas, anexo_nome, anexo_ficheiro, anexo_tipo, anexo_tamanho, criado_por)
+           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
         (
             project_id,
             tipo,
@@ -71,6 +78,8 @@ def api_finance_transactions():
             str(payload.get("entidade") or "").strip(),
             str(payload.get("referencia") or "").strip(),
             valor,
+            moeda,
+            taxa_cambio,
             payload.get("data_movimento") or date.today().isoformat(),
             payload.get("estado") or "Confirmado",
             str(payload.get("notas") or "").strip(),
@@ -124,6 +133,15 @@ def api_finance_transaction_detail(id):
         return jsonify({"message": "Movimento eliminado com sucesso"})
 
     payload = finance_payload()
+    moeda_update = None
+    if "moeda" in payload:
+        m = str(payload["moeda"] or "EUR").strip().upper()
+        moeda_update = m if len(m) == 3 else "EUR"
+    taxa_update = None
+    if "taxa_cambio" in payload:
+        t = float(payload["taxa_cambio"] or 1.0)
+        taxa_update = t if t > 0 else 1.0
+
     fields = [
         ("tipo", payload.get("tipo") if payload.get("tipo") in {"Receita", "Despesa"} else None),
         ("categoria", payload.get("categoria")),
@@ -131,6 +149,8 @@ def api_finance_transaction_detail(id):
         ("entidade", payload.get("entidade")),
         ("referencia", payload.get("referencia")),
         ("valor", finance_float(payload.get("valor")) if "valor" in payload else None),
+        ("moeda", moeda_update),
+        ("taxa_cambio", taxa_update),
         ("data_movimento", payload.get("data_movimento")),
         ("estado", payload.get("estado")),
         ("notas", payload.get("notas")),

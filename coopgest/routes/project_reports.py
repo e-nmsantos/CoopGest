@@ -1,6 +1,6 @@
 ﻿from __future__ import annotations
 
-from flask import Blueprint, jsonify, session
+from flask import Blueprint, Response, jsonify, session
 
 from coopgest.access import get_project_role, project_role_allows, require_project_access, require_project_permission
 from coopgest.db import get_db
@@ -90,3 +90,32 @@ def api_project_executive_report_notify(id):
     return jsonify({"created": len(recipients) * len(recommendations), "recipients": len(recipients)})
 
 
+@bp.route("/api/projects/<int:id>/executive-report/pdf")
+@login_required
+def api_project_executive_report_pdf(id):
+    conn = get_db()
+    access_error = require_project_permission(conn, id, "gestor")
+    if access_error:
+        conn.close()
+        return access_error
+
+    report = build_project_executive_report(conn, id)
+    conn.close()
+    if not report:
+        return api_error("Projeto não encontrado", 404, "NOT_FOUND")
+
+    try:
+        from coopgest.services.pdf_report import generate_project_pdf
+        pdf_bytes = generate_project_pdf(report)
+    except ImportError:
+        return api_error("reportlab não instalado — execute: pip install reportlab", 501, "NOT_IMPLEMENTED")
+
+    nome = report.get("projeto", {}).get("nome", "relatorio")
+    safe_nome = "".join(c if c.isalnum() or c in " -_" else "" for c in nome).strip().replace(" ", "_")
+    filename = f"relatorio_{safe_nome}.pdf"
+
+    return Response(
+        pdf_bytes,
+        mimetype="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )

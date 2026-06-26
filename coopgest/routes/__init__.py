@@ -16,6 +16,7 @@ def register_blueprints(app: Flask) -> None:
     from .funding import bp as funding_bp
     from .impact import bp as impact_bp
     from .legacy import register_legacy_routes
+    from .lessons import bp as lessons_bp
     from .milestones import bp as milestones_bp
     from .notifications import bp as notifications_bp
     from .partners import bp as partners_bp
@@ -45,6 +46,7 @@ def register_blueprints(app: Flask) -> None:
     app.register_blueprint(finances_bp)
     app.register_blueprint(funding_bp)
     app.register_blueprint(impact_bp)
+    app.register_blueprint(lessons_bp)
     register_legacy_routes(app)
     app.register_blueprint(milestones_bp)
     app.register_blueprint(notifications_bp)

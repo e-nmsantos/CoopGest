@@ -3,3 +3,4 @@ waitress
 python-dotenv
 Flask-Mail
 Flask-Limiter
+reportlab

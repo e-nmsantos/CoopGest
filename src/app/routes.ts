@@ -116,6 +116,13 @@ export const router = createBrowserRouter([
         },
       },
       {
+        path: "licoes",
+        lazy: async () => {
+          const { LicoesPage } = await import("./pages/LicoesPage");
+          return { Component: LicoesPage };
+        },
+      },
+      {
         path: "competencias",
         lazy: async () => {
           const { SkillsPage } = await import("./pages/SkillsPage");

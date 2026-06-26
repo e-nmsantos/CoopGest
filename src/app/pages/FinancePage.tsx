@@ -36,11 +36,16 @@ interface FinanceTransaction {
   entidade?: string;
   referencia?: string;
   valor: number;
+  moeda?: string;
+  taxa_cambio?: number;
   data_movimento: string;
   estado?: string;
   anexo_nome?: string;
   anexo_url?: string;
 }
+
+const MOEDAS = ["EUR", "USD", "GBP", "CHF", "XOF", "AOA", "MZN", "CVE", "STN", "BRL", "JPY", "CAD", "AUD"];
+
 
 interface CategorySummary {
   projeto_id: number;
@@ -119,6 +124,8 @@ export function FinancePage() {
     entidade: "",
     referencia: "",
     valor: "",
+    moeda: "EUR",
+    taxa_cambio: "1",
     data_movimento: today(),
     estado: "Confirmado",
   });
@@ -235,6 +242,8 @@ export function FinancePage() {
       entidade: "",
       referencia: "",
       valor: "",
+      moeda: "EUR",
+      taxa_cambio: "1",
       data_movimento: today(),
       estado: "Confirmado",
     }));
@@ -253,6 +262,8 @@ export function FinancePage() {
       entidade: transaction.entidade || "",
       referencia: transaction.referencia || "",
       valor: String(transaction.valor || ""),
+      moeda: transaction.moeda || "EUR",
+      taxa_cambio: String(transaction.taxa_cambio ?? 1),
       data_movimento: transaction.data_movimento || today(),
       estado: transaction.estado || "Confirmado",
     });
@@ -447,14 +458,36 @@ export function FinancePage() {
                   onChange={(event) => setForm((prev) => ({ ...prev, referencia: event.target.value }))}
                 />
               </div>
-              <Input
-                type="number"
-                min="0"
-                step="0.01"
-                placeholder="Valor"
-                value={form.valor}
-                onChange={(event) => setForm((prev) => ({ ...prev, valor: event.target.value }))}
-              />
+              <div className="grid grid-cols-2 gap-3">
+                <Input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  placeholder="Valor"
+                  value={form.valor}
+                  onChange={(event) => setForm((prev) => ({ ...prev, valor: event.target.value }))}
+                />
+                <select
+                  value={form.moeda}
+                  onChange={(event) => setForm((prev) => ({ ...prev, moeda: event.target.value }))}
+                  className="h-10 rounded-md border border-gray-300 bg-white px-3 text-sm"
+                >
+                  {MOEDAS.map((m) => <option key={m} value={m}>{m}</option>)}
+                </select>
+              </div>
+              {form.moeda !== "EUR" && (
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-gray-500 whitespace-nowrap">Taxa {form.moeda}/EUR</span>
+                  <Input
+                    type="number"
+                    min="0.0001"
+                    step="0.0001"
+                    placeholder="Taxa câmbio"
+                    value={form.taxa_cambio}
+                    onChange={(event) => setForm((prev) => ({ ...prev, taxa_cambio: event.target.value }))}
+                  />
+                </div>
+              )}
               <label className="block">
                 <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500">
                   Comprovativo
@@ -583,6 +616,11 @@ export function FinancePage() {
                           </td>
                           <td className={`py-3 pr-3 text-right font-semibold ${transaction.tipo === "Receita" ? "text-emerald-700" : "text-red-700"}`}>
                             {transaction.tipo === "Receita" ? "+" : "-"}{money(transaction.valor)}
+                            {transaction.moeda && transaction.moeda !== "EUR" && (
+                              <div className="text-xs text-gray-400 font-normal">
+                                {transaction.moeda} {transaction.taxa_cambio !== 1 ? `(×${transaction.taxa_cambio})` : ""}
+                              </div>
+                            )}
                           </td>
                           <td className="py-3 pr-3 text-right">
                             <Button variant="ghost" size="sm" onClick={() => startEditTransaction(transaction)} title="Editar movimento">

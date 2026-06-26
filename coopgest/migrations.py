@@ -50,6 +50,118 @@ MIGRATIONS: tuple[Migration, ...] = (
             "CREATE INDEX IF NOT EXISTS idx_projeto_membros_user ON projeto_membros(user_id)",
         ),
     ),
+    (
+        "202606260003_me_excellence",
+        (
+            # LFA: level (Impact/Outcome/Output/Activity) + measurement fields
+            'ALTER TABLE impacto_quadro_logico ADD COLUMN nivel TEXT DEFAULT "Resultado"',
+            'ALTER TABLE impacto_quadro_logico ADD COLUMN unidade TEXT DEFAULT ""',
+            'ALTER TABLE impacto_quadro_logico ADD COLUMN frequencia_medicao TEXT DEFAULT "Trimestral"',
+            'ALTER TABLE impacto_quadro_logico ADD COLUMN responsavel_medicao TEXT DEFAULT ""',
+            # Risk management: owner, next review, contingency plan
+            'ALTER TABLE riscos ADD COLUMN dono TEXT DEFAULT ""',
+            'ALTER TABLE riscos ADD COLUMN proxima_revisao TEXT DEFAULT ""',
+            'ALTER TABLE riscos ADD COLUMN plano_contingencia TEXT DEFAULT ""',
+            # Multi-currency for financial movements and funding sources
+            'ALTER TABLE movimentos_financeiros ADD COLUMN moeda TEXT DEFAULT "EUR"',
+            'ALTER TABLE movimentos_financeiros ADD COLUMN taxa_cambio REAL DEFAULT 1.0',
+            'ALTER TABLE fontes_financiamento ADD COLUMN moeda TEXT DEFAULT "EUR"',
+            # Beneficiaries: archival flag and geographic field
+            'ALTER TABLE beneficiarios ADD COLUMN localizacao TEXT DEFAULT ""',
+            'ALTER TABLE beneficiarios ADD COLUMN arquivado INTEGER DEFAULT 0',
+            # Logframe history: one row per measurement recorded
+            """CREATE TABLE IF NOT EXISTS impacto_quadro_logico_historico (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                indicador_id INTEGER NOT NULL,
+                projeto_id INTEGER NOT NULL,
+                valor REAL NOT NULL,
+                notas TEXT DEFAULT '',
+                registado_por TEXT DEFAULT '',
+                criado_em TEXT DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (indicador_id) REFERENCES impacto_quadro_logico(id) ON DELETE CASCADE,
+                FOREIGN KEY (projeto_id) REFERENCES projetos(id) ON DELETE CASCADE
+            )""",
+            # Impact metric history
+            """CREATE TABLE IF NOT EXISTS impacto_metricas_historico (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                metrica_id INTEGER NOT NULL,
+                projeto_id INTEGER,
+                valor REAL NOT NULL,
+                notas TEXT DEFAULT '',
+                registado_por TEXT DEFAULT '',
+                criado_em TEXT DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (metrica_id) REFERENCES impacto_metricas(id) ON DELETE CASCADE
+            )""",
+            # Beneficiary disaggregation (gender, age, location, vulnerability)
+            """CREATE TABLE IF NOT EXISTS beneficiarios_desagregacao (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                beneficiario_id INTEGER NOT NULL,
+                projeto_id INTEGER NOT NULL,
+                dimensao TEXT NOT NULL,
+                categoria TEXT NOT NULL,
+                numero INTEGER DEFAULT 0,
+                criado_em TEXT DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (beneficiario_id) REFERENCES beneficiarios(id) ON DELETE CASCADE,
+                FOREIGN KEY (projeto_id) REFERENCES projetos(id) ON DELETE CASCADE
+            )""",
+            # Evidence linked to logframe indicators
+            """CREATE TABLE IF NOT EXISTS indicador_evidencias (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                indicador_id INTEGER NOT NULL,
+                documento_id INTEGER,
+                descricao TEXT DEFAULT '',
+                url_externa TEXT DEFAULT '',
+                tipo TEXT DEFAULT 'documento',
+                criado_por TEXT DEFAULT '',
+                criado_em TEXT DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (indicador_id) REFERENCES impacto_quadro_logico(id) ON DELETE CASCADE,
+                FOREIGN KEY (documento_id) REFERENCES documentos(id) ON DELETE SET NULL
+            )""",
+            # Budget revision history
+            """CREATE TABLE IF NOT EXISTS orcamento_revisoes (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                orcamento_id INTEGER NOT NULL,
+                projeto_id INTEGER NOT NULL,
+                campo TEXT NOT NULL,
+                valor_anterior TEXT,
+                valor_novo TEXT,
+                alterado_por TEXT DEFAULT '',
+                criado_em TEXT DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (orcamento_id) REFERENCES orcamento(id) ON DELETE CASCADE,
+                FOREIGN KEY (projeto_id) REFERENCES projetos(id) ON DELETE CASCADE
+            )""",
+            # Performance indexes for new tables
+            "CREATE INDEX IF NOT EXISTS idx_logframe_historico_indicador ON impacto_quadro_logico_historico(indicador_id)",
+            "CREATE INDEX IF NOT EXISTS idx_metricas_historico_metrica ON impacto_metricas_historico(metrica_id)",
+            "CREATE INDEX IF NOT EXISTS idx_desagregacao_beneficiario ON beneficiarios_desagregacao(beneficiario_id)",
+            "CREATE INDEX IF NOT EXISTS idx_desagregacao_projeto ON beneficiarios_desagregacao(projeto_id)",
+            "CREATE INDEX IF NOT EXISTS idx_evidencias_indicador ON indicador_evidencias(indicador_id)",
+        ),
+    ),
+    (
+        "202606260004_pressupostos_licoes",
+        (
+            # Assumptions column on logical framework indicators (5th LFA column)
+            'ALTER TABLE impacto_quadro_logico ADD COLUMN pressupostos TEXT DEFAULT ""',
+            # Lessons learned table
+            """CREATE TABLE IF NOT EXISTS licoes_aprendidas (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                projeto_id INTEGER NOT NULL,
+                titulo TEXT NOT NULL,
+                descricao TEXT DEFAULT '',
+                area TEXT DEFAULT 'Gestão',
+                fase_projeto TEXT DEFAULT 'Execução',
+                tipo TEXT DEFAULT 'Positiva',
+                impacto TEXT DEFAULT 'Médio',
+                recomendacao TEXT DEFAULT '',
+                criado_por TEXT DEFAULT '',
+                criado_em TEXT DEFAULT CURRENT_TIMESTAMP,
+                atualizado_em TEXT DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (projeto_id) REFERENCES projetos(id) ON DELETE CASCADE
+            )""",
+            "CREATE INDEX IF NOT EXISTS idx_licoes_projeto ON licoes_aprendidas(projeto_id)",
+        ),
+    ),
 )
 
 

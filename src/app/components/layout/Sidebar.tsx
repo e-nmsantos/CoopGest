@@ -1,4 +1,4 @@
-import { LayoutDashboard, FolderKanban, Users, Vote, Target, BookUser, FolderOpen, UserCog, CalendarDays, LayoutList, Shield, X, Layers, ListChecks, Banknote } from "lucide-react";
+import { LayoutDashboard, FolderKanban, Users, Vote, Target, BookUser, FolderOpen, UserCog, CalendarDays, LayoutList, Shield, X, Layers, ListChecks, Banknote, Lightbulb } from "lucide-react";
 import { Link, useLocation } from "react-router";
 import { useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
@@ -15,6 +15,7 @@ const menuItems = [
   { icon: LayoutList, label: "Recursos", path: "/recursos" },
   { icon: Banknote, label: "Financas", path: "/financas" },
   { icon: Target, label: "Impacto", path: "/impacto" },
+  { icon: Lightbulb, label: "Lições", path: "/licoes" },
   { icon: BookUser, label: "Competências", path: "/competencias" },
   { icon: Layers, label: "MethodKit", path: "/methodkit" },
 ];
