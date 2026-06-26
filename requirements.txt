@@ -4,3 +4,4 @@ python-dotenv
 Flask-Mail
 Flask-Limiter
 reportlab
+openpyxl

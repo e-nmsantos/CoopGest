@@ -151,6 +151,27 @@ export const router = createBrowserRouter([
         },
       },
       {
+        path: "portfolio",
+        lazy: async () => {
+          const { PortfolioPage } = await import("./pages/PortfolioPage");
+          return { Component: PortfolioPage };
+        },
+      },
+      {
+        path: "teoria-mudanca",
+        lazy: async () => {
+          const { TeoriaPage } = await import("./pages/TeoriaPage");
+          return { Component: TeoriaPage };
+        },
+      },
+      {
+        path: "contratos",
+        lazy: async () => {
+          const { ProcurementPage } = await import("./pages/ProcurementPage");
+          return { Component: ProcurementPage };
+        },
+      },
+      {
         path: "perfil",
         lazy: async () => {
           const { ProfilePage } = await import("./pages/ProfilePage");

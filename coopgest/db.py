@@ -545,6 +545,28 @@ def init_db():
             FOREIGN KEY (orcamento_id) REFERENCES orcamento(id) ON DELETE CASCADE,
             FOREIGN KEY (projeto_id) REFERENCES projetos(id) ON DELETE CASCADE
         );
+
+        CREATE TABLE IF NOT EXISTS procurement (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            projeto_id INTEGER NOT NULL,
+            titulo TEXT NOT NULL,
+            descricao TEXT DEFAULT '',
+            tipo TEXT DEFAULT 'Serviços',
+            valor_estimado REAL DEFAULT 0,
+            valor_real REAL DEFAULT 0,
+            moeda TEXT DEFAULT 'EUR',
+            estado TEXT DEFAULT 'A identificar',
+            data_lancamento TEXT DEFAULT '',
+            data_adjudicacao TEXT DEFAULT '',
+            fornecedor TEXT DEFAULT '',
+            numero_referencia TEXT DEFAULT '',
+            notas TEXT DEFAULT '',
+            criado_por TEXT DEFAULT '',
+            criado_em TEXT DEFAULT CURRENT_TIMESTAMP,
+            atualizado_em TEXT DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (projeto_id) REFERENCES projetos(id) ON DELETE CASCADE
+        );
+        CREATE INDEX IF NOT EXISTS idx_procurement_projeto ON procurement(projeto_id);
     """)
 
     apply_migrations(conn)

@@ -1,4 +1,4 @@
-import { LayoutDashboard, FolderKanban, Users, Vote, Target, BookUser, FolderOpen, UserCog, CalendarDays, LayoutList, Shield, X, Layers, ListChecks, Banknote, Lightbulb } from "lucide-react";
+import { LayoutDashboard, FolderKanban, Users, Vote, Target, BookUser, FolderOpen, UserCog, CalendarDays, LayoutList, Shield, X, Layers, ListChecks, Banknote, Lightbulb, ShoppingCart, LayoutGrid, GitBranch } from "lucide-react";
 import { Link, useLocation } from "react-router";
 import { useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
@@ -14,8 +14,11 @@ const menuItems = [
   { icon: CalendarDays, label: "Calendário", path: "/calendario" },
   { icon: LayoutList, label: "Recursos", path: "/recursos" },
   { icon: Banknote, label: "Financas", path: "/financas" },
+  { icon: LayoutGrid, label: "Portfólio", path: "/portfolio" },
   { icon: Target, label: "Impacto", path: "/impacto" },
+  { icon: GitBranch, label: "Teoria Mudança", path: "/teoria-mudanca" },
   { icon: Lightbulb, label: "Lições", path: "/licoes" },
+  { icon: ShoppingCart, label: "Contratos", path: "/contratos" },
   { icon: BookUser, label: "Competências", path: "/competencias" },
   { icon: Layers, label: "MethodKit", path: "/methodkit" },
 ];
