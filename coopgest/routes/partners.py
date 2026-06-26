@@ -1,22 +1,12 @@
 ﻿from __future__ import annotations
 
-from flask import Blueprint, jsonify, request, session
+from flask import Blueprint, jsonify, request
 
 from coopgest.db import get_db, row_to_dict
 from coopgest.http_helpers import api_error, login_required
+from coopgest.services.activity import log_audit
 
 bp = Blueprint("partners", __name__)
-
-
-def _log_audit(conn, acao, entidade, entidade_id=None, detalhes="", projeto_id=None):
-    user_nome = session.get("nome", session.get("username", "Sistema"))
-    try:
-        conn.execute(
-            "INSERT INTO auditoria (user_nome, acao, entidade, entidade_id, projeto_id, detalhes) VALUES (?,?,?,?,?,?)",
-            (user_nome, acao, entidade, entidade_id, projeto_id, str(detalhes)),
-        )
-    except Exception:
-        pass
 
 
 def _partner_to_dict(row):
@@ -59,7 +49,7 @@ def api_partners():
             ),
         )
         new_id = cursor.lastrowid
-        _log_audit(conn, "criado", "parceiro", new_id, payload["name"].strip())
+        log_audit(conn, "criado", "parceiro", new_id, payload["name"].strip())
         conn.commit()
         row = conn.execute("SELECT * FROM parceiros WHERE id=?", (new_id,)).fetchone()
         conn.close()

@@ -19,7 +19,7 @@ def broadcast_project_data(project_id: int, event_type: str, data: dict):
         try:
             listener.put_nowait(message)
         except queue.Full:
-            pass
+            continue
 
 
 def project_event_stream(project_id: int):

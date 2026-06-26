@@ -487,8 +487,9 @@ def init_db():
     ]:
         try:
             conn.execute(col_sql)
-        except Exception:
-            pass
+        except sqlite3.OperationalError as exc:
+            if "duplicate column name" not in str(exc).lower():
+                raise
 
     conn.commit()
 
@@ -519,10 +520,7 @@ def init_db():
         "CREATE INDEX IF NOT EXISTS idx_projeto_membros_user ON projeto_membros(user_id)",
     ]
     for idx_sql in indexes:
-        try:
-            conn.execute(idx_sql)
-        except Exception:
-            pass
+        conn.execute(idx_sql)
 
     conn.close()
 

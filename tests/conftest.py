@@ -1,4 +1,5 @@
 import gc
+import contextlib
 import os
 import sys
 import tempfile
@@ -36,10 +37,8 @@ def client():
 
     gc.collect()
     os.close(fd)
-    try:
+    with contextlib.suppress(PermissionError):
         os.unlink(db_path)
-    except PermissionError:
-        pass
 
 
 def login(client, username="admin", password="coopgest2025"):
