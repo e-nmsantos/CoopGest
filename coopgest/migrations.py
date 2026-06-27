@@ -211,6 +211,25 @@ MIGRATIONS: tuple[Migration, ...] = (
             "CREATE INDEX IF NOT EXISTS idx_stakeholders_projeto ON stakeholders(projeto_id)",
         ),
     ),
+    (
+        "202606270001_projetos_atualizado_em",
+        (
+            'ALTER TABLE projetos ADD COLUMN atualizado_em TEXT DEFAULT NULL',
+        ),
+    ),
+    (
+        "202606270002_backup_restore_columns",
+        (
+            'ALTER TABLE milestones ADD COLUMN criado_em TEXT DEFAULT NULL',
+            'ALTER TABLE orcamento ADD COLUMN criado_em TEXT DEFAULT NULL',
+        ),
+    ),
+    (
+        "202606270003_projeto_parceiro_criado_em",
+        (
+            'ALTER TABLE projeto_parceiro ADD COLUMN criado_em TEXT DEFAULT NULL',
+        ),
+    ),
 )
 
 

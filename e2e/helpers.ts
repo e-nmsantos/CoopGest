@@ -4,8 +4,14 @@ export async function login(page: Page, username = "admin", password = "coopgest
   await page.goto("/login");
   await page.getByLabel("Utilizador").fill(username);
   await page.getByLabel("Password").fill(password);
-  await page.getByRole("button", { name: "Entrar" }).click();
-  await page.waitForURL((url) => !url.pathname.includes("/login"), { timeout: 10000 });
+  await Promise.all([
+    page.waitForResponse(
+      (res) => res.url().includes("/api/auth/login") && res.status() === 200,
+      { timeout: 15000 },
+    ),
+    page.getByRole("button", { name: "Entrar" }).click(),
+  ]);
+  await page.waitForURL((url) => !url.pathname.includes("/login"), { timeout: 15000 });
 }
 
 export async function createProject(page: Page, name: string) {
