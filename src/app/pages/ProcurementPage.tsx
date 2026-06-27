@@ -1,109 +1,21 @@
 import React, { useEffect, useState } from "react";
-import { ChevronDown, ChevronRight, Pencil, Plus, Trash2, X } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Header } from "../components/layout/Header";
 import { Card } from "../components/ui/card";
 import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
-import { Label } from "../components/ui/label";
-import { Textarea } from "../components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../components/ui/select";
-import { Badge } from "../components/ui/badge";
 import { toast } from "sonner";
 import { useProjectContext } from "../contexts/ProjectContext";
 import { apiDelete, apiGet, apiPost, apiPut } from "../lib/apiClient";
-
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
-
-interface ProcurementItem {
-  id: number;
-  titulo: string;
-  descricao: string;
-  tipo: string;
-  valor_estimado: number;
-  valor_real: number;
-  moeda: string;
-  estado: string;
-  data_lancamento: string;
-  data_adjudicacao: string;
-  fornecedor: string;
-  numero_referencia: string;
-  notas: string;
-  criado_por: string;
-  criado_em: string;
-}
-
-interface ProcurementMeta {
-  tipos: string[];
-  estados: string[];
-}
-
-// ---------------------------------------------------------------------------
-// Constants
-// ---------------------------------------------------------------------------
-
-const MOEDAS = ["EUR", "USD", "GBP", "CHF", "XOF", "AOA", "MZN", "CVE", "STN", "BRL", "JPY", "CAD", "AUD"];
-
-const DEFAULT_TIPOS = ["Serviços", "Bens", "Obras", "Consultoria", "Formação", "Outro"];
-const DEFAULT_ESTADOS = [
-  "A identificar",
-  "Em preparação",
-  "A concurso",
-  "Adjudicado",
-  "Em execução",
-  "Concluído",
-  "Cancelado",
-];
-
-const ESTADO_COLORS: Record<string, string> = {
-  "A identificar": "bg-gray-100 text-gray-700",
-  "Em preparação": "bg-yellow-100 text-yellow-800",
-  "A concurso": "bg-blue-100 text-blue-800",
-  Adjudicado: "bg-indigo-100 text-indigo-800",
-  "Em execução": "bg-orange-100 text-orange-800",
-  Concluído: "bg-green-100 text-green-800",
-  Cancelado: "bg-red-100 text-red-800",
-};
-
-const emptyForm = {
-  titulo: "",
-  descricao: "",
-  tipo: "",
-  valor_estimado: "",
-  valor_real: "",
-  moeda: "EUR",
-  estado: "A identificar",
-  data_lancamento: "",
-  data_adjudicacao: "",
-  fornecedor: "",
-  numero_referencia: "",
-  notas: "",
-};
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-const moneyFmt = new Intl.NumberFormat("pt-PT", { style: "currency", currency: "EUR" });
-
-function money(v: number, moeda?: string) {
-  if (!v && v !== 0) return "—";
-  if (moeda && moeda !== "EUR") {
-    return new Intl.NumberFormat("pt-PT", {
-      style: "currency",
-      currency: moeda,
-      minimumFractionDigits: 2,
-    }).format(Number(v));
-  }
-  return moneyFmt.format(Number(v));
-}
+import {
+  DEFAULT_ESTADOS,
+  DEFAULT_TIPOS,
+  emptyForm,
+  money,
+  ProcurementItem,
+  ProcurementMeta,
+} from "../components/procurement/procurement.types";
+import { ProcurementForm } from "../components/procurement/ProcurementForm";
+import { ProcurementTable } from "../components/procurement/ProcurementTable";
 
 // ---------------------------------------------------------------------------
 // Main component
@@ -299,333 +211,28 @@ export function ProcurementPage() {
 
         {/* Inline form */}
         {showForm && (
-          <Card className="p-5 mb-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="font-semibold text-gray-900">
-                {editingId ? "Editar contrato" : "Novo contrato"}
-              </h2>
-              <Button variant="ghost" size="sm" onClick={cancelForm}>
-                <X className="size-4" />
-              </Button>
-            </div>
-            <form onSubmit={(e) => void handleSubmit(e)} className="space-y-4">
-              {/* Row 1: title (required) */}
-              <div>
-                <Label htmlFor="pc-titulo">Título *</Label>
-                <Input
-                  id="pc-titulo"
-                  required
-                  value={form.titulo}
-                  onChange={(e) => setForm((p) => ({ ...p, titulo: e.target.value }))}
-                  placeholder="Ex: Prestação de serviços de formação"
-                />
-              </div>
-
-              {/* Row 2: tipo, estado, moeda */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <Label>Tipo</Label>
-                  <Select
-                    value={form.tipo}
-                    onValueChange={(v) => setForm((p) => ({ ...p, tipo: v }))}
-                  >
-                    <SelectTrigger><SelectValue placeholder="Selecionar tipo" /></SelectTrigger>
-                    <SelectContent>
-                      {tipos.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label>Estado</Label>
-                  <Select
-                    value={form.estado}
-                    onValueChange={(v) => setForm((p) => ({ ...p, estado: v }))}
-                  >
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      {estados.map((e) => <SelectItem key={e} value={e}>{e}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label>Moeda</Label>
-                  <Select
-                    value={form.moeda}
-                    onValueChange={(v) => setForm((p) => ({ ...p, moeda: v }))}
-                  >
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      {MOEDAS.map((m) => <SelectItem key={m} value={m}>{m}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              {/* Row 3: valores */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="pc-val-est">Valor estimado</Label>
-                  <Input
-                    id="pc-val-est"
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value={form.valor_estimado}
-                    onChange={(e) => setForm((p) => ({ ...p, valor_estimado: e.target.value }))}
-                    placeholder="0.00"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="pc-val-real">Valor real</Label>
-                  <Input
-                    id="pc-val-real"
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value={form.valor_real}
-                    onChange={(e) => setForm((p) => ({ ...p, valor_real: e.target.value }))}
-                    placeholder="0.00"
-                  />
-                </div>
-              </div>
-
-              {/* Row 4: dates */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="pc-lancamento">Data de lançamento</Label>
-                  <Input
-                    id="pc-lancamento"
-                    type="date"
-                    value={form.data_lancamento}
-                    onChange={(e) => setForm((p) => ({ ...p, data_lancamento: e.target.value }))}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="pc-adjudicacao">Data de adjudicação</Label>
-                  <Input
-                    id="pc-adjudicacao"
-                    type="date"
-                    value={form.data_adjudicacao}
-                    onChange={(e) => setForm((p) => ({ ...p, data_adjudicacao: e.target.value }))}
-                  />
-                </div>
-              </div>
-
-              {/* Row 5: fornecedor, referência */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="pc-fornecedor">Fornecedor</Label>
-                  <Input
-                    id="pc-fornecedor"
-                    value={form.fornecedor}
-                    onChange={(e) => setForm((p) => ({ ...p, fornecedor: e.target.value }))}
-                    placeholder="Ex: Empresa XYZ, Lda."
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="pc-ref">Número de referência</Label>
-                  <Input
-                    id="pc-ref"
-                    value={form.numero_referencia}
-                    onChange={(e) => setForm((p) => ({ ...p, numero_referencia: e.target.value }))}
-                    placeholder="Ex: PC-2025-001"
-                  />
-                </div>
-              </div>
-
-              {/* Row 6: descrição */}
-              <div>
-                <Label htmlFor="pc-desc">Descrição</Label>
-                <Textarea
-                  id="pc-desc"
-                  value={form.descricao}
-                  onChange={(e) => setForm((p) => ({ ...p, descricao: e.target.value }))}
-                  rows={2}
-                  className="text-sm"
-                  placeholder="Descrição do contrato ou serviço"
-                />
-              </div>
-
-              {/* Row 7: notas */}
-              <div>
-                <Label htmlFor="pc-notas">Notas</Label>
-                <Textarea
-                  id="pc-notas"
-                  value={form.notas}
-                  onChange={(e) => setForm((p) => ({ ...p, notas: e.target.value }))}
-                  rows={2}
-                  className="text-sm"
-                  placeholder="Observações internas"
-                />
-              </div>
-
-              <div className="flex justify-end gap-2">
-                <Button type="button" variant="outline" onClick={cancelForm}>
-                  Cancelar
-                </Button>
-                <Button type="submit" disabled={submitting}>
-                  {submitting ? "A guardar..." : editingId ? "Guardar alterações" : "Criar contrato"}
-                </Button>
-              </div>
-            </form>
-          </Card>
+          <ProcurementForm
+            editingId={editingId}
+            form={form}
+            setForm={setForm}
+            submitting={submitting}
+            tipos={tipos}
+            estados={estados}
+            onSubmit={(e) => void handleSubmit(e)}
+            onCancel={cancelForm}
+          />
         )}
 
         {/* Contracts table */}
-        <Card className="p-5">
-          <div className="flex items-center justify-between mb-4 gap-3">
-            <h2 className="font-semibold text-gray-900">Contratos</h2>
-            <Badge variant="outline">{items.length}</Badge>
-          </div>
-
-          {loading ? (
-            <p className="py-8 text-center text-sm text-gray-500">A carregar...</p>
-          ) : items.length === 0 ? (
-            <p className="py-8 text-center text-sm text-gray-500">
-              Ainda não existem contratos.{" "}
-              <button
-                onClick={openCreate}
-                className="text-blue-600 hover:underline"
-              >
-                Criar o primeiro
-              </button>
-              .
-            </p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[700px] text-sm text-left">
-                <thead className="border-b text-xs uppercase tracking-wide text-gray-500">
-                  <tr>
-                    <th className="py-2 pr-3 w-6"></th>
-                    <th className="py-2 pr-3">Título</th>
-                    <th className="py-2 pr-3">Tipo</th>
-                    <th className="py-2 pr-3">Estado</th>
-                    <th className="py-2 pr-3 text-right">Valor Est.</th>
-                    <th className="py-2 pr-3">Fornecedor</th>
-                    <th className="py-2 pr-3">Adj.</th>
-                    <th className="py-2 pr-3"></th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {items.map((item) => {
-                    const isExpanded = expandedId === item.id;
-                    return (
-                      <React.Fragment key={item.id}>
-                        <tr className="hover:bg-gray-50">
-                          <td className="py-3 pr-3">
-                            <button
-                              onClick={() => setExpandedId(isExpanded ? null : item.id)}
-                              className="text-gray-400 hover:text-gray-700"
-                            >
-                              {isExpanded ? (
-                                <ChevronDown className="size-4" />
-                              ) : (
-                                <ChevronRight className="size-4" />
-                              )}
-                            </button>
-                          </td>
-                          <td className="py-3 pr-3 font-medium text-gray-900 max-w-[200px] truncate">
-                            {item.titulo}
-                          </td>
-                          <td className="py-3 pr-3 text-gray-600">{item.tipo || "—"}</td>
-                          <td className="py-3 pr-3">
-                            <span
-                              className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${
-                                ESTADO_COLORS[item.estado] ?? "bg-gray-100 text-gray-700"
-                              }`}
-                            >
-                              {item.estado}
-                            </span>
-                          </td>
-                          <td className="py-3 pr-3 text-right text-gray-700 font-medium">
-                            {item.valor_estimado != null ? money(item.valor_estimado, item.moeda) : "—"}
-                          </td>
-                          <td className="py-3 pr-3 text-gray-600 max-w-[140px] truncate">
-                            {item.fornecedor || "—"}
-                          </td>
-                          <td className="py-3 pr-3 text-gray-500 text-xs">
-                            {item.data_adjudicacao || "—"}
-                          </td>
-                          <td className="py-3 pr-3 text-right">
-                            <div className="flex items-center justify-end gap-1">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => openEdit(item)}
-                                title="Editar"
-                              >
-                                <Pencil className="size-4 text-blue-600" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => void handleDelete(item.id)}
-                                title="Eliminar"
-                              >
-                                <Trash2 className="size-4 text-red-500" />
-                              </Button>
-                            </div>
-                          </td>
-                        </tr>
-                        {isExpanded && (
-                          <tr className="bg-gray-50">
-                            <td colSpan={8} className="px-4 py-3">
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                                <div>
-                                  {item.descricao && (
-                                    <div className="mb-2">
-                                      <span className="text-xs font-semibold text-gray-500 uppercase">Descrição</span>
-                                      <p className="text-gray-700 mt-0.5">{item.descricao}</p>
-                                    </div>
-                                  )}
-                                  {item.notas && (
-                                    <div className="mb-2">
-                                      <span className="text-xs font-semibold text-gray-500 uppercase">Notas</span>
-                                      <p className="text-gray-700 mt-0.5">{item.notas}</p>
-                                    </div>
-                                  )}
-                                </div>
-                                <div className="space-y-1.5 text-gray-600">
-                                  {item.numero_referencia && (
-                                    <p>
-                                      <span className="font-medium">Referência:</span> {item.numero_referencia}
-                                    </p>
-                                  )}
-                                  {item.data_lancamento && (
-                                    <p>
-                                      <span className="font-medium">Lançamento:</span> {item.data_lancamento}
-                                    </p>
-                                  )}
-                                  {item.valor_real != null && (
-                                    <p>
-                                      <span className="font-medium">Valor real:</span>{" "}
-                                      {money(item.valor_real, item.moeda)}
-                                    </p>
-                                  )}
-                                  {item.moeda && item.moeda !== "EUR" && (
-                                    <p>
-                                      <span className="font-medium">Moeda:</span> {item.moeda}
-                                    </p>
-                                  )}
-                                  {item.criado_por && (
-                                    <p className="text-xs text-gray-400">
-                                      Criado por {item.criado_por}
-                                      {item.criado_em && ` em ${new Date(item.criado_em).toLocaleDateString("pt-PT")}`}
-                                    </p>
-                                  )}
-                                </div>
-                              </div>
-                            </td>
-                          </tr>
-                        )}
-                      </React.Fragment>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </Card>
+        <ProcurementTable
+          items={items}
+          loading={loading}
+          expandedId={expandedId}
+          setExpandedId={setExpandedId}
+          onEdit={openEdit}
+          onDelete={(id) => void handleDelete(id)}
+          onOpenCreate={openCreate}
+        />
       </div>
     </div>
   );
