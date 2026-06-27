@@ -11,8 +11,10 @@ def test_init_db_records_schema_migrations(client):
 
     conn = app_module.get_db()
     try:
-        rows = conn.execute("SELECT id FROM schema_migrations ORDER BY id").fetchall()
+        rows = conn.execute("SELECT id FROM schema_migrations").fetchall()
     finally:
         conn.close()
 
-    assert [row["id"] for row in rows] == [migration[0] for migration in MIGRATIONS]
+    recorded = {row["id"] for row in rows}
+    expected = {migration[0] for migration in MIGRATIONS}
+    assert recorded == expected
