@@ -6,6 +6,7 @@ def register_blueprints(app: Flask) -> None:
     from .auth import bp as auth_bp
     from .backups import bp as backups_bp
     from .exports import bp as exports_bp
+    from .methodkit import bp as methodkit_bp
     from .procurement import bp as procurement_bp
     from .stakeholders import bp as stakeholders_bp
     from .beneficiaries import bp as beneficiaries_bp
@@ -56,6 +57,7 @@ def register_blueprints(app: Flask) -> None:
     app.register_blueprint(impact_bp)
     app.register_blueprint(lessons_bp)
     register_legacy_routes(app)
+    app.register_blueprint(methodkit_bp)
     app.register_blueprint(milestones_bp)
     app.register_blueprint(notifications_bp)
     app.register_blueprint(partners_bp)

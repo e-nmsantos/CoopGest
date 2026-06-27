@@ -178,6 +178,227 @@ def build_project_executive_report(conn, projeto_id):
     }
 
 
+def _build_project_executive_report_from_data(projeto, tarefas, milestones, orcamento, funding, riscos, beneficiarios, impacto, parceiros_count):
+    """Build the same report dict as build_project_executive_report but from pre-fetched data."""
+    projeto_id = projeto['id']
+    today = datetime.now().date()
+
+    def parse_date(value):
+        if not value:
+            return None
+        try:
+            return datetime.fromisoformat(str(value)[:10]).date()
+        except ValueError:
+            return None
+
+    tarefas_total = len(tarefas)
+    tarefas_concluidas = sum(1 for t in tarefas if t.get('estado') == 'Concluída')
+    tarefas_atrasadas = [
+        t for t in tarefas
+        if t.get('estado') != 'Concluída'
+        and parse_date(t.get('data_fim'))
+        and parse_date(t.get('data_fim')) < today
+    ]
+    tarefas_criticas = [
+        t for t in tarefas
+        if t.get('estado') != 'Concluída'
+        and str(t.get('prioridade', '')).lower() in {'alta', 'high', 'urgente'}
+    ]
+    milestones_abertos = [m for m in milestones if m.get('estado') != 'Concluído']
+    milestones_proximos = [
+        m for m in milestones_abertos
+        if parse_date(m.get('data_prevista'))
+        and 0 <= (parse_date(m.get('data_prevista')) - today).days <= 14
+    ]
+    milestones_atrasados = [
+        m for m in milestones_abertos
+        if parse_date(m.get('data_prevista'))
+        and parse_date(m.get('data_prevista')) < today
+    ]
+
+    receitas_previstas = sum(float(i.get('valor_previsto') or 0) for i in orcamento if i.get('tipo') == 'Receita')
+    receitas_reais = sum(float(i.get('valor_real') or 0) for i in orcamento if i.get('tipo') == 'Receita')
+    despesas_previstas = sum(float(i.get('valor_previsto') or 0) for i in orcamento if i.get('tipo') == 'Despesa')
+    despesas_reais = sum(float(i.get('valor_real') or 0) for i in orcamento if i.get('tipo') == 'Despesa')
+    funding_aprovado = sum(float(i.get('valor_aprovado') or 0) for i in funding)
+    funding_executado = sum(float(i.get('valor_executado') or 0) for i in funding)
+    execucao_financeira = round((receitas_reais / receitas_previstas) * 100) if receitas_previstas else 0
+    despesa_execucao = round((despesas_reais / despesas_previstas) * 100) if despesas_previstas else 0
+    funding_execucao = round((funding_executado / funding_aprovado) * 100) if funding_aprovado else 0
+    progresso_tarefas = round((tarefas_concluidas / tarefas_total) * 100) if tarefas_total else 0
+
+    riscos_abertos = [r for r in riscos if str(r.get('estado', '')).lower() not in {'fechado', 'resolvido', 'mitigado'}]
+    riscos_altos = [
+        r for r in riscos_abertos
+        if str(r.get('impacto', '')).lower() in {'alto', 'alta', 'crítico', 'critico'}
+        or str(r.get('probabilidade', '')).lower() in {'alto', 'alta'}
+    ]
+    total_beneficiarios = sum(int(b.get('numero') or 1) for b in beneficiarios)
+    indicadores_com_meta = [m for m in impacto if float(m.get('meta') or 0) > 0]
+    indicadores_atingidos = [
+        m for m in indicadores_com_meta
+        if float(m.get('valor_atual') or 0) >= float(m.get('meta') or 0)
+    ]
+    impacto_execucao = round((len(indicadores_atingidos) / len(indicadores_com_meta)) * 100) if indicadores_com_meta else 0
+
+    score = 100
+    score -= min(30, len(tarefas_atrasadas) * 6)
+    score -= min(20, len(milestones_atrasados) * 10)
+    score -= min(20, len(riscos_altos) * 8)
+    if tarefas_total == 0:
+        score -= 15
+    if parceiros_count == 0:
+        score -= 10
+    if receitas_previstas and receitas_reais == 0:
+        score -= 10
+    score = max(0, min(100, score))
+    status = 'Excelente' if score >= 85 else 'Atenção' if score >= 65 else 'Crítico'
+
+    recommendations = []
+
+    def add_recommendation(kind, title, description, priority, url):
+        recommendations.append({
+            'kind': kind,
+            'title': title,
+            'description': description,
+            'priority': priority,
+            'url': url,
+        })
+
+    if tarefas_atrasadas:
+        add_recommendation('tarefas', 'Rever tarefas atrasadas', f'{len(tarefas_atrasadas)} tarefa(s) estão fora do prazo e podem comprometer a execução.', 'Alta', f'/projeto/{projeto_id}/kanban')
+    if milestones_proximos:
+        add_recommendation('milestones', 'Preparar entregas próximas', f'{len(milestones_proximos)} milestone(s) vencem nos próximos 14 dias.', 'Média', f'/projeto/{projeto_id}')
+    if milestones_atrasados:
+        add_recommendation('milestones', 'Regularizar milestones atrasados', f'{len(milestones_atrasados)} milestone(s) já passaram a data prevista.', 'Alta', f'/projeto/{projeto_id}')
+    if tarefas_total == 0:
+        add_recommendation('planeamento', 'Criar plano de trabalho', 'O projeto ainda não tem tarefas. Defina atividades, responsáveis e prazos.', 'Alta', f'/projeto/{projeto_id}/kanban')
+    if riscos_altos:
+        add_recommendation('riscos', 'Mitigar riscos críticos', f'{len(riscos_altos)} risco(s) com impacto/probabilidade elevada estão abertos.', 'Alta', f'/projeto/{projeto_id}')
+    if parceiros_count == 0:
+        add_recommendation('parceiros', 'Associar parceiros', 'Projetos cooperativos precisam de entidades/parceiros visíveis na ficha do projeto.', 'Média', f'/projeto/{projeto_id}')
+    if indicadores_com_meta and impacto_execucao < 50:
+        add_recommendation('impacto', 'Atualizar indicadores de impacto', 'Menos de metade dos indicadores com meta está atingida.', 'Média', '/impacto')
+    if receitas_previstas and execucao_financeira < 25 and progresso_tarefas >= 50:
+        add_recommendation('financeiro', 'Rever execução financeira', 'O progresso físico está acima da execução financeira registada.', 'Média', f'/projeto/{projeto_id}')
+    if not recommendations:
+        add_recommendation('gestao', 'Manter acompanhamento', 'Não foram encontrados alertas críticos. Continue a atualizar progresso, orçamento e impacto.', 'Baixa', f'/projeto/{projeto_id}')
+
+    return {
+        'projeto': projeto,
+        'generated_at': datetime.now().isoformat(timespec='seconds'),
+        'health': {'score': score, 'status': status},
+        'summary': {
+            'tarefas_total': tarefas_total,
+            'tarefas_concluidas': tarefas_concluidas,
+            'tarefas_atrasadas': len(tarefas_atrasadas),
+            'tarefas_criticas': len(tarefas_criticas),
+            'progresso_tarefas': progresso_tarefas,
+            'milestones_total': len(milestones),
+            'milestones_proximos': len(milestones_proximos),
+            'milestones_atrasados': len(milestones_atrasados),
+            'riscos_abertos': len(riscos_abertos),
+            'riscos_altos': len(riscos_altos),
+            'parceiros': parceiros_count,
+            'beneficiarios': total_beneficiarios,
+            'indicadores_impacto': len(impacto),
+            'impacto_execucao': impacto_execucao,
+        },
+        'finance': {
+            'receitas_previstas': receitas_previstas,
+            'receitas_reais': receitas_reais,
+            'despesas_previstas': despesas_previstas,
+            'despesas_reais': despesas_reais,
+            'funding_aprovado': funding_aprovado,
+            'funding_executado': funding_executado,
+            'execucao_financeira': execucao_financeira,
+            'despesa_execucao': despesa_execucao,
+            'funding_execucao': funding_execucao,
+        },
+        'recommendations': recommendations[:8],
+        'highlights': {
+            'tarefas_atrasadas': tarefas_atrasadas[:5],
+            'milestones_proximos': milestones_proximos[:5],
+            'riscos_altos': riscos_altos[:5],
+        },
+    }
+
+
+def build_project_executive_reports_batch(conn, projects):
+    """Build executive reports for multiple projects using 8 bulk queries instead of 8*N queries.
+
+    Returns a dict mapping project_id -> report dict (same structure as
+    build_project_executive_report).  Projects with no matching row in
+    projetos are omitted (consistent with the single-project function returning None).
+    """
+    if not projects:
+        return {}
+
+    ids = [p['id'] for p in projects]
+    placeholders = ','.join('?' * len(ids))
+
+    projetos_rows = {
+        row['id']: row_to_dict(row)
+        for row in conn.execute(
+            f'SELECT * FROM projetos WHERE id IN ({placeholders})', ids
+        ).fetchall()
+    }
+
+    def group_by(rows, key='projeto_id'):
+        result = {}
+        for row in rows:
+            pid = row[key]
+            result.setdefault(pid, []).append(row_to_dict(row))
+        return result
+
+    tarefas_by_project = group_by(conn.execute(
+        f'SELECT * FROM tarefas WHERE projeto_id IN ({placeholders}) ORDER BY data_fim ASC', ids
+    ).fetchall())
+    milestones_by_project = group_by(conn.execute(
+        f'SELECT * FROM milestones WHERE projeto_id IN ({placeholders}) ORDER BY data_prevista ASC', ids
+    ).fetchall())
+    orcamento_by_project = group_by(conn.execute(
+        f'SELECT * FROM orcamento WHERE projeto_id IN ({placeholders}) ORDER BY tipo, categoria', ids
+    ).fetchall())
+    funding_by_project = group_by(conn.execute(
+        f'SELECT * FROM fontes_financiamento WHERE projeto_id IN ({placeholders}) ORDER BY criado_em ASC', ids
+    ).fetchall())
+    riscos_by_project = group_by(conn.execute(
+        f'SELECT * FROM riscos WHERE projeto_id IN ({placeholders}) ORDER BY criado_em ASC', ids
+    ).fetchall())
+    beneficiarios_by_project = group_by(conn.execute(
+        f'SELECT * FROM beneficiarios WHERE projeto_id IN ({placeholders}) ORDER BY data_registo DESC', ids
+    ).fetchall())
+    impacto_by_project = group_by(conn.execute(
+        f'SELECT * FROM impacto_metricas WHERE projeto_id IN ({placeholders}) ORDER BY categoria, nome', ids
+    ).fetchall())
+    parceiros_counts = {
+        row[0]: row[1]
+        for row in conn.execute(
+            f'SELECT projeto_id, COUNT(*) FROM projeto_parceiro WHERE projeto_id IN ({placeholders}) GROUP BY projeto_id',
+            ids,
+        ).fetchall()
+    }
+
+    reports = {}
+    for pid in ids:
+        projeto = projetos_rows.get(pid)
+        if not projeto:
+            continue
+        reports[pid] = _build_project_executive_report_from_data(
+            projeto=projeto,
+            tarefas=tarefas_by_project.get(pid, []),
+            milestones=milestones_by_project.get(pid, []),
+            orcamento=orcamento_by_project.get(pid, []),
+            funding=funding_by_project.get(pid, []),
+            riscos=riscos_by_project.get(pid, []),
+            beneficiarios=beneficiarios_by_project.get(pid, []),
+            impacto=impacto_by_project.get(pid, []),
+            parceiros_count=parceiros_counts.get(pid, 0),
+        )
+    return reports
+
+
 def build_portfolio_executive_report(conn, accessible_projects):
     project_reports = []
     recommendations = []

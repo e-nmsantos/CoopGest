@@ -246,6 +246,21 @@ MIGRATIONS: tuple[Migration, ...] = (
             "CREATE INDEX IF NOT EXISTS idx_auditoria_criado_em ON auditoria(criado_em)",
         ),
     ),
+    (
+        "202606270007_methodkit_seleccoes",
+        (
+            """CREATE TABLE IF NOT EXISTS methodkit_seleccoes (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                projeto_id INTEGER NOT NULL REFERENCES projetos(id) ON DELETE CASCADE,
+                card_id TEXT NOT NULL,
+                nota TEXT DEFAULT '',
+                selecionado INTEGER DEFAULT 1,
+                criado_em TEXT DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now')),
+                UNIQUE(projeto_id, card_id)
+            )""",
+            "CREATE INDEX IF NOT EXISTS idx_methodkit_projeto ON methodkit_seleccoes(projeto_id)",
+        ),
+    ),
 )
 
 

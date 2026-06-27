@@ -8,7 +8,7 @@ from coopgest.access import filter_accessible_projects
 from coopgest.db import get_db, row_to_dict
 from coopgest.http_helpers import login_required
 from coopgest.services.activity import notify_in_app_once
-from coopgest.services.reports import build_portfolio_executive_report, build_project_executive_report
+from coopgest.services.reports import build_portfolio_executive_report, build_project_executive_report, build_project_executive_reports_batch
 
 bp = Blueprint("dashboard", __name__)
 
@@ -146,8 +146,9 @@ def api_dashboard():
 
     priority_weight = {"Alta": 0, "Média": 1, "Baixa": 2}
     portfolio_recommendations = []
+    batch_reports = build_project_executive_reports_batch(conn, accessible_projects)
     for project in accessible_projects:
-        report = build_project_executive_report(conn, project["id"])
+        report = batch_reports.get(project["id"])
         if not report:
             continue
         for recommendation in report["recommendations"]:
