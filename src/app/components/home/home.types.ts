@@ -78,6 +78,14 @@ export interface ApiDashboard {
   }>;
 }
 
+export interface ProjectStatusItem {
+  name: string;
+  value: number;
+  percentage: number;
+  color: string;
+  label: string;
+}
+
 export interface PortfolioExecutiveReport {
   generated_at: string;
   summary: {
