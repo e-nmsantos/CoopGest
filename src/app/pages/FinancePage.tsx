@@ -1,115 +1,22 @@
 import { useEffect, useMemo, useState } from "react";
-import { Banknote, BarChart3, Download, FileText, Pencil, Plus, ReceiptText, Trash2, X, WalletCards } from "lucide-react";
+import { Banknote, BarChart3, Download, ReceiptText, WalletCards } from "lucide-react";
 import { Header } from "../components/layout/Header";
 import { Card } from "../components/ui/card";
 import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
-import { Badge } from "../components/ui/badge";
 import { toast } from "sonner";
 import { useProjectContext } from "../contexts/ProjectContext";
 import { apiDelete, apiGet, apiPost, apiPut } from "../lib/apiClient";
-
-interface FinanceProject {
-  id: number;
-  nome: string;
-  estado?: string;
-}
-
-interface FinanceTotals {
-  receitas_previstas: number;
-  receitas_executadas: number;
-  despesas_previstas: number;
-  despesas_executadas: number;
-  saldo_previsto: number;
-  saldo_executado: number;
-  execucao_despesa_percent: number;
-  execucao_receita_percent: number;
-}
-
-interface FinanceTransaction {
-  id: number;
-  projeto_id: number;
-  projeto_nome: string;
-  tipo: "Receita" | "Despesa";
-  categoria: string;
-  descricao: string;
-  entidade?: string;
-  referencia?: string;
-  valor: number;
-  moeda?: string;
-  taxa_cambio?: number;
-  data_movimento: string;
-  estado?: string;
-  anexo_nome?: string;
-  anexo_url?: string;
-}
-
-const MOEDAS = ["EUR", "USD", "GBP", "CHF", "XOF", "AOA", "MZN", "CVE", "STN", "BRL", "JPY", "CAD", "AUD"];
-
-
-interface CategorySummary {
-  projeto_id: number;
-  projeto_nome: string;
-  tipo: "Receita" | "Despesa";
-  categoria: string;
-  previsto: number;
-  executado: number;
-  desvio: number;
-  execucao_percent: number;
-  movimentos: number;
-  tem_rubrica_prevista?: boolean;
-}
-
-interface ProjectSummary {
-  projeto_id: number;
-  projeto_nome: string;
-  estado?: string;
-  despesas_previstas: number;
-  despesas_executadas: number;
-  saldo_executado: number;
-  execucao_despesa_percent: number;
-}
-
-interface FinancePayload {
-  projects: FinanceProject[];
-  transactions: FinanceTransaction[];
-  categories: string[];
-  category_summary: CategorySummary[];
-  project_summary: ProjectSummary[];
-  totals: FinanceTotals;
-}
-
-const emptyPayload: FinancePayload = {
-  projects: [],
-  transactions: [],
-  categories: [],
-  category_summary: [],
-  project_summary: [],
-  totals: {
-    receitas_previstas: 0,
-    receitas_executadas: 0,
-    despesas_previstas: 0,
-    despesas_executadas: 0,
-    saldo_previsto: 0,
-    saldo_executado: 0,
-    execucao_despesa_percent: 0,
-    execucao_receita_percent: 0,
-  },
-};
-
-const currency = new Intl.NumberFormat("pt-PT", { style: "currency", currency: "EUR" });
-
-function money(value: number) {
-  return currency.format(Number(value || 0));
-}
-
-function pct(value: number) {
-  return `${Number(value || 0).toFixed(1)}%`;
-}
-
-function today() {
-  return new Date().toISOString().slice(0, 10);
-}
+import {
+  emptyPayload,
+  FinancePayload,
+  FinanceTransaction,
+  money,
+  pct,
+  today,
+} from "../components/finance/finance.types";
+import { TransactionForm } from "../components/finance/TransactionForm";
+import { CategorySummaryList } from "../components/finance/CategorySummaryList";
+import { TransactionsTable } from "../components/finance/TransactionsTable";
 
 export function FinancePage() {
   const { activeProject, activeProjectId, projects, setActiveProjectId } = useProjectContext();
@@ -223,7 +130,7 @@ export function FinancePage() {
     const csv = rows
       .map((row) => row.map((cell) => `"${String(cell ?? "").replace(/"/g, '""')}"`).join(";"))
       .join("\n");
-    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+    const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -391,252 +298,25 @@ export function FinancePage() {
         </div>}
 
         {projectFilter && <div className="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-[380px_1fr]">
-          <Card className="p-5">
-            <div className="mb-4 flex items-center gap-2">
-              {editingTransaction ? <Pencil className="size-5 text-blue-600" /> : <Plus className="size-5 text-blue-600" />}
-              <h2 className="font-semibold text-gray-900">{editingTransaction ? "Editar movimento" : "Novo movimento"}</h2>
-            </div>
-            {editingTransaction && (
-              <div className="mb-4 rounded-md bg-blue-50 px-3 py-2 text-xs text-blue-700">
-                A editar: <span className="font-semibold">{editingTransaction.descricao}</span>
-              </div>
-            )}
-            <div className="space-y-3">
-              <select
-                value={form.projeto_id}
-                onChange={(event) => setForm((prev) => ({ ...prev, projeto_id: event.target.value }))}
-                className="h-10 w-full rounded-md border border-gray-300 bg-white px-3 text-sm"
-              >
-                <option value="">Projeto</option>
-                {data.projects.map((project) => (
-                  <option key={project.id} value={String(project.id)}>
-                    {project.nome}
-                  </option>
-                ))}
-              </select>
-              <div className="grid grid-cols-2 gap-3">
-                <select
-                  value={form.tipo}
-                  onChange={(event) => setForm((prev) => ({ ...prev, tipo: event.target.value as "Receita" | "Despesa" }))}
-                  className="h-10 rounded-md border border-gray-300 bg-white px-3 text-sm"
-                >
-                  <option value="Despesa">Despesa</option>
-                  <option value="Receita">Receita</option>
-                </select>
-                <Input
-                  type="date"
-                  value={form.data_movimento}
-                  onChange={(event) => setForm((prev) => ({ ...prev, data_movimento: event.target.value }))}
-                />
-              </div>
-              <input
-                list="finance-categories"
-                value={form.categoria}
-                onChange={(event) => setForm((prev) => ({ ...prev, categoria: event.target.value }))}
-                placeholder="Categoria"
-                className="h-10 w-full rounded-md border border-gray-300 bg-white px-3 text-sm"
-              />
-              <datalist id="finance-categories">
-                {data.categories.map((category) => (
-                  <option key={category} value={category} />
-                ))}
-              </datalist>
-              <Input
-                placeholder="Descricao"
-                value={form.descricao}
-                onChange={(event) => setForm((prev) => ({ ...prev, descricao: event.target.value }))}
-              />
-              <div className="grid grid-cols-2 gap-3">
-                <Input
-                  placeholder="Fornecedor/doador"
-                  value={form.entidade}
-                  onChange={(event) => setForm((prev) => ({ ...prev, entidade: event.target.value }))}
-                />
-                <Input
-                  placeholder="Referencia"
-                  value={form.referencia}
-                  onChange={(event) => setForm((prev) => ({ ...prev, referencia: event.target.value }))}
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <Input
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  placeholder="Valor"
-                  value={form.valor}
-                  onChange={(event) => setForm((prev) => ({ ...prev, valor: event.target.value }))}
-                />
-                <select
-                  value={form.moeda}
-                  onChange={(event) => setForm((prev) => ({ ...prev, moeda: event.target.value }))}
-                  className="h-10 rounded-md border border-gray-300 bg-white px-3 text-sm"
-                >
-                  {MOEDAS.map((m) => <option key={m} value={m}>{m}</option>)}
-                </select>
-              </div>
-              {form.moeda !== "EUR" && (
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-gray-500 whitespace-nowrap">Taxa {form.moeda}/EUR</span>
-                  <Input
-                    type="number"
-                    min="0.0001"
-                    step="0.0001"
-                    placeholder="Taxa câmbio"
-                    value={form.taxa_cambio}
-                    onChange={(event) => setForm((prev) => ({ ...prev, taxa_cambio: event.target.value }))}
-                  />
-                </div>
-              )}
-              <label className="block">
-                <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500">
-                  Comprovativo
-                </span>
-                <input
-                  key={editingTransaction ? `edit-${editingTransaction.id}` : "new"}
-                  type="file"
-                  accept=".pdf,.jpg,.jpeg,.png,.webp"
-                  onChange={(event) => setAttachment(event.target.files?.[0] || null)}
-                  className="block w-full rounded-md border border-gray-300 bg-white text-sm text-gray-600 file:mr-3 file:border-0 file:bg-gray-100 file:px-3 file:py-2 file:text-sm file:font-medium file:text-gray-700"
-                />
-                {attachment && (
-                  <span className="mt-1 block truncate text-xs text-gray-500">{attachment.name}</span>
-                )}
-                {editingTransaction?.anexo_nome && !attachment && (
-                  <span className="mt-1 block truncate text-xs text-gray-500">
-                    Atual: {editingTransaction.anexo_nome}. Escolha outro ficheiro para substituir.
-                  </span>
-                )}
-              </label>
-              <Button onClick={submitTransaction} className="w-full">
-                {editingTransaction ? "Guardar alterações" : "Registar movimento"}
-              </Button>
-              {editingTransaction && (
-                <Button variant="outline" onClick={resetForm} className="w-full">
-                  <X className="mr-2 size-4" />
-                  Cancelar edição
-                </Button>
-              )}
-            </div>
-          </Card>
+          <TransactionForm
+            form={form}
+            setForm={setForm}
+            editingTransaction={editingTransaction}
+            attachment={attachment}
+            setAttachment={setAttachment}
+            projects={data.projects}
+            categories={data.categories}
+            onSubmit={submitTransaction}
+            onCancel={resetForm}
+          />
 
           <div className="space-y-6">
-            <Card className="p-5">
-              <div className="mb-4 flex items-center justify-between gap-3">
-                <h2 className="font-semibold text-gray-900">Execucao por categoria</h2>
-                <Badge variant="outline">{expenseCategories.length} categorias de despesa</Badge>
-              </div>
-              {loading ? (
-                <p className="py-8 text-center text-sm text-gray-500">A carregar...</p>
-              ) : expenseCategories.length === 0 ? (
-                <p className="py-8 text-center text-sm text-gray-500">Sem rubricas ou movimentos de despesa.</p>
-              ) : (
-                <div className="space-y-3">
-                  {expenseCategories.map((item) => (
-                    <div key={`${item.projeto_id}-${item.tipo}-${item.categoria}`} className="rounded-md border border-gray-200 p-3">
-                      <div className="flex flex-wrap items-center justify-between gap-2">
-                        <div>
-                          <p className="font-medium text-gray-900">{item.categoria}</p>
-                          <p className="text-xs text-gray-500">{item.projeto_nome}</p>
-                        </div>
-                        <div className="text-right text-sm">
-                          <div className="text-xs text-gray-500">Executado / Previsto</div>
-                          <span className="font-semibold">{money(item.executado)}</span>
-                          <span className="text-gray-500"> / {money(item.previsto)}</span>
-                        </div>
-                      </div>
-                      {!item.tem_rubrica_prevista && (
-                        <div className="mt-2 rounded-md bg-amber-50 px-2 py-1 text-xs text-amber-700">
-                          Movimento sem rubrica prevista correspondente no orçamento.
-                        </div>
-                      )}
-                      <div className="mt-3 h-2 rounded-full bg-gray-100">
-                        <div
-                          className={`h-2 rounded-full ${item.execucao_percent > 100 ? "bg-red-600" : item.execucao_percent >= 80 ? "bg-amber-500" : "bg-blue-600"}`}
-                          style={{ width: `${Math.min(item.execucao_percent || 0, 120)}%`, maxWidth: "100%" }}
-                        />
-                      </div>
-                      <div className="mt-2 flex justify-between text-xs text-gray-500">
-                        <span>{pct(item.execucao_percent)} executado</span>
-                        <span>Desvio: {money(item.desvio)}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </Card>
-
-            <Card className="p-5">
-              <div className="mb-4 flex items-center justify-between gap-3">
-                <h2 className="font-semibold text-gray-900">Movimentos recentes</h2>
-                <Badge variant="outline">{data.transactions.length}</Badge>
-              </div>
-              {data.transactions.length === 0 ? (
-                <p className="py-8 text-center text-sm text-gray-500">Ainda nao ha movimentos registados.</p>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full min-w-[760px] text-left text-sm">
-                    <thead className="border-b text-xs uppercase tracking-wide text-gray-500">
-                      <tr>
-                        <th className="py-2 pr-3">Data</th>
-                        <th className="py-2 pr-3">Projeto</th>
-                        <th className="py-2 pr-3">Categoria</th>
-                        <th className="py-2 pr-3">Descricao</th>
-                        <th className="py-2 pr-3">Comprovativo</th>
-                        <th className="py-2 pr-3 text-right">Valor</th>
-                        <th className="py-2 pr-3"></th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100">
-                      {data.transactions.map((transaction) => (
-                        <tr key={transaction.id}>
-                          <td className="py-3 pr-3 text-gray-500">{transaction.data_movimento}</td>
-                          <td className="py-3 pr-3 text-gray-700">{transaction.projeto_nome}</td>
-                          <td className="py-3 pr-3">
-                            <Badge variant={transaction.tipo === "Receita" ? "secondary" : "outline"}>{transaction.categoria}</Badge>
-                          </td>
-                          <td className="py-3 pr-3">
-                            <div className="font-medium text-gray-900">{transaction.descricao}</div>
-                            <div className="text-xs text-gray-500">{transaction.entidade || transaction.referencia || ""}</div>
-                          </td>
-                          <td className="py-3 pr-3">
-                            {transaction.anexo_url ? (
-                              <a
-                                href={transaction.anexo_url}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="inline-flex items-center gap-1 text-xs font-medium text-blue-700 hover:text-blue-900"
-                              >
-                                <FileText className="size-3.5" />
-                                {transaction.anexo_nome || "Abrir"}
-                              </a>
-                            ) : (
-                              <span className="text-xs text-gray-400">-</span>
-                            )}
-                          </td>
-                          <td className={`py-3 pr-3 text-right font-semibold ${transaction.tipo === "Receita" ? "text-emerald-700" : "text-red-700"}`}>
-                            {transaction.tipo === "Receita" ? "+" : "-"}{money(transaction.valor)}
-                            {transaction.moeda && transaction.moeda !== "EUR" && (
-                              <div className="text-xs text-gray-400 font-normal">
-                                {transaction.moeda} {transaction.taxa_cambio !== 1 ? `(×${transaction.taxa_cambio})` : ""}
-                              </div>
-                            )}
-                          </td>
-                          <td className="py-3 pr-3 text-right">
-                            <Button variant="ghost" size="sm" onClick={() => startEditTransaction(transaction)} title="Editar movimento">
-                              <Pencil className="size-4 text-blue-600" />
-                            </Button>
-                            <Button variant="ghost" size="sm" onClick={() => deleteTransaction(transaction.id)}>
-                              <Trash2 className="size-4 text-red-500" />
-                            </Button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </Card>
+            <CategorySummaryList items={expenseCategories} loading={loading} />
+            <TransactionsTable
+              transactions={data.transactions}
+              onEdit={startEditTransaction}
+              onDelete={deleteTransaction}
+            />
           </div>
         </div>}
       </div>
