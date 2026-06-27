@@ -36,6 +36,7 @@ interface Licao {
 }
 
 interface LicaoForm {
+  [key: string]: string;
   titulo: string;
   descricao: string;
   area: string;
@@ -208,7 +209,7 @@ export function LicoesPage() {
               <Lightbulb className="text-amber-500" size={26} />
               Lições Aprendidas
             </h1>
-            <p className="text-sm text-gray-500 mt-0.5">{activeProject.nome}</p>
+            <p className="text-sm text-gray-500 mt-0.5">{activeProject.name}</p>
           </div>
           <Button onClick={() => { setShowForm((v) => !v); if (editingId) { setEditingId(null); setForm(initialForm); } }}>
             {showForm && !editingId ? (

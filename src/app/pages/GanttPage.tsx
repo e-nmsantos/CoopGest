@@ -86,7 +86,7 @@ export function GanttPage() {
 
   useEffect(() => {
     if (activeProjectId) {
-      void fetchData(activeProjectId);
+      void fetchData(Number(activeProjectId));
     } else {
       setTasks([]);
       setMilestones([]);
@@ -190,7 +190,7 @@ export function GanttPage() {
         <div>
           <h1 className="text-2xl font-bold text-slate-800">Gantt</h1>
           {activeProject && (
-            <p className="text-sm text-slate-500 mt-0.5">{activeProject.nome}</p>
+            <p className="text-sm text-slate-500 mt-0.5">{activeProject.name}</p>
           )}
         </div>
         <div className="flex items-center gap-2">

@@ -115,7 +115,7 @@ export function StakeholdersPage() {
 
   useEffect(() => {
     if (activeProjectId) {
-      void fetchData(activeProjectId);
+      void fetchData(Number(activeProjectId));
     } else {
       setStakeholders([]);
       setMatrix(null);
@@ -167,7 +167,7 @@ export function StakeholdersPage() {
         toast.success("Stakeholder criado");
       }
       cancelForm();
-      await fetchData(activeProjectId);
+      await fetchData(Number(activeProjectId));
     } catch {
       toast.error("Erro ao guardar stakeholder");
     } finally {
@@ -181,7 +181,7 @@ export function StakeholdersPage() {
     try {
       await apiDelete(`/api/projects/${activeProjectId}/stakeholders/${sk.id}`);
       toast.success("Stakeholder eliminado");
-      await fetchData(activeProjectId);
+      await fetchData(Number(activeProjectId));
     } catch {
       toast.error("Erro ao eliminar stakeholder");
     }
@@ -209,7 +209,7 @@ export function StakeholdersPage() {
         <div>
           <h1 className="text-2xl font-bold text-slate-800">Stakeholders</h1>
           {activeProject && (
-            <p className="text-sm text-slate-500 mt-0.5">{activeProject.nome}</p>
+            <p className="text-sm text-slate-500 mt-0.5">{activeProject.name}</p>
           )}
         </div>
         <button
