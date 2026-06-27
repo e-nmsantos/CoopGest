@@ -59,7 +59,7 @@ const CATEGORIAS_PADRAO: Record<string, string[]> = {
   outro: [],
 };
 
-function DesagregacaoPanel({ ben, projectId }: { ben: DbBeneficiario; projectId: string }) {
+function DesagregacaoPanel({ ben, projectId: _projectId }: { ben: DbBeneficiario; projectId: string }) {
   const [des, setDes] = useState<Desagregacao[]>(ben.desagregacao ?? []);
   const [dimensao, setDimensao] = useState("genero");
   const [categoria, setCategoria] = useState("");

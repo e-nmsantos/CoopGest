@@ -43,11 +43,6 @@ const DB_PRIORITY: Record<string, Task["priority"]> = {
   Baixa: "low",
 };
 
-const TO_DB_PRIORITY: Record<Task["priority"], string> = {
-  high: "Alta",
-  medium: "Normal",
-  low: "Baixa",
-};
 
 function fromDb(t: DbTask): Task {
   return {

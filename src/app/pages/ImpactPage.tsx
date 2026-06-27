@@ -277,7 +277,7 @@ export function ImpactPage() {
   useEffect(() => {
     setIsLoading(true);
     void Promise.all([loadMetrics(), loadLogframe()]).finally(() => setIsLoading(false));
-  }, [activeProjectId]);
+  }, [activeProjectId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleExpandIndicator = async (id: number) => {
     if (expandedIndicator === id) {

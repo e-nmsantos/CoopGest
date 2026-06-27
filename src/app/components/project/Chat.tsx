@@ -3,7 +3,7 @@ import { useProjectChat } from '../../hooks/useProjectChat';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { ScrollArea } from '../ui/scroll-area';
-import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { Avatar, AvatarFallback } from '../ui/avatar';
 
 interface ChatProps {
     projectId: string;

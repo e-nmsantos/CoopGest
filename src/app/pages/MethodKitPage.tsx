@@ -2,7 +2,6 @@ import { useState, useMemo } from "react";
 import { Header } from "../components/layout/Header";
 import { Card } from "../components/ui/card";
 import { Button } from "../components/ui/button";
-import { Badge } from "../components/ui/badge";
 import { Input } from "../components/ui/input";
 import { Search, LayoutGrid, CheckSquare, X, Printer, RotateCcw } from "lucide-react";
 

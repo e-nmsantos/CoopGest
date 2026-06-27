@@ -33,3 +33,6 @@ coverage.xml
 *.docx
 *.pdf
 Gestão Projetos Cooperativos
+playwright-report/
+e2e-results/
+test-results/

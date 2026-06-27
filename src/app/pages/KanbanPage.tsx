@@ -50,7 +50,7 @@ function parseTask(raw: Record<string, unknown>): Task {
 export function KanbanPage() {
   const { id } = useParams<{ id: string }>();
   const projectId = id ?? "";
-  const { tasks: allTasks, isConnected, refetchTasks } = useProjectEvents(projectId);
+  const { tasks: allTasks } = useProjectEvents(projectId);
   const [loading, setLoading] = useState(true);
   const [projectName, setProjectName] = useState("Kanban");
   const { setActiveProjectId } = useProjectContext();

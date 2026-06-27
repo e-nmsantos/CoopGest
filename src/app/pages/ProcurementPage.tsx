@@ -149,7 +149,7 @@ export function ProcurementPage() {
   useEffect(() => {
     void loadItems();
     void loadMeta();
-  }, [activeProjectId]);
+  }, [activeProjectId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Form helpers
   const openCreate = () => {

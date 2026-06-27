@@ -91,7 +91,7 @@ export function VotingPage() {
   useEffect(() => {
     setLoading(true);
     loadProposals();
-  }, [activeProjectId]);
+  }, [activeProjectId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleVote = async (proposalId: string, vote: "sim" | "nao" | "abstencao") => {
     try {

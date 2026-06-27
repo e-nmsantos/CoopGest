@@ -156,7 +156,7 @@ export function ProjectsListPage() {
 
   useEffect(() => {
     void loadProjects(showArchived);
-  }, [showArchived]);
+  }, [showArchived]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleCreateProject = async (projectData: {
     name: string;

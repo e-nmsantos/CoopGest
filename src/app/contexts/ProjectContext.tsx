@@ -61,7 +61,7 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     void refreshProjects();
-  }, [user]);
+  }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!user) {
@@ -114,7 +114,7 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
       setActiveProjectId,
       refreshProjects,
     }),
-    [projects, projectsLoading, activeProjectId, activeProject]
+    [projects, projectsLoading, activeProjectId, activeProject] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
   return <ProjectContext.Provider value={value}>{children}</ProjectContext.Provider>;

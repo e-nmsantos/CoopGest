@@ -1,9 +1,8 @@
-import { useState } from "react";
 import { Card } from "../ui/card";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { Progress } from "../ui/progress";
-import { ThumbsUp, ThumbsDown, Minus, Users, Clock } from "lucide-react";
+import { ThumbsUp, ThumbsDown, Minus, Clock } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { pt } from "date-fns/locale";
 

@@ -165,7 +165,7 @@ const PROJECT_STATUS_META: Record<string, { color: string; label: string }> = {
 
 export function HomePage() {
   const [projects, setProjects] = useState<Project[]>([]);
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const [, setTasks] = useState<Task[]>([]);
   const [stats, setStats] = useState({
     projetos: 0,
     parceiros: 0,

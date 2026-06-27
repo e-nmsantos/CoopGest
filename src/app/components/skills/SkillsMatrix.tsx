@@ -32,13 +32,6 @@ interface SkillsMatrixProps {
   skills: Skill[];
 }
 
-const skillLevelLabels = {
-  1: "Iniciante",
-  2: "Básico",
-  3: "Intermédio",
-  4: "Avançado",
-  5: "Especialista",
-};
 
 const categoryColors = {
   técnica: "bg-blue-100 text-blue-700",

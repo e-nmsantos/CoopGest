@@ -142,7 +142,7 @@ export function SkillsPage() {
     setIsLoadingSkills(true);
     setIsLoadingMembers(true);
     void Promise.all([loadSkills(), loadMembers()]);
-  }, [activeProjectId]);
+  }, [activeProjectId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!selectedMemberId && members.length > 0) {

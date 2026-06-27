@@ -69,7 +69,6 @@ const categories = [
 export function DocumentRepository({ documents, onUpload, onDelete, onDownload }: DocumentRepositoryProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("Todos");
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
   const formatFileSize = (bytes: number) => {
     if (bytes === 0) return "0 Bytes";

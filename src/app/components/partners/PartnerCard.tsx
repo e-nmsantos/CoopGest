@@ -3,13 +3,12 @@ import { Card } from "../ui/card";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { 
-  Building2, 
-  Mail, 
-  Phone, 
-  MapPin, 
-  User, 
+  Building2,
+  Mail,
+  Phone,
+  User,
   ExternalLink,
-  MessageCircle 
+  MessageCircle
 } from "lucide-react";
 import {
   Dialog,

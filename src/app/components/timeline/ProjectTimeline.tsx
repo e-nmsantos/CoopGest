@@ -1,6 +1,6 @@
 import { Card } from "../ui/card";
 import { Badge } from "../ui/badge";
-import { Calendar, CheckCircle2, FileText, Users, TrendingUp, AlertCircle } from "lucide-react";
+import { CheckCircle2, FileText, Users, TrendingUp } from "lucide-react";
 import { format } from "date-fns";
 import { pt } from "date-fns/locale";
 
@@ -50,7 +50,7 @@ export function ProjectTimeline({ events }: ProjectTimelineProps) {
       <div className="absolute left-[29px] top-8 bottom-0 w-0.5 bg-gray-200" />
 
       <div className="space-y-6">
-        {sortedEvents.map((event, index) => {
+        {sortedEvents.map((event, _index) => {
           const config = eventIcons[event.type];
           const Icon = config.icon;
 

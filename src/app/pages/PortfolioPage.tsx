@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { Header } from "../components/layout/Header";
 import { Card } from "../components/ui/card";
-import { Badge } from "../components/ui/badge";
 import { apiGet } from "../lib/apiClient";
 import {
   BarChart,

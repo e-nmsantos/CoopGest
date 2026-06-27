@@ -1,7 +1,7 @@
 import { Card } from "../ui/card";
 import { Progress } from "../ui/progress";
 import { Badge } from "../ui/badge";
-import { Target, TrendingUp, Users, Leaf, Heart, Award } from "lucide-react";
+import { Target, TrendingUp, Users, Leaf, Award } from "lucide-react";
 
 interface SDGGoal {
   id: number;
