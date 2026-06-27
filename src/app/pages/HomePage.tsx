@@ -1,158 +1,13 @@
-import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { Header } from "../components/layout/Header";
 import { CreateProjectDialog } from "../components/projects/CreateProjectDialog";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import { Button } from "../components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../components/ui/dialog";
 import { Progress } from "../components/ui/progress";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, LabelList } from 'recharts';
-import { AlertTriangle, Bell, CalendarClock, FolderKanban, Users, CheckSquare, Euro, Activity, Printer } from "lucide-react";
-import { toast } from "sonner";
-import { apiGet, apiPost } from "../lib/apiClient";
-
-interface Project {
-  id: string;
-  name: string;
-  description: string;
-  objectives: string;
-  startDate: string;
-  endDate: string;
-  budget: string;
-  status: "Em curso" | "Planeamento" | "Concluído" | "Suspenso";
-  progress: number;
-  members: number;
-}
-
-interface Task {
-  id: string;
-  title: string;
-  projectName: string;
-  projectId: string;
-  dueDate: Date;
-  priority: "high" | "medium" | "low";
-}
-
-interface ApiProject {
-  id: number;
-  nome: string;
-  descricao: string;
-  objetivos: string;
-  data_inicio: string;
-  data_fim: string;
-  estado: "Em curso" | "Planeamento" | "Concluído" | "Suspenso";
-  membros?: number;
-  tarefas_total?: number;
-  tarefas_concluidas?: number;
-}
-
-interface ApiDashboard {
-  stats: {
-    projetos: number;
-    parceiros: number;
-    tarefas: number;
-    milestones: number;
-    tarefas_concluidas: number;
-    milestones_concluidos: number;
-    orcamento_total: number;
-    orcamento_executado: number;
-    total_beneficiarios: number;
-    projetos_por_estado: Record<string, number>;
-    saude_sistema: {
-      score: number;
-      status: string;
-      atrasadas: number;
-    };
-    portfolio: {
-      projetos_com_tarefas_atrasadas: number;
-      milestones_proximos: number;
-      projetos_sem_tarefas: number;
-      execucao_orcamental_percent: number;
-    };
-  };
-  tarefas_pendentes: Array<{
-    id: number;
-    nome: string;
-    projeto_id: number;
-    projeto_nome: string;
-    data_fim: string | null;
-    prioridade: string;
-  }>;
-  portfolio_recommendations?: Array<{
-    kind: string;
-    title: string;
-    description: string;
-    priority: "Alta" | "Média" | "Baixa";
-    url: string;
-    project_id: number;
-    project_name: string;
-    health_score: number;
-    health_status: string;
-  }>;
-}
-
-interface PortfolioExecutiveReport {
-  generated_at: string;
-  summary: {
-    total_projects: number;
-    average_health: number;
-    critical_projects: number;
-    attention_projects: number;
-    high_priority_actions: number;
-    total_beneficiaries: number;
-    total_budget: number;
-    executed_budget: number;
-  };
-  projects: Array<{
-    project_id: number;
-    project_name: string;
-    estado: string;
-    health: {
-      score: number;
-      status: string;
-    };
-    summary: {
-      tarefas_atrasadas: number;
-      milestones_atrasados: number;
-      riscos_altos: number;
-      progresso_tarefas: number;
-      beneficiarios: number;
-      impacto_execucao: number;
-    };
-    finance: {
-      execucao_financeira: number;
-      receitas_previstas: number;
-      receitas_reais: number;
-    };
-    top_recommendations: Array<{
-      title: string;
-      description: string;
-      priority: "Alta" | "Média" | "Baixa";
-      url: string;
-    }>;
-  }>;
-  recommendations: Array<{
-    title: string;
-    description: string;
-    priority: "Alta" | "Média" | "Baixa";
-    project_id: number;
-    project_name: string;
-    url: string;
-    health_score: number;
-    health_status: string;
-  }>;
-}
-
-function mapPriority(value: string): Task["priority"] {
-  const normalized = value.toLowerCase();
-  if (normalized.includes("alta") || normalized.includes("high")) {
-    return "high";
-  }
-  if (normalized.includes("baixa") || normalized.includes("low")) {
-    return "low";
-  }
-  return "medium";
-}
+import { AlertTriangle, Bell, CalendarClock, FolderKanban, Users, CheckSquare, Euro, Activity } from "lucide-react";
+import { PortfolioReportDialog } from "../components/home/PortfolioReportDialog";
+import { useHomeDashboard } from "../hooks/useHomeDashboard";
 
 const PROJECT_STATUS_ORDER = ["Planeamento", "Em curso", "Suspenso", "Concluído"] as const;
 
@@ -164,133 +19,19 @@ const PROJECT_STATUS_META: Record<string, { color: string; label: string }> = {
 };
 
 export function HomePage() {
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [, setTasks] = useState<Task[]>([]);
-  const [stats, setStats] = useState({
-    projetos: 0,
-    parceiros: 0,
-    tarefas: 0,
-    milestones: 0,
-    tarefas_concluidas: 0,
-    milestones_concluidos: 0,
-    orcamento_total: 0,
-    orcamento_executado: 0,
-    total_beneficiarios: 0,
-    projetos_por_estado: {} as Record<string, number>,
-    saude_sistema: {
-      score: 100,
-      status: "Excelente",
-      atrasadas: 0,
-    },
-    portfolio: {
-      projetos_com_tarefas_atrasadas: 0,
-      milestones_proximos: 0,
-      projetos_sem_tarefas: 0,
-      execucao_orcamental_percent: 0,
-    },
-  });
-  const [portfolioRecommendations, setPortfolioRecommendations] = useState<ApiDashboard["portfolio_recommendations"]>([]);
-  const [portfolioReport, setPortfolioReport] = useState<PortfolioExecutiveReport | null>(null);
-  const [portfolioReportLoading, setPortfolioReportLoading] = useState(false);
-  const [automationLoading, setAutomationLoading] = useState(false);
-  const [apiUnavailable, setApiUnavailable] = useState(false);
+  const {
+    projects,
+    stats,
+    portfolioRecommendations,
+    portfolioReport,
+    portfolioReportLoading,
+    automationLoading,
+    apiUnavailable,
+    loadPortfolioReport,
+    runPortfolioAutomations,
+    handleCreateProject,
+  } = useHomeDashboard();
 
-  const loadData = async () => {
-    try {
-      const [dashboard, apiProjects] = await Promise.all([
-        apiGet<ApiDashboard>("/api/dashboard"),
-        apiGet<ApiProject[]>("/api/projects"),
-      ]);
-
-      const mappedProjects: Project[] = apiProjects.map((project) => {
-        const totalTasks = project.tarefas_total ?? 0;
-        const doneTasks = project.tarefas_concluidas ?? 0;
-        const progress = totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) : 0;
-
-        return {
-          id: String(project.id),
-          name: project.nome,
-          description: project.descricao ?? "",
-          objectives: project.objetivos ?? "",
-          startDate: project.data_inicio ?? "",
-          endDate: project.data_fim ?? "",
-          budget: "0",
-          status: project.estado,
-          progress,
-          members: project.membros ?? 0,
-        };
-      });
-
-      const mappedTasks: Task[] = dashboard.tarefas_pendentes.map((task) => ({
-        id: String(task.id),
-        title: task.nome,
-        projectName: task.projeto_nome,
-        projectId: String(task.projeto_id),
-        dueDate: task.data_fim ? new Date(task.data_fim) : new Date(),
-        priority: mapPriority(task.prioridade || "Normal"),
-      }));
-
-      setProjects(mappedProjects);
-      setTasks(mappedTasks);
-      setStats(dashboard.stats);
-      setPortfolioRecommendations(dashboard.portfolio_recommendations || []);
-      setApiUnavailable(false);
-    } catch {
-      setApiUnavailable(true);
-    }
-  };
-
-  useEffect(() => {
-    void loadData();
-  }, []);
-
-  const loadPortfolioReport = async () => {
-    if (portfolioReport || portfolioReportLoading) return;
-    setPortfolioReportLoading(true);
-    try {
-      const report = await apiGet<PortfolioExecutiveReport>("/api/portfolio/executive-report");
-      setPortfolioReport(report);
-    } catch {
-      setApiUnavailable(true);
-    } finally {
-      setPortfolioReportLoading(false);
-    }
-  };
-
-  const runPortfolioAutomations = async () => {
-    setAutomationLoading(true);
-    try {
-      const result = await apiPost<{ created?: number; skipped?: number; projects?: number }>("/api/portfolio/automations/run");
-      toast.success(`${result.created || 0} notificação(ões) criada(s)`, {
-        description: `${result.skipped || 0} já existiam. ${result.projects || 0} projeto(s) analisado(s).`,
-      });
-    } catch {
-      toast.error("Erro ao executar automações do portfólio");
-    } finally {
-      setAutomationLoading(false);
-    }
-  };
-
-  const handleCreateProject = async (projectData: {
-    name: string;
-    description: string;
-    objectives: string;
-    startDate: string;
-    endDate: string;
-    budget: string;
-  }) => {
-    await apiPost<ApiProject>("/api/projects", {
-      nome: projectData.name,
-      descricao: projectData.description,
-      objetivos: projectData.objectives,
-      data_inicio: projectData.startDate,
-      data_fim: projectData.endDate,
-      estado: "Planeamento",
-    });
-
-    await loadData();
-  };
-  
   const projectStatusData = PROJECT_STATUS_ORDER.map((name) => {
     const value = stats.projetos_por_estado[name] ?? 0;
     const percentage = stats.projetos > 0 ? Math.round((value / stats.projetos) * 100) : 0;
@@ -351,117 +92,11 @@ export function HomePage() {
             )}
           </div>
           <div className="flex items-center gap-2">
-            <Dialog onOpenChange={(open) => open && void loadPortfolioReport()}>
-              <DialogTrigger asChild>
-                <Button variant="outline">
-                  <Printer className="h-4 w-4 mr-2" />
-                  Relatório do Portfólio
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-4xl max-h-[85vh] overflow-auto">
-                <DialogHeader>
-                  <DialogTitle>Relatório Executivo do Portfólio</DialogTitle>
-                </DialogHeader>
-                {portfolioReportLoading || !portfolioReport ? (
-                  <div className="py-10 text-center text-sm text-muted-foreground">A preparar relatório...</div>
-                ) : (
-                  <div id="portfolio-report" className="space-y-5 text-sm">
-                    <div className="border-b pb-4">
-                      <h1 className="text-2xl font-bold text-foreground">Portfólio de Projetos Cooperativos</h1>
-                      <p className="text-muted-foreground">
-                        Relatório gerado em {new Date(portfolioReport.generated_at).toLocaleString("pt-PT")}
-                      </p>
-                    </div>
-
-                    <div className="grid gap-3 md:grid-cols-4">
-                      <div className="rounded-md bg-blue-50 p-3">
-                        <p className="text-xs text-blue-700">Saúde média</p>
-                        <p className="text-2xl font-bold text-blue-900">{portfolioReport.summary.average_health}%</p>
-                      </div>
-                      <div className="rounded-md bg-red-50 p-3">
-                        <p className="text-xs text-red-700">Projetos críticos</p>
-                        <p className="text-2xl font-bold text-red-900">{portfolioReport.summary.critical_projects}</p>
-                      </div>
-                      <div className="rounded-md bg-amber-50 p-3">
-                        <p className="text-xs text-amber-700">Ações altas</p>
-                        <p className="text-2xl font-bold text-amber-900">{portfolioReport.summary.high_priority_actions}</p>
-                      </div>
-                      <div className="rounded-md bg-green-50 p-3">
-                        <p className="text-xs text-green-700">Beneficiários</p>
-                        <p className="text-2xl font-bold text-green-900">{portfolioReport.summary.total_beneficiaries.toLocaleString("pt-PT")}</p>
-                      </div>
-                    </div>
-
-                    <div>
-                      <h3 className="mb-2 font-semibold text-foreground">Prioridades do Portfólio</h3>
-                      <div className="space-y-2">
-                        {portfolioReport.recommendations.slice(0, 8).map((item) => (
-                          <div key={`${item.project_id}-${item.title}`} className="rounded-md border border-border p-3">
-                            <div className="flex items-start justify-between gap-3">
-                              <div>
-                                <p className="font-medium text-foreground">{item.title}</p>
-                                <p className="text-xs text-muted-foreground">{item.project_name} · saúde {item.health_score}%</p>
-                              </div>
-                              <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                                item.priority === "Alta"
-                                  ? "bg-red-50 text-red-700"
-                                  : item.priority === "Média"
-                                    ? "bg-amber-50 text-amber-700"
-                                    : "bg-green-50 text-green-700"
-                              }`}>
-                                {item.priority}
-                              </span>
-                            </div>
-                            <p className="mt-2 text-xs text-muted-foreground">{item.description}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div>
-                      <h3 className="mb-2 font-semibold text-foreground">Projetos por Nível de Atenção</h3>
-                      <div className="overflow-hidden rounded-md border border-border">
-                        <table className="w-full text-xs">
-                          <thead className="bg-muted/50">
-                            <tr>
-                              <th className="p-2 text-left">Projeto</th>
-                              <th className="p-2 text-left">Estado</th>
-                              <th className="p-2 text-right">Saúde</th>
-                              <th className="p-2 text-right">Tarefas</th>
-                              <th className="p-2 text-right">Finanças</th>
-                              <th className="p-2 text-right">Impacto</th>
-                              <th className="p-2 text-right">Alertas</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {portfolioReport.projects.map((project) => (
-                              <tr key={project.project_id} className="border-t border-border">
-                                <td className="p-2 font-medium">{project.project_name}</td>
-                                <td className="p-2">{project.estado}</td>
-                                <td className="p-2 text-right">{project.health.score}%</td>
-                                <td className="p-2 text-right">{project.summary.progresso_tarefas}%</td>
-                                <td className="p-2 text-right">{project.finance.execucao_financeira}%</td>
-                                <td className="p-2 text-right">{project.summary.impacto_execucao}%</td>
-                                <td className="p-2 text-right">
-                                  {project.summary.tarefas_atrasadas + project.summary.milestones_atrasados + project.summary.riscos_altos}
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-
-                    <div className="flex justify-end border-t pt-3">
-                      <Button onClick={() => window.print()}>
-                        <Printer className="h-4 w-4 mr-2" />
-                        Imprimir / Guardar PDF
-                      </Button>
-                    </div>
-                  </div>
-                )}
-              </DialogContent>
-            </Dialog>
+            <PortfolioReportDialog
+              portfolioReport={portfolioReport}
+              portfolioReportLoading={portfolioReportLoading}
+              onOpenChange={(open) => open && void loadPortfolioReport()}
+            />
             <CreateProjectDialog onCreateProject={handleCreateProject} />
           </div>
         </div>
