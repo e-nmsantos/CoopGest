@@ -5,13 +5,15 @@ import { defineConfig, devices } from "@playwright/test";
 // O frontend é iniciado automaticamente por este config.
 //
 // Uso local:
-//   1. Inicie o backend: py wsgi.py
-//   2. npm run e2e
+//   1. npm run e2e          (arranca backend + frontend automaticamente)
 //
-// Uso CI: defina BACKEND_URL e CI=true no ambiente.
+// Nota: o globalSetup repõe a password do admin para coopgest2025 antes
+// dos testes, para garantir credenciais conhecidas independentemente do
+// estado da base de dados de desenvolvimento.
 
 export default defineConfig({
   testDir: "./e2e",
+  globalSetup: "./e2e/global-setup.ts",
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
@@ -41,8 +43,8 @@ export default defineConfig({
       url: "http://localhost:8000",
       reuseExistingServer: true,
       timeout: 60000,
-      stdout: "ignore",
-      stderr: "ignore",
+      stdout: "pipe",
+      stderr: "pipe",
     },
   ],
 });
