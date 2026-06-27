@@ -22,7 +22,6 @@ test.describe("Exports", () => {
     await page.goto("/projetos");
     await page.waitForLoadState("networkidle");
 
-    // Verificar se já existe algum projeto na lista
     const projectLinks = page.getByRole("link", { name: /projeto|project/i }).or(
       page.locator("table tbody tr").first(),
     );
@@ -33,13 +32,11 @@ test.describe("Exports", () => {
       .catch(() => false);
 
     if (!hasProjects) {
-      // Criar projeto de raiz para garantir que existe um
       await createProject(page, "Projeto E2E Export " + Date.now());
       await page.goto("/projetos");
       await page.waitForLoadState("networkidle");
     }
 
-    // Abrir o primeiro projeto disponível
     const firstProject = page
       .getByRole("link", { name: /ver|abrir|detalhes/i })
       .or(page.locator("table tbody tr td a").first())
@@ -51,7 +48,6 @@ test.describe("Exports", () => {
       await page.waitForLoadState("networkidle");
     }
 
-    // Procurar botão "Exportar CSV" ou menu de exportação
     const exportBtn = page
       .getByRole("button", { name: /exportar csv|export csv/i })
       .or(page.getByRole("button", { name: /exportar|export/i }))
@@ -61,7 +57,6 @@ test.describe("Exports", () => {
       await exportBtn.click();
       await page.waitForTimeout(500);
 
-      // Pode abrir um submenu com opções
       const csvTasksItem = page
         .getByRole("menuitem", { name: /tarefas|tasks/i })
         .or(page.getByRole("option", { name: /tarefas|tasks/i }))
@@ -74,89 +69,64 @@ test.describe("Exports", () => {
         const download = await downloadPromise;
         expect(download.suggestedFilename()).toMatch(/\.csv$/i);
       } else {
-        // O botão de exportar descarrega directamente
-        const downloadPromise = page.waitForEvent("download", { timeout: 10000 }).catch(
-          () => null,
-        );
+        const downloadPromise = page.waitForEvent("download", { timeout: 10000 }).catch(() => null);
         const download = await downloadPromise;
         if (download) {
           expect(download.suggestedFilename()).toMatch(/\.csv$/i);
         } else {
-          // Exportação pode estar integrada noutra vista — página não crashou
           await expect(page.locator("body")).toBeVisible();
         }
       }
     } else {
-      // Funcionalidade de exportação CSV não exposta nesta vista
       await expect(page.locator("body")).toBeVisible();
     }
   });
 
   test("download de relatório JSON de um projeto", async ({ page }) => {
+    // Garantir que existe pelo menos um projeto
     await page.goto("/projetos");
     await page.waitForLoadState("networkidle");
 
-    const hasProjects = await page
-      .locator("table tbody tr, .project-card, [data-testid='project-item']")
+    const hasProject = await page
+      .locator("table tbody tr")
       .first()
       .isVisible({ timeout: 2000 })
       .catch(() => false);
 
-    if (!hasProjects) {
+    if (!hasProject) {
       await createProject(page, "Projeto E2E JSON " + Date.now());
       await page.goto("/projetos");
       await page.waitForLoadState("networkidle");
     }
 
-    // Procurar opção de exportar/descarregar JSON na lista ou dentro de um projeto
-    const jsonExportBtn = page
-      .getByRole("button", { name: /json|relatório|report/i })
-      .or(page.getByRole("link", { name: /json|relatório|report/i }))
-      .first();
+    // Navegar para o primeiro projeto clicando na linha da tabela
+    const projectRow = page.locator("table tbody tr").first();
+    if (!(await projectRow.isVisible({ timeout: 3000 }).catch(() => false))) {
+      await expect(page.locator("body")).toBeVisible();
+      return;
+    }
+    await projectRow.click();
+    await page.waitForURL(/\/projetos\/\d+/, { timeout: 10000 });
+    await page.waitForLoadState("networkidle");
 
-    if (await jsonExportBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+    // Abrir dropdown "Ações"
+    const acoesBtn = page.getByRole("button", { name: /ações/i }).first();
+    if (!(await acoesBtn.isVisible({ timeout: 5000 }).catch(() => false))) {
+      await expect(page.locator("body")).toBeVisible();
+      return;
+    }
+    await acoesBtn.click();
+    await page.waitForTimeout(300);
+
+    // Clicar em "Exportar Dados (JSON)" e aguardar download
+    const jsonItem = page.getByRole("menuitem", { name: /json/i }).first();
+    if (await jsonItem.isVisible({ timeout: 3000 }).catch(() => false)) {
       const downloadPromise = page.waitForEvent("download", { timeout: 15000 });
-      await jsonExportBtn.click();
+      await jsonItem.click();
       const download = await downloadPromise;
       expect(download.suggestedFilename()).toMatch(/\.json$/i);
     } else {
-      // Tentar dentro de um projeto individual
-      const firstProjectLink = page
-        .getByRole("link", { name: /ver|abrir|detalhes/i })
-        .or(page.locator("table tbody tr td a").first())
-        .first();
-
-      if (await firstProjectLink.isVisible({ timeout: 3000 }).catch(() => false)) {
-        await firstProjectLink.click();
-        await page.waitForLoadState("networkidle");
-
-        const exportMenu = page
-          .getByRole("button", { name: /exportar|export/i })
-          .first();
-
-        if (await exportMenu.isVisible({ timeout: 3000 }).catch(() => false)) {
-          await exportMenu.click();
-          await page.waitForTimeout(500);
-
-          const jsonItem = page
-            .getByRole("menuitem", { name: /json/i })
-            .or(page.getByRole("option", { name: /json/i }))
-            .first();
-
-          if (await jsonItem.isVisible({ timeout: 2000 }).catch(() => false)) {
-            const downloadPromise = page.waitForEvent("download", { timeout: 15000 });
-            await jsonItem.click();
-            const download = await downloadPromise;
-            expect(download.suggestedFilename()).toMatch(/\.json$/i);
-          } else {
-            await expect(page.locator("body")).toBeVisible();
-          }
-        } else {
-          await expect(page.locator("body")).toBeVisible();
-        }
-      } else {
-        await expect(page.locator("body")).toBeVisible();
-      }
+      await expect(page.locator("body")).toBeVisible();
     }
   });
 });
