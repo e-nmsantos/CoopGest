@@ -234,6 +234,6 @@ def delete_procurement(projeto_id: int, item_id: int):
 
         conn.execute("DELETE FROM procurement WHERE id=? AND projeto_id=?", (item_id, projeto_id))
         conn.commit()
-        return jsonify({"ok": True})
+        return jsonify({"message": "Eliminado com sucesso"})
     finally:
         conn.close()

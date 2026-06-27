@@ -11,6 +11,16 @@ import { EmptyState } from "../components/ui/EmptyState";
 import { Building2, Search, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { apiDelete, apiGet, apiPost } from "../lib/apiClient";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../components/ui/alert-dialog";
 
 interface Partner {
   id: string;
@@ -31,6 +41,7 @@ export function ParceirosPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("Todos");
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   useEffect(() => {
     apiGet<Partner[]>("/api/partners")
@@ -59,7 +70,6 @@ export function ParceirosPage() {
   };
 
   const handleDeletePartner = async (id: string) => {
-    if (!confirm("Eliminar este parceiro?")) return;
     try {
       await apiDelete<null>(`/api/partners/${id}`);
       setPartners((prev) => prev.filter((p) => p.id !== id));
@@ -179,7 +189,7 @@ export function ParceirosPage() {
                   variant="ghost"
                   size="sm"
                   className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-red-500 hover:text-red-700 hover:bg-red-50"
-                  onClick={() => handleDeletePartner(partner.id)}
+                  onClick={() => setConfirmDeleteId(partner.id)}
                 >
                   <Trash2 className="size-4" />
                 </Button>
@@ -188,6 +198,26 @@ export function ParceirosPage() {
           </div>
         )}
       </div>
+
+      <AlertDialog open={confirmDeleteId !== null} onOpenChange={(open) => { if (!open) setConfirmDeleteId(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Eliminar parceiro</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem a certeza que quer eliminar este parceiro? Esta acção não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-red-600 hover:bg-red-700"
+              onClick={() => { if (confirmDeleteId) { void handleDeletePartner(confirmDeleteId); setConfirmDeleteId(null); } }}
+            >
+              Eliminar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

@@ -9,6 +9,17 @@ import { toast } from "sonner";
 import { useProjectContext } from "../contexts/ProjectContext";
 import { useProjectEvents } from "../hooks/useProjectEvents";
 import { apiDelete, apiGet, apiPatch, apiPost } from "../lib/apiClient";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../components/ui/alert-dialog";
+import { Skeleton } from "../components/ui/skeleton";
 
 interface Task {
   id: string;
@@ -62,6 +73,7 @@ export function KanbanPage() {
 
   // Bulk select
   const [selectedTasks, setSelectedTasks] = useState<Set<string>>(new Set());
+  const [confirmBulkDelete, setConfirmBulkDelete] = useState(false);
 
   // Task detail dialog
   const [detailTaskId, setDetailTaskId] = useState<string | null>(null);
@@ -131,7 +143,6 @@ export function KanbanPage() {
 
   const handleBulkDelete = async () => {
     const ids = [...selectedTasks];
-    if (!confirm(`Eliminar ${ids.length} tarefa${ids.length !== 1 ? "s" : ""}?`)) return;
     setSelectedTasks(new Set());
     try {
       await Promise.all(ids.map(id => apiDelete<null>(`/api/tasks/${id}`)));
@@ -182,8 +193,16 @@ export function KanbanPage() {
 
   if (loading) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-gray-50">
-        <p className="text-gray-400 text-sm">A carregar tarefas...</p>
+      <div className="flex-1 min-h-0 flex flex-col bg-gray-50">
+        <Header projectName={projectName} showBackButton />
+        <div className="flex-1 min-h-0 overflow-auto p-6">
+          <div className="space-y-3">
+            <Skeleton className="h-8 w-1/3" />
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-2/3" />
+            <Skeleton className="h-4 w-full" />
+          </div>
+        </div>
       </div>
     );
   }
@@ -273,6 +292,26 @@ export function KanbanPage() {
         projectTasks={tasks.map(t => ({ id: t.id, title: t.title }))}
       />
 
+      <AlertDialog open={confirmBulkDelete} onOpenChange={setConfirmBulkDelete}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Eliminar tarefas</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem a certeza que quer eliminar {selectedTasks.size} tarefa{selectedTasks.size !== 1 ? "s" : ""}? Esta acção não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-red-600 hover:bg-red-700"
+              onClick={() => { void handleBulkDelete(); setConfirmBulkDelete(false); }}
+            >
+              Eliminar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       {/* Bulk action floating bar */}
       {selectedTasks.size > 0 && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-white border border-gray-200 rounded-xl shadow-xl px-4 py-3 flex items-center gap-3 z-50">
@@ -285,7 +324,7 @@ export function KanbanPage() {
           <Button size="sm" variant="outline" onClick={() => handleBulkMove("doing")}>Em Curso</Button>
           <Button size="sm" variant="outline" onClick={() => handleBulkMove("done")}>Concluído</Button>
           <div className="h-4 border-l border-gray-200" />
-          <Button size="sm" variant="destructive" onClick={handleBulkDelete}>Eliminar</Button>
+          <Button size="sm" variant="destructive" onClick={() => setConfirmBulkDelete(true)}>Eliminar</Button>
           <Button size="sm" variant="ghost" onClick={() => setSelectedTasks(new Set())}>Cancelar</Button>
         </div>
       )}

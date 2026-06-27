@@ -22,6 +22,7 @@ import { useProject } from "../hooks/useProject";
 import { ProjectActionsBar } from "../components/project/ProjectActionsBar";
 import { ExecutiveDashboard } from "../components/project/ExecutiveDashboard";
 import { ProjectDescriptionCards } from "../components/project/ProjectDescriptionCards";
+import { ErrorBoundary } from "../components/ui/ErrorBoundary";
 
 export function ProjectPage() {
   const { id } = useParams();
@@ -82,75 +83,105 @@ export function ProjectPage() {
 
           <Tabs key={id} defaultValue="tarefas" className="w-full">
             <TabsList className="mb-6 flex-wrap h-auto gap-1">
-              <TabsTrigger value="tarefas">📋 Tarefas</TabsTrigger>
-              <TabsTrigger value="milestones">🏁 Milestones</TabsTrigger>
-              <TabsTrigger value="gantt">📊 Gantt</TabsTrigger>
-              <TabsTrigger value="equipa">👤 Equipa</TabsTrigger>
-              <TabsTrigger value="horas">⏱ Horas</TabsTrigger>
-              <TabsTrigger value="parceiros">🤝 Parceiros</TabsTrigger>
-              <TabsTrigger value="timeline">📅 Timeline</TabsTrigger>
-              <TabsTrigger value="orcamento">💰 Orçamento</TabsTrigger>
-              <TabsTrigger value="financiamento">💶 Financiamento</TabsTrigger>
-              <TabsTrigger value="riscos">⚠️ Riscos</TabsTrigger>
-              <TabsTrigger value="beneficiarios">👥 Beneficiários</TabsTrigger>
-              <TabsTrigger value="chat">💬 Chat</TabsTrigger>
-              <TabsTrigger value="comentarios">💬 Comentários</TabsTrigger>
-              <TabsTrigger value="analytics">📈 Analytics</TabsTrigger>
+              <TabsTrigger value="tarefas" aria-label="Tarefas"><span aria-hidden="true">📋</span> Tarefas</TabsTrigger>
+              <TabsTrigger value="milestones" aria-label="Milestones"><span aria-hidden="true">🏁</span> Milestones</TabsTrigger>
+              <TabsTrigger value="gantt" aria-label="Gantt"><span aria-hidden="true">📊</span> Gantt</TabsTrigger>
+              <TabsTrigger value="equipa" aria-label="Equipa"><span aria-hidden="true">👤</span> Equipa</TabsTrigger>
+              <TabsTrigger value="horas" aria-label="Horas"><span aria-hidden="true">⏱</span> Horas</TabsTrigger>
+              <TabsTrigger value="parceiros" aria-label="Parceiros"><span aria-hidden="true">🤝</span> Parceiros</TabsTrigger>
+              <TabsTrigger value="timeline" aria-label="Timeline"><span aria-hidden="true">📅</span> Timeline</TabsTrigger>
+              <TabsTrigger value="orcamento" aria-label="Orçamento"><span aria-hidden="true">💰</span> Orçamento</TabsTrigger>
+              <TabsTrigger value="financiamento" aria-label="Financiamento"><span aria-hidden="true">💶</span> Financiamento</TabsTrigger>
+              <TabsTrigger value="riscos" aria-label="Riscos"><span aria-hidden="true">⚠️</span> Riscos</TabsTrigger>
+              <TabsTrigger value="beneficiarios" aria-label="Beneficiários"><span aria-hidden="true">👥</span> Beneficiários</TabsTrigger>
+              <TabsTrigger value="chat" aria-label="Chat"><span aria-hidden="true">💬</span> Chat</TabsTrigger>
+              <TabsTrigger value="comentarios" aria-label="Comentários"><span aria-hidden="true">💬</span> Comentários</TabsTrigger>
+              <TabsTrigger value="analytics" aria-label="Analytics"><span aria-hidden="true">📈</span> Analytics</TabsTrigger>
               <TabsTrigger value="atividade">Atividade</TabsTrigger>
             </TabsList>
 
             <TabsContent value="tarefas" className="mt-0">
-              <Tarefas projectId={String(id)} initialTasks={project.tasks} />
+              <ErrorBoundary>
+                <Tarefas projectId={String(id)} initialTasks={project.tasks} />
+              </ErrorBoundary>
             </TabsContent>
             <TabsContent value="milestones" className="mt-0">
-              <MilestonesSection projectId={String(id)} initialMilestones={project.milestones} />
+              <ErrorBoundary>
+                <MilestonesSection projectId={String(id)} initialMilestones={project.milestones} />
+              </ErrorBoundary>
             </TabsContent>
             <TabsContent value="gantt" className="mt-0">
-              <Card className="p-6">
-                <GanttChart milestones={project.milestones} tasks={project.tasks} />
-              </Card>
+              <ErrorBoundary>
+                <Card className="p-6">
+                  <GanttChart milestones={project.milestones} tasks={project.tasks} />
+                </Card>
+              </ErrorBoundary>
             </TabsContent>
             <TabsContent value="equipa" className="mt-0">
-              <ProjectTeamSection projectId={String(id)} />
+              <ErrorBoundary>
+                <ProjectTeamSection projectId={String(id)} />
+              </ErrorBoundary>
             </TabsContent>
             <TabsContent value="horas" className="mt-0">
-              <HoursSection projectId={String(id)} tasks={project.tasks} />
+              <ErrorBoundary>
+                <HoursSection projectId={String(id)} tasks={project.tasks} />
+              </ErrorBoundary>
             </TabsContent>
             <TabsContent value="parceiros" className="mt-0">
-              <PartnersSection partners={project.frontendPartners} />
+              <ErrorBoundary>
+                <PartnersSection partners={project.frontendPartners} />
+              </ErrorBoundary>
             </TabsContent>
             <TabsContent value="timeline" className="mt-0">
-              <ProjectTimeline events={project.timelineEvents} />
+              <ErrorBoundary>
+                <ProjectTimeline events={project.timelineEvents} />
+              </ErrorBoundary>
             </TabsContent>
             <TabsContent value="orcamento" className="mt-0">
-              <BudgetSection projectId={String(id)} initialItems={project.budget} />
+              <ErrorBoundary>
+                <BudgetSection projectId={String(id)} initialItems={project.budget} />
+              </ErrorBoundary>
             </TabsContent>
             <TabsContent value="financiamento" className="mt-0">
-              <FundingSection projectId={String(id)} initialFunding={project.funding} />
+              <ErrorBoundary>
+                <FundingSection projectId={String(id)} initialFunding={project.funding} />
+              </ErrorBoundary>
             </TabsContent>
             <TabsContent value="riscos" className="mt-0">
-              <Card className="p-6">
-                <RisksSection projectId={String(id)} initialRisks={project.riscos} />
-              </Card>
+              <ErrorBoundary>
+                <Card className="p-6">
+                  <RisksSection projectId={String(id)} initialRisks={project.riscos} />
+                </Card>
+              </ErrorBoundary>
             </TabsContent>
             <TabsContent value="beneficiarios" className="mt-0">
-              <BeneficiariosSection projectId={String(id)} initialBeneficiarios={project.beneficiarios} />
+              <ErrorBoundary>
+                <BeneficiariosSection projectId={String(id)} initialBeneficiarios={project.beneficiarios} />
+              </ErrorBoundary>
             </TabsContent>
             <TabsContent value="chat" className="mt-0">
-              <Card>
-                {user ? <Chat projectId={String(id)} currentUser={{ name: user.nome || user.username }} /> : <div>A carregar...</div>}
-              </Card>
+              <ErrorBoundary>
+                <Card>
+                  {user ? <Chat projectId={String(id)} currentUser={{ name: user.nome || user.username }} /> : <div>A carregar...</div>}
+                </Card>
+              </ErrorBoundary>
             </TabsContent>
             <TabsContent value="comentarios" className="mt-0">
-              <Card className="p-6">
-                <CommentsSection projectId={String(id)} initialComments={project.comentarios} />
-              </Card>
+              <ErrorBoundary>
+                <Card className="p-6">
+                  <CommentsSection projectId={String(id)} initialComments={project.comentarios} />
+                </Card>
+              </ErrorBoundary>
             </TabsContent>
             <TabsContent value="atividade" className="mt-0">
-              <ProjectActivitySection projectId={String(id)} />
+              <ErrorBoundary>
+                <ProjectActivitySection projectId={String(id)} />
+              </ErrorBoundary>
             </TabsContent>
             <TabsContent value="analytics" className="mt-0">
-              <AnalyticsSection projectId={String(id)} tasks={project.tasks} budget={project.budget} />
+              <ErrorBoundary>
+                <AnalyticsSection projectId={String(id)} tasks={project.tasks} budget={project.budget} />
+              </ErrorBoundary>
             </TabsContent>
           </Tabs>
         </div>

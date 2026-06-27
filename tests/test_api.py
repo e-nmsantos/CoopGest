@@ -98,7 +98,7 @@ class TestAuth:
 
     def test_update_perfil_password_errada(self, client):
         login(client)
-        r = client.patch('/api/auth/me', json={'password': 'nova123', 'password_atual': 'errada'})
+        r = client.patch('/api/auth/me', json={'password': 'nova1234', 'password_atual': 'errada'})
         assert r.status_code == 401
 
     def test_forgot_password(self, client):

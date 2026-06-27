@@ -15,8 +15,35 @@ bp = Blueprint("auth", __name__)
 
 
 def _rate_limit(limit_string: str):
-    limiter = current_app.extensions.get("limiter")
-    return make_rate_limit(limiter)(limit_string)
+    """Rate-limit decorator.  Resolves the Limiter lazily (no app context at
+    import time) and caches the limited wrapper after the first request.
+    Automatically exempts requests when the app is in TESTING mode so that
+    the test suite is never throttled."""
+    from functools import wraps
+
+    def decorator(f):
+        _cache: dict = {}
+
+        @wraps(f)
+        def wrapped(*args, **kwargs):
+            # Skip rate limiting entirely in test mode
+            if current_app.config.get("TESTING"):
+                return f(*args, **kwargs)
+            if "limited" not in _cache:
+                # Flask-Limiter >=4 stores Limiter objects in a set
+                limiter_set = current_app.extensions.get("limiter")
+                if limiter_set:
+                    obj = (
+                        next(iter(limiter_set))
+                        if isinstance(limiter_set, set)
+                        else limiter_set
+                    )
+                    _cache["limited"] = obj.limit(limit_string)(f)
+                else:
+                    _cache["limited"] = f
+            return _cache["limited"](*args, **kwargs)
+        return wrapped
+    return decorator
 
 
 def _is_dev_token_response_enabled() -> bool:
@@ -27,6 +54,7 @@ def _is_dev_token_response_enabled() -> bool:
 
 
 @bp.route("/api/auth/login", methods=["POST"])
+@_rate_limit("10 per minute")
 def api_auth_login():
     payload = request.get_json(silent=True)
     if not payload or not payload.get("username") or not payload.get("password"):
@@ -95,9 +123,9 @@ def api_auth_me_update():
     nova_password = payload.get("password", "")
     password_atual = payload.get("password_atual", "")
     if nova_password:
-        if len(nova_password) < 6:
+        if len(nova_password) < 8:
             conn.close()
-            return api_error("A nova password deve ter pelo menos 6 caracteres", 400, "VALIDATION_ERROR")
+            return api_error("A nova password deve ter pelo menos 8 caracteres", 400, "VALIDATION_ERROR")
         if not password_atual:
             conn.close()
             return api_error("Password atual é obrigatória para alterar a password", 400, "VALIDATION_ERROR")
@@ -125,6 +153,7 @@ def api_auth_me_update():
 
 
 @bp.route("/api/auth/forgot-password", methods=["POST"])
+@_rate_limit("10 per minute")
 def api_auth_forgot_password():
     payload = request.get_json(silent=True) or {}
     username = str(payload.get("username", "")).strip()
@@ -160,8 +189,8 @@ def api_auth_reset_password():
 
     if not token or not nova_password:
         return api_error("Token e nova password são obrigatórios", 400, "VALIDATION_ERROR")
-    if len(nova_password) < 6:
-        return api_error("A password deve ter pelo menos 6 caracteres", 400, "VALIDATION_ERROR")
+    if len(nova_password) < 8:
+        return api_error("A password deve ter pelo menos 8 caracteres", 400, "VALIDATION_ERROR")
 
     conn = get_db()
     reset = conn.execute(
@@ -230,6 +259,8 @@ def api_auth_invite():
     payload = request.get_json(silent=True) or {}
     email = str(payload.get("email", "")).strip()
     papel = payload.get("papel", "membro")
+    if papel not in {"admin", "membro", "gestor", "visualizador"}:
+        papel = "membro"
     if not email:
         return api_error("Email é obrigatório", 400, "VALIDATION_ERROR")
 

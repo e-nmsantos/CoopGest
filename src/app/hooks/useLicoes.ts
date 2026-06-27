@@ -72,7 +72,6 @@ export function useLicoes() {
 
   const handleDelete = async (id: number) => {
     if (!activeProjectId) return;
-    if (!confirm("Eliminar esta lição aprendida?")) return;
     try {
       await apiDelete(`/api/projects/${activeProjectId}/lessons/${id}`);
       toast.success("Lição eliminada");

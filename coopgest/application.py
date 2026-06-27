@@ -85,6 +85,15 @@ from coopgest.routes import register_blueprints
 
 register_blueprints(app)
 
+@app.after_request
+def add_security_headers(response):
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "SAMEORIGIN"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()"
+    return response
+
+
 @app.before_request
 def block_legacy_routes():
     if request.path.startswith('/legacy') and os.environ.get('ENABLE_LEGACY_ROUTES') != '1':

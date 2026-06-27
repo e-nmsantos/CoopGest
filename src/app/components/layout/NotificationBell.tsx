@@ -11,6 +11,7 @@ import {
 } from "../ui/dropdown-menu";
 import { formatDistanceToNow } from "date-fns";
 import { pt } from "date-fns/locale";
+import { Link } from "react-router";
 import { apiGet, apiPatch } from "../../lib/apiClient";
 
 interface Notification {
@@ -91,6 +92,15 @@ export function NotificationBell() {
             </DropdownMenuItem>
           ))
         )}
+        <DropdownMenuSeparator />
+        <DropdownMenuItem asChild>
+          <Link
+            to="/notificacoes"
+            className="w-full text-center text-xs text-blue-600 hover:text-blue-800 py-1 justify-center"
+          >
+            Ver todas as notificações
+          </Link>
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

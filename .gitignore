@@ -32,7 +32,7 @@ coverage.xml
 .coverage
 *.docx
 *.pdf
-Gestão Projetos Cooperativos
+Gest*Projetos*Cooperativos
 playwright-report/
 e2e-results/
 test-results/

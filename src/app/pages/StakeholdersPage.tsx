@@ -12,6 +12,16 @@ import {
 import { StakeholderForm } from "../components/stakeholders/StakeholderForm";
 import { StakeholderMatrix } from "../components/stakeholders/StakeholderMatrix";
 import { StakeholderList } from "../components/stakeholders/StakeholderList";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../components/ui/alert-dialog";
 
 export function StakeholdersPage() {
   const { activeProjectId, activeProject } = useProjectContext();
@@ -23,6 +33,7 @@ export function StakeholdersPage() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [form, setForm] = useState<Omit<Stakeholder, "id" | "criado_por">>(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
+  const [confirmDeleteSk, setConfirmDeleteSk] = useState<Stakeholder | null>(null);
 
   const fetchData = useCallback(async (id: number) => {
     setLoading(true);
@@ -104,7 +115,6 @@ export function StakeholdersPage() {
 
   async function handleDelete(sk: Stakeholder) {
     if (!activeProjectId) return;
-    if (!confirm(`Eliminar "${sk.nome}"?`)) return;
     try {
       await apiDelete(`/api/projects/${activeProjectId}/stakeholders/${sk.id}`);
       toast.success("Stakeholder eliminado");
@@ -229,10 +239,30 @@ export function StakeholdersPage() {
         <StakeholderList
           stakeholders={stakeholders}
           onEdit={openEdit}
-          onDelete={(sk) => void handleDelete(sk)}
+          onDelete={(sk) => setConfirmDeleteSk(sk)}
           onOpenCreate={openCreate}
         />
       )}
+
+      <AlertDialog open={confirmDeleteSk !== null} onOpenChange={(open) => { if (!open) setConfirmDeleteSk(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Eliminar stakeholder</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem a certeza que quer eliminar &quot;{confirmDeleteSk?.nome}&quot;? Esta acção não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-red-600 hover:bg-red-700"
+              onClick={() => { if (confirmDeleteSk) { void handleDelete(confirmDeleteSk); setConfirmDeleteSk(null); } }}
+            >
+              Eliminar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

@@ -230,6 +230,22 @@ MIGRATIONS: tuple[Migration, ...] = (
             'ALTER TABLE projeto_parceiro ADD COLUMN criado_em TEXT DEFAULT NULL',
         ),
     ),
+    (
+        "202606270004_utilizadores_email",
+        (
+            "ALTER TABLE utilizadores ADD COLUMN email TEXT DEFAULT ''",
+        ),
+    ),
+    (
+        "202606270005_missing_indexes",
+        (
+            "CREATE INDEX IF NOT EXISTS idx_comentarios_projeto_id ON comentarios(projeto_id)",
+            "CREATE INDEX IF NOT EXISTS idx_riscos_projeto_id ON riscos(projeto_id)",
+            "CREATE INDEX IF NOT EXISTS idx_beneficiarios_projeto_id ON beneficiarios(projeto_id)",
+            "CREATE INDEX IF NOT EXISTS idx_auditoria_projeto_id ON auditoria(projeto_id)",
+            "CREATE INDEX IF NOT EXISTS idx_auditoria_criado_em ON auditoria(criado_em)",
+        ),
+    ),
 )
 
 

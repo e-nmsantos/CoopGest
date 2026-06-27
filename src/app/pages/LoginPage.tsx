@@ -109,9 +109,11 @@ export function LoginPage() {
             </Link>
           </p>
 
-          <p className="text-center text-xs text-gray-400 mt-3">
-            Credenciais por omissão: <span className="font-mono">admin / coopgest2025</span>
-          </p>
+          {import.meta.env.DEV && (
+            <p className="text-center text-xs text-gray-400 mt-3">
+              Credenciais de desenvolvimento: <span className="font-mono">admin / coopgest2025</span>
+            </p>
+          )}
         </div>
       </div>
     </div>

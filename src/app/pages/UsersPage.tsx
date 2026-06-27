@@ -5,11 +5,22 @@ import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
 import { Badge } from "../components/ui/badge";
-import { UserPlus, Mail, Copy, Check, Users, Clock, Send } from "lucide-react";
+import { Skeleton } from "../components/ui/skeleton";
+import { UserPlus, Mail, Copy, Check, Users, Clock, Send, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router";
-import { apiGet, apiPost } from "../lib/apiClient";
+import { apiGet, apiPost, apiDelete } from "../lib/apiClient";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "../components/ui/alert-dialog";
 
 interface DbUser {
   id: number;
@@ -37,10 +48,11 @@ export function UsersPage() {
   const [form, setForm] = useState({ email: "", papel: "membro" });
   const [sending, setSending] = useState(false);
   const [copiedId, setCopiedId] = useState<number | null>(null);
+  const [revokingId, setRevokingId] = useState<number | null>(null);
   const [sendingDigest, setSendingDigest] = useState(false);
+  const [confirmDigest, setConfirmDigest] = useState(false);
 
   const handleSendDigest = async () => {
-    if (!confirm("Enviar digest semanal a todos os utilizadores?")) return;
     setSendingDigest(true);
     try {
       await apiPost<null>("/api/digest/send");
@@ -93,13 +105,35 @@ export function UsersPage() {
     });
   };
 
+  // TODO: endpoint DELETE /api/auth/invites/<id> — revogar convite pendente
+  const revokeInvite = async (id: number) => {
+    setRevokingId(id);
+    try {
+      await apiDelete<null>(`/api/auth/invites/${id}`);
+      setInvites((prev) => prev.filter((inv) => inv.id !== id));
+      toast.success("Convite revogado");
+    } catch {
+      toast.error("Erro ao revogar convite");
+    } finally {
+      setRevokingId(null);
+    }
+  };
+
   const formatDate = (s: string) =>
     new Date(s).toLocaleDateString("pt-PT", { day: "2-digit", month: "short", year: "numeric" });
 
   if (loading) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-gray-50">
-        <p className="text-gray-400 text-sm">A carregar utilizadores...</p>
+      <div className="flex-1 min-h-0 flex flex-col bg-gray-50">
+        <Header showBackButton />
+        <div className="flex-1 min-h-0 overflow-auto p-6">
+          <div className="space-y-3">
+            <Skeleton className="h-8 w-1/3" />
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-2/3" />
+            <Skeleton className="h-4 w-full" />
+          </div>
+        </div>
       </div>
     );
   }
@@ -174,7 +208,7 @@ export function UsersPage() {
                 variant="outline"
                 size="sm"
                 className="w-full"
-                onClick={handleSendDigest}
+                onClick={() => setConfirmDigest(true)}
                 disabled={sendingDigest}
               >
                 <Send className="size-4 mr-2" />
@@ -233,18 +267,30 @@ export function UsersPage() {
                           {inv.usado ? "Usado" : "Pendente"}
                         </Badge>
                         {!inv.usado && (
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => copyLink(inv as DbConvite & { link?: string })}
-                            title="Copiar link de convite"
-                          >
-                            {copiedId === inv.id ? (
-                              <Check className="size-4 text-green-600" />
-                            ) : (
-                              <Copy className="size-4" />
-                            )}
-                          </Button>
+                          <>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => copyLink(inv as DbConvite & { link?: string })}
+                              title="Copiar link de convite"
+                            >
+                              {copiedId === inv.id ? (
+                                <Check className="size-4 text-green-600" />
+                              ) : (
+                                <Copy className="size-4" />
+                              )}
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => void revokeInvite(inv.id)}
+                              disabled={revokingId === inv.id}
+                              title="Revogar convite"
+                              className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                            >
+                              <Trash2 className="size-4" />
+                            </Button>
+                          </>
                         )}
                       </div>
                     </div>
@@ -255,6 +301,23 @@ export function UsersPage() {
           </div>
         </div>
       </div>
+
+      <AlertDialog open={confirmDigest} onOpenChange={setConfirmDigest}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Enviar digest semanal</AlertDialogTitle>
+            <AlertDialogDescription>
+              Vai enviar um resumo de projetos, tarefas e milestones a todos os utilizadores. Confirma?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={() => { void handleSendDigest(); setConfirmDigest(false); }}>
+              Enviar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

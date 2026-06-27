@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useProjectContext } from "../contexts/ProjectContext";
 import { apiDelete, apiGet, apiPost, apiPut } from "../lib/apiClient";
+import { Skeleton } from "../components/ui/skeleton";
 import { LogframeForm } from "../components/impact/LogframeForm";
 import { LogframeList } from "../components/impact/LogframeList";
 import { MetricForm } from "../components/impact/MetricForm";
@@ -283,6 +284,22 @@ export function ImpactPage() {
         <div className="flex-1 min-h-0 overflow-auto p-6">
           <div className="rounded-xl border border-dashed border-gray-300 bg-white p-10 text-center text-gray-500">
             Escolha um projeto ativo no topo para acompanhar métricas isoladas desse projeto.
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex-1 min-h-0 flex flex-col bg-gray-50">
+        <Header showBackButton />
+        <div className="flex-1 min-h-0 overflow-auto p-6">
+          <div className="space-y-3">
+            <Skeleton className="h-8 w-1/3" />
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-2/3" />
+            <Skeleton className="h-4 w-full" />
           </div>
         </div>
       </div>
