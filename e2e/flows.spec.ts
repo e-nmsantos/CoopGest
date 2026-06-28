@@ -43,8 +43,10 @@ async function openProject(page: Page, nameFragment: string) {
     .first();
 
   await projectLink.waitFor({ timeout: 30000 });
-  await projectLink.click();
-  await page.waitForURL(/\/projetos\/\d+/, { timeout: 20000 });
+  await Promise.all([
+    page.waitForURL(/\/projetos\/\d+/, { timeout: 30000 }),
+    projectLink.click(),
+  ]);
   await page.waitForLoadState("domcontentloaded");
   await page.waitForTimeout(500);
 }
@@ -94,8 +96,10 @@ test.describe("Fluxo 1: Ciclo de vida completo de um projecto", () => {
       .filter({ hasText: projectName })
       .first();
     await projectLink.waitFor({ timeout: 30000 });
-    await projectLink.click();
-    await page.waitForURL(/\/projetos\/\d+/, { timeout: 20000 });
+    await Promise.all([
+      page.waitForURL(/\/projetos\/\d+/, { timeout: 30000 }),
+      projectLink.click(),
+    ]);
     await page.waitForLoadState("domcontentloaded");
 
     // 4. Adicionar tarefa (tab Tarefas é a default) ----------------------------

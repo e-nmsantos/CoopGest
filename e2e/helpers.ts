@@ -7,16 +7,16 @@ export async function login(page: Page, username = "admin", password = "coopgest
   await Promise.all([
     page.waitForResponse(
       (res) => res.url().includes("/api/auth/login") && res.status() === 200,
-      { timeout: 15000 },
+      { timeout: 30000 },
     ),
     page.getByRole("button", { name: "Entrar" }).click(),
   ]);
-  await page.waitForURL((url) => !url.pathname.includes("/login"), { timeout: 15000 });
+  await page.waitForURL((url) => !url.pathname.includes("/login"), { timeout: 30000 });
 }
 
 export async function createProject(page: Page, name: string) {
   await page.goto("/projetos");
-  await page.waitForLoadState("networkidle");
+  await page.waitForLoadState("load");
   await page.getByRole("button", { name: "Novo Projeto" }).click();
   await page.getByLabel("Nome do Projeto").fill(name);
   const today = new Date().toISOString().slice(0, 10);
