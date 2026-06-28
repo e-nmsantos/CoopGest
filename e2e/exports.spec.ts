@@ -106,7 +106,7 @@ test.describe("Exports", () => {
       return;
     }
     await projectRow.click();
-    await page.waitForURL(/\/projetos\/\d+/, { timeout: 10000 });
+    await page.waitForURL(/\/projeto\/\d+/, { timeout: 10000 });
     await page.waitForLoadState("networkidle");
 
     // Abrir dropdown "Ações"

@@ -44,7 +44,7 @@ async function openProject(page: Page, nameFragment: string) {
 
   await projectLink.waitFor({ timeout: 30000 });
   await Promise.all([
-    page.waitForURL(/\/projetos\/\d+/, { timeout: 30000 }),
+    page.waitForURL(/\/projeto\/\d+/, { timeout: 30000 }),
     projectLink.click(),
   ]);
   await page.waitForLoadState("domcontentloaded");
@@ -97,7 +97,7 @@ test.describe("Fluxo 1: Ciclo de vida completo de um projecto", () => {
       .first();
     await projectLink.waitFor({ timeout: 30000 });
     await Promise.all([
-      page.waitForURL(/\/projetos\/\d+/, { timeout: 30000 }),
+      page.waitForURL(/\/projeto\/\d+/, { timeout: 30000 }),
       projectLink.click(),
     ]);
     await page.waitForLoadState("domcontentloaded");
