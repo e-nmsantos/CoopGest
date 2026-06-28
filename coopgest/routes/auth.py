@@ -54,7 +54,7 @@ def _is_dev_token_response_enabled() -> bool:
 
 
 @bp.route("/api/auth/login", methods=["POST"])
-@_rate_limit("10 per minute")
+@_rate_limit("30 per minute")
 def api_auth_login():
     payload = request.get_json(silent=True)
     if not payload or not payload.get("username") or not payload.get("password"):
@@ -153,7 +153,7 @@ def api_auth_me_update():
 
 
 @bp.route("/api/auth/forgot-password", methods=["POST"])
-@_rate_limit("10 per minute")
+@_rate_limit("30 per minute")
 def api_auth_forgot_password():
     payload = request.get_json(silent=True) or {}
     username = str(payload.get("username", "")).strip()
