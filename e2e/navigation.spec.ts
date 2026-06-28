@@ -25,7 +25,9 @@ test.describe("Navegação — todas as rotas carregam", () => {
   for (const route of ROUTES) {
     test(`${route.label} (${route.path}) carrega sem crash`, async ({ page }) => {
       await page.goto(route.path);
-      await page.waitForLoadState("networkidle");
+      // "load" em vez de "networkidle": páginas como /portfolio fazem polling
+      // contínuo que impede "networkidle" de resolver com muitos projectos na DB
+      await page.waitForLoadState("load");
       // Page renders something
       await expect(page.locator("body")).toBeVisible();
       // No JS error modals

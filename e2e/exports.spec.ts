@@ -14,7 +14,7 @@ test.describe("Exports", () => {
 
   test("portfolio dashboard carrega", async ({ page }) => {
     await page.goto("/portfolio");
-    await page.waitForLoadState("networkidle");
+    await page.waitForLoadState("load");
     await expect(page.locator("body")).toBeVisible();
   });
 

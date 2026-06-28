@@ -7,6 +7,7 @@ import { MethodCard } from "../components/methodkit/MethodCard";
 import { MethodDetailModal } from "../components/methodkit/MethodDetailModal";
 import { useMethodKit, CARDS } from "../hooks/useMethodKit";
 import { getGuideQuestions } from "../components/methodkit/methodkit.data";
+import { useProjectContext } from "../contexts/ProjectContext";
 import type { MKCard, CategoryMeta } from "../components/methodkit/methodkit.types";
 
 // ────────────────────────────────────────────────────────────
@@ -27,6 +28,7 @@ const CATEGORIES: CategoryMeta[] = [
 const CATEGORY_MAP = Object.fromEntries(CATEGORIES.map((c) => [c.id, c]));
 
 export function MethodKitPage() {
+  const { activeProjectId } = useProjectContext();
   const {
     search,
     setSearch,
@@ -38,7 +40,7 @@ export function MethodKitPage() {
     filteredCards,
     toggleCard,
     resetSelection,
-  } = useMethodKit();
+  } = useMethodKit(activeProjectId);
 
   const [detailCard, setDetailCard] = useState<MKCard | null>(null);
 

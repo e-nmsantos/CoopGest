@@ -1,5 +1,13 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import type { MKCard } from "../components/methodkit/methodkit.types";
+import { apiGet, apiPost, apiDelete } from "../lib/apiClient";
+
+interface MethodKitRow {
+  id: number;
+  card_id: string;
+  nota: string;
+  selecionado: number;
+}
 
 const CARDS: MKCard[] = [
   // Estratégia & Visão
@@ -79,11 +87,30 @@ const CARDS: MKCard[] = [
 
 export { CARDS };
 
-export function useMethodKit() {
+export function useMethodKit(projectId?: string | null) {
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedCards, setSelectedCards] = useState<Set<string>>(new Set());
   const [workshopMode, setWorkshopMode] = useState(false);
+
+  // Load persisted selections when a project is active
+  useEffect(() => {
+    if (!projectId) {
+      setSelectedCards(new Set());
+      return;
+    }
+    apiGet<MethodKitRow[]>(`/api/projects/${projectId}/methodkit`)
+      .then((rows) => {
+        const selected = new Set(
+          rows.filter((r) => r.selecionado === 1).map((r) => r.card_id)
+        );
+        setSelectedCards(selected);
+      })
+      .catch(() => {
+        // Silently fall back to empty selection on network/auth errors
+        setSelectedCards(new Set());
+      });
+  }, [projectId]);
 
   const filteredCards = useMemo(() => {
     let cards = CARDS;
@@ -101,19 +128,42 @@ export function useMethodKit() {
     return cards;
   }, [search, selectedCategory, selectedCards, workshopMode]);
 
-  const toggleCard = (id: string) => {
+  const toggleCard = useCallback((id: string) => {
     setSelectedCards((prev) => {
       const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
+      const willBeSelected = !next.has(id);
+      if (willBeSelected) {
+        next.add(id);
+      } else {
+        next.delete(id);
+      }
+
+      if (projectId) {
+        if (willBeSelected) {
+          void apiPost(`/api/projects/${projectId}/methodkit`, { card_id: id, selecionado: true });
+        } else {
+          void apiDelete(`/api/projects/${projectId}/methodkit/${id}`);
+        }
+      }
+
       return next;
     });
-  };
+  }, [projectId]);
 
-  const resetSelection = () => {
-    setSelectedCards(new Set());
+  const resetSelection = useCallback(() => {
+    if (projectId) {
+      // Capture current selection before clearing so we can delete each one
+      setSelectedCards((prev) => {
+        prev.forEach((id) => {
+          void apiDelete(`/api/projects/${projectId}/methodkit/${id}`);
+        });
+        return new Set();
+      });
+    } else {
+      setSelectedCards(new Set());
+    }
     setWorkshopMode(false);
-  };
+  }, [projectId]);
 
   return {
     search,

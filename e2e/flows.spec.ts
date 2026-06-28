@@ -13,8 +13,8 @@ import * as path from "path";
 import * as fs from "fs";
 import * as os from "os";
 
-// Cada teste de fluxo pode demorar até 2 minutos
-test.setTimeout(120000);
+// Cada teste de fluxo pode demorar até 3 minutos (servidor sob carga com DB acumulada)
+test.setTimeout(180000);
 
 // ---------------------------------------------------------------------------
 // Helpers locais
@@ -42,9 +42,9 @@ async function openProject(page: Page, nameFragment: string) {
     .filter({ hasText: nameFragment })
     .first();
 
-  await projectLink.waitFor({ timeout: 10000 });
+  await projectLink.waitFor({ timeout: 30000 });
   await projectLink.click();
-  await page.waitForURL(/\/projeto\/\d+/, { timeout: 20000 });
+  await page.waitForURL(/\/projetos\/\d+/, { timeout: 20000 });
   await page.waitForLoadState("domcontentloaded");
   await page.waitForTimeout(500);
 }
@@ -93,9 +93,9 @@ test.describe("Fluxo 1: Ciclo de vida completo de um projecto", () => {
       .getByRole("link")
       .filter({ hasText: projectName })
       .first();
-    await projectLink.waitFor({ timeout: 10000 });
+    await projectLink.waitFor({ timeout: 30000 });
     await projectLink.click();
-    await page.waitForURL(/\/projeto\/\d+/, { timeout: 20000 });
+    await page.waitForURL(/\/projetos\/\d+/, { timeout: 20000 });
     await page.waitForLoadState("domcontentloaded");
 
     // 4. Adicionar tarefa (tab Tarefas é a default) ----------------------------

@@ -102,7 +102,7 @@ def attach_finance_urls(rows):
 def apply_finance_execution_to_budget(conn, project_id, budget_items):
     execution_rows = conn.execute(
         """SELECT tipo, COALESCE(NULLIF(categoria, ''), 'Sem categoria') AS categoria,
-                  COALESCE(SUM(valor), 0) AS executado
+                  COALESCE(SUM(valor * COALESCE(taxa_cambio, 1.0)), 0) AS executado
            FROM movimentos_financeiros
            WHERE projeto_id=?
            GROUP BY tipo, COALESCE(NULLIF(categoria, ''), 'Sem categoria')""",
@@ -190,7 +190,7 @@ def build_finance_payload(conn, raw_project_id=None):
 
     movement_rows = conn.execute(
         f"""SELECT projeto_id, tipo, COALESCE(NULLIF(categoria, ''), 'Sem categoria') AS categoria,
-                   COALESCE(SUM(valor), 0) AS executado,
+                   COALESCE(SUM(valor * COALESCE(taxa_cambio, 1.0)), 0) AS executado,
                    COUNT(*) AS movimentos
             FROM movimentos_financeiros
             WHERE projeto_id IN ({placeholders})

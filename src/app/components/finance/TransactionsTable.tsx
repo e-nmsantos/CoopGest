@@ -61,10 +61,17 @@ export function TransactionsTable({ transactions, onEdit, onDelete }: Transactio
                     )}
                   </td>
                   <td className={`py-3 pr-3 text-right font-semibold ${transaction.tipo === "Receita" ? "text-emerald-700" : "text-red-700"}`}>
-                    {transaction.tipo === "Receita" ? "+" : "-"}{money(transaction.valor)}
+                    {transaction.tipo === "Receita" ? "+" : "-"}{
+                      transaction.moeda && transaction.moeda !== "EUR" && transaction.taxa_cambio
+                        ? money(transaction.valor * transaction.taxa_cambio)
+                        : money(transaction.valor)
+                    }
                     {transaction.moeda && transaction.moeda !== "EUR" && (
                       <div className="text-xs text-gray-400 font-normal">
-                        {transaction.moeda} {transaction.taxa_cambio !== 1 ? `(×${transaction.taxa_cambio})` : ""}
+                        {Number(transaction.valor).toLocaleString("pt-PT", { minimumFractionDigits: 2 })} {transaction.moeda}
+                        {transaction.taxa_cambio && transaction.taxa_cambio !== 1
+                          ? ` (×${transaction.taxa_cambio})`
+                          : ""}
                       </div>
                     )}
                   </td>

@@ -15,6 +15,7 @@ interface DbFundingSource {
   tipo: string;
   valor_aprovado: number;
   valor_executado: number;
+  moeda?: string;
   data_inicio?: string;
   data_fim?: string;
   referencia?: string;
@@ -26,6 +27,7 @@ interface FundingSource {
   tipo: string;
   valorAprovado: number;
   valorExecutado: number;
+  moeda: string;
   dataInicio: string;
   dataFim: string;
   referencia: string;
@@ -38,6 +40,7 @@ function fromDb(f: DbFundingSource): FundingSource {
     tipo: f.tipo || "Fundo Europeu",
     valorAprovado: f.valor_aprovado || 0,
     valorExecutado: f.valor_executado || 0,
+    moeda: f.moeda || "EUR",
     dataInicio: f.data_inicio || "",
     dataFim: f.data_fim || "",
     referencia: f.referencia || "",
@@ -186,14 +189,17 @@ export function FundingSection({ projectId, initialFunding = [] }: FundingSectio
                     <div className="flex items-center gap-3 mb-1">
                       <span className="font-semibold text-gray-900">{src.nome}</span>
                       <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full">{src.tipo}</span>
+                      {src.moeda && src.moeda !== "EUR" && (
+                        <span className="text-xs px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full">{src.moeda}</span>
+                      )}
                       {src.referencia && (
                         <span className="text-xs text-gray-500">Ref: {src.referencia}</span>
                       )}
                     </div>
                     <div className="flex gap-6 text-sm text-gray-600 mb-2">
-                      <span>Aprovado: <strong>{src.valorAprovado.toFixed(2)} €</strong></span>
-                      <span>Executado: <strong>{src.valorExecutado.toFixed(2)} €</strong></span>
-                      <span>Saldo: <strong>{(src.valorAprovado - src.valorExecutado).toFixed(2)} €</strong></span>
+                      <span>Aprovado: <strong>{src.valorAprovado.toFixed(2)} {src.moeda && src.moeda !== "EUR" ? src.moeda : "€"}</strong></span>
+                      <span>Executado: <strong>{src.valorExecutado.toFixed(2)} {src.moeda && src.moeda !== "EUR" ? src.moeda : "€"}</strong></span>
+                      <span>Saldo: <strong>{(src.valorAprovado - src.valorExecutado).toFixed(2)} {src.moeda && src.moeda !== "EUR" ? src.moeda : "€"}</strong></span>
                       {src.dataInicio && src.dataFim && (
                         <span className="text-gray-400">{src.dataInicio} → {src.dataFim}</span>
                       )}

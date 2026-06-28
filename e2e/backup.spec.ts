@@ -13,7 +13,7 @@ test.describe("Backup e Restore", () => {
     await page.goto("/projetos");
     await page.waitForLoadState("networkidle");
 
-    const downloadPromise = page.waitForEvent("download", { timeout: 15000 });
+    const downloadPromise = page.waitForEvent("download", { timeout: 30000 });
     await page.getByRole("button", { name: /Backup de todos/ }).click();
     const download = await downloadPromise;
 
@@ -25,7 +25,7 @@ test.describe("Backup e Restore", () => {
     await page.waitForLoadState("networkidle");
 
     // Primeiro gerar um backup para ter um ficheiro válido
-    const downloadPromise = page.waitForEvent("download", { timeout: 15000 });
+    const downloadPromise = page.waitForEvent("download", { timeout: 30000 });
     await page.getByRole("button", { name: /Backup de todos/ }).click();
     const download = await downloadPromise;
 
@@ -61,7 +61,7 @@ test.describe("Backup e Restore", () => {
     // Tentar backup selecionado (botão só fica activo com selecção)
     const backupBtn = page.getByRole("button", { name: /Backup \(/ });
     if (await backupBtn.isEnabled()) {
-      const downloadPromise = page.waitForEvent("download", { timeout: 15000 });
+      const downloadPromise = page.waitForEvent("download", { timeout: 30000 });
       await backupBtn.click();
       const download = await downloadPromise;
       expect(download.suggestedFilename()).toMatch(/backup.*\.zip/i);

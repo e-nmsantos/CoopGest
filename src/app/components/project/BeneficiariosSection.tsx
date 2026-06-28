@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 import { pt } from "date-fns/locale";
 import { apiDelete, apiGet, apiPost } from "../../lib/apiClient";
+import { BeneficiariosDesagregacao } from "./BeneficiariosDesagregacao";
 
 interface Desagregacao {
   id: number;
@@ -371,6 +372,12 @@ export function BeneficiariosSection({ projectId, initialBeneficiarios = [] }: B
           })}
         </div>
       )}
+
+      {/* Project-level disaggregation summary */}
+      <BeneficiariosDesagregacao
+        projectId={projectId}
+        beneficiarios={items.map((b) => ({ id: b.id, nome: b.nome, numero: b.numero || 1 }))}
+      />
 
       {/* Feedback section */}
       <Card className="p-6">

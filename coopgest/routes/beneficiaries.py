@@ -205,6 +205,115 @@ def api_desagregacao_detail(id):
     return jsonify(row_to_dict(updated))
 
 
+@bp.route("/api/projects/<int:projeto_id>/beneficiarios/desagregacao", methods=["GET", "POST"])
+@login_required
+def api_project_desagregacao(projeto_id):
+    """Project-level disaggregation: list all rows or create one linked to a beneficiary."""
+    conn = get_db()
+    access_error = require_project_access(conn, projeto_id)
+    if access_error:
+        conn.close()
+        return access_error
+
+    if request.method == "POST":
+        permission_error = require_project_permission(conn, projeto_id, "membro")
+        if permission_error:
+            conn.close()
+            return permission_error
+        payload = request.get_json(silent=True) or {}
+        beneficiario_id = payload.get("beneficiario_id")
+        dimensao = str(payload.get("dimensao") or "").strip()
+        categoria = str(payload.get("categoria") or "").strip()
+        if not beneficiario_id or not dimensao or not categoria:
+            conn.close()
+            return api_error("beneficiario_id, dimensao e categoria são obrigatórios", 400, "VALIDATION_ERROR")
+        if dimensao not in _DIMENSOES:
+            conn.close()
+            return api_error(f"Dimensão inválida. Valores aceites: {', '.join(_DIMENSOES)}", 400, "VALIDATION_ERROR")
+        # Verify the beneficiary belongs to this project
+        ben = conn.execute(
+            "SELECT id FROM beneficiarios WHERE id=? AND projeto_id=?",
+            (beneficiario_id, projeto_id),
+        ).fetchone()
+        if not ben:
+            conn.close()
+            return api_error("Beneficiário não encontrado neste projecto", 404, "NOT_FOUND")
+        numero = int(payload.get("numero") or 0)
+        cursor = conn.execute(
+            "INSERT INTO beneficiarios_desagregacao (beneficiario_id, projeto_id, dimensao, categoria, numero) VALUES (?,?,?,?,?)",
+            (beneficiario_id, projeto_id, dimensao, categoria, numero),
+        )
+        conn.commit()
+        new_row = conn.execute("SELECT * FROM beneficiarios_desagregacao WHERE id=?", (cursor.lastrowid,)).fetchone()
+        conn.close()
+        return jsonify(row_to_dict(new_row)), 201
+
+    # GET — all disaggregation rows for the project, joined with beneficiary name
+    rows = conn.execute(
+        """SELECT d.*, b.nome AS beneficiario_nome
+           FROM beneficiarios_desagregacao d
+           JOIN beneficiarios b ON b.id = d.beneficiario_id
+           WHERE d.projeto_id=?
+           ORDER BY d.dimensao, d.categoria, b.nome""",
+        (projeto_id,),
+    ).fetchall()
+    conn.close()
+    return jsonify([row_to_dict(r) for r in rows])
+
+
+@bp.route("/api/projects/<int:projeto_id>/beneficiarios/desagregacao/<int:desag_id>", methods=["PUT", "DELETE"])
+@login_required
+def api_project_desagregacao_detail(projeto_id, desag_id):
+    """Edit or delete a specific disaggregation row, scoped to a project."""
+    conn = get_db()
+    access_error = require_project_access(conn, projeto_id)
+    if access_error:
+        conn.close()
+        return access_error
+    permission_error = require_project_permission(conn, projeto_id, "membro")
+    if permission_error:
+        conn.close()
+        return permission_error
+
+    row = conn.execute(
+        "SELECT * FROM beneficiarios_desagregacao WHERE id=? AND projeto_id=?",
+        (desag_id, projeto_id),
+    ).fetchone()
+    if not row:
+        conn.close()
+        return api_error("Desagregação não encontrada", 404, "NOT_FOUND")
+
+    if request.method == "DELETE":
+        conn.execute("DELETE FROM beneficiarios_desagregacao WHERE id=?", (desag_id,))
+        conn.commit()
+        conn.close()
+        return jsonify({"deleted": True, "id": desag_id})
+
+    payload = request.get_json(silent=True) or {}
+    updates: list[tuple] = []
+    if "categoria" in payload:
+        cat = str(payload["categoria"] or "").strip()
+        if not cat:
+            conn.close()
+            return api_error("Categoria não pode ser vazia", 400, "VALIDATION_ERROR")
+        updates.append(("categoria", cat))
+    if "numero" in payload:
+        updates.append(("numero", int(payload["numero"] or 0)))
+    if "dimensao" in payload:
+        dim = str(payload["dimensao"] or "").strip()
+        if dim not in _DIMENSOES:
+            conn.close()
+            return api_error(f"Dimensão inválida. Valores aceites: {', '.join(_DIMENSOES)}", 400, "VALIDATION_ERROR")
+        updates.append(("dimensao", dim))
+    if updates:
+        set_clause = ", ".join(f"{f}=?" for f, _ in updates)
+        conn.execute(f"UPDATE beneficiarios_desagregacao SET {set_clause} WHERE id=?", [v for _, v in updates] + [desag_id])
+        conn.commit()
+    updated = conn.execute("SELECT * FROM beneficiarios_desagregacao WHERE id=?", (desag_id,)).fetchone()
+    conn.close()
+    return jsonify(row_to_dict(updated))
+
+
 @bp.route("/api/projects/<int:projeto_id>/beneficiarios/dimensoes")
 @login_required
 def api_beneficiarios_dimensoes(projeto_id):
