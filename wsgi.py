@@ -19,7 +19,7 @@ if __name__ == '__main__':
     import os
     from waitress import serve
 
-    host = os.environ.get('HOST', '0.0.0.0')
     port = int(os.environ.get('PORT', 8000))
-    print(f'CoopGest a correr em http://{host}:{port}')
-    serve(application, host=host, port=port, threads=8)
+    listen = os.environ.get('LISTEN') or f'*:{port}'
+    print(f'CoopGest a correr em {listen}', flush=True)
+    serve(application, listen=listen, threads=8, url_scheme='https')
