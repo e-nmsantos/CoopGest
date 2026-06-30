@@ -4,6 +4,8 @@ Executar com: pytest tests/ -v
 """
 import os
 import tempfile
+import contextlib
+import gc
 import pytest
 import sys
 import io
@@ -35,8 +37,10 @@ def client():
             app_module.init_db()
         yield client
 
+    gc.collect()
     os.close(db_fd)
-    os.unlink(db_path)
+    with contextlib.suppress(PermissionError):
+        os.unlink(db_path)
 
 
 def login(client, username='admin', password='coopgest2025'):
@@ -321,6 +325,11 @@ class TestFinances:
 
 
 class TestSecurity:
+    def test_healthcheck_publico(self, client):
+        r = client.get('/api/health')
+        assert r.status_code == 200
+        assert r.get_json()['status'] == 'ok'
+
     def test_endpoints_protegidos(self, client):
         """Todos os endpoints de dados devem exigir autenticação."""
         endpoints = [
@@ -339,6 +348,42 @@ class TestSecurity:
         login(client)
         r = client.get('/api/auth/users')
         assert r.status_code == 200  # admin pode ver
+
+    def test_admin_revoga_convite_pendente(self, client):
+        login(client)
+        created = client.post('/api/auth/invite', json={
+            'email': 'pendente@coopgest.local',
+            'papel': 'membro',
+        })
+        assert created.status_code == 201
+        convite = created.get_json()
+        assert convite['id']
+        assert convite['token']
+
+        revoked = client.delete(f"/api/auth/invites/{convite['id']}")
+        assert revoked.status_code == 204
+
+        check = client.get(f"/api/auth/invite/{convite['token']}")
+        assert check.status_code == 404
+
+    def test_nao_revoga_convite_usado(self, client):
+        login(client)
+        created = client.post('/api/auth/invite', json={
+            'email': 'usado@coopgest.local',
+            'papel': 'membro',
+        })
+        convite = created.get_json()
+
+        registered = client.post('/api/auth/register', json={
+            'token': convite['token'],
+            'username': 'novo-utilizador',
+            'nome': 'Novo Utilizador',
+            'password': 'senha12345',
+        })
+        assert registered.status_code == 201
+
+        revoked = client.delete(f"/api/auth/invites/{convite['id']}")
+        assert revoked.status_code == 409
 
     def test_password_reset_fluxo_completo(self, client):
         """Fluxo completo: forgot → reset → login com nova password."""
@@ -372,6 +417,132 @@ class TestSecurity:
     def test_rotas_legacy_desativadas_por_defeito(self, client):
         r = client.get('/legacy')
         assert r.status_code == 404
+
+
+class TestAnaliseContexto:
+    def _criar_projeto(self, client, nome='Analise', privado=False):
+        r = client.post('/api/projects', json=project_payload(nome=nome, estado='Em curso'))
+        assert r.status_code == 201
+        pid = r.get_json()['id']
+        if privado:
+            updated = client.put(f'/api/projects/{pid}', json={'privado': True})
+            assert updated.status_code == 200
+        return pid
+
+    def test_pest_swot_arvore_e_avaliacao(self, client):
+        login(client)
+        pid = self._criar_projeto(client)
+
+        pest = client.put('/api/analise/pest', json={
+            'projeto_id': pid,
+            'politico': 'Prioridades nacionais alinhadas',
+            'economico': 'Inflação elevada',
+            'social': 'Forte participação comunitária',
+            'tecnologico': 'Baixa conectividade rural',
+        })
+        assert pest.status_code == 200
+        assert client.get(f'/api/analise/pest?projeto_id={pid}').get_json()['politico'] == 'Prioridades nacionais alinhadas'
+
+        swot = client.put('/api/analise/swot', json={
+            'projeto_id': pid,
+            'forcas': 'Equipa experiente',
+            'fraquezas': 'Recursos limitados',
+            'oportunidades': 'Parcerias locais',
+            'ameacas': 'Risco climático',
+        })
+        assert swot.status_code == 200
+        assert client.get(f'/api/analise/swot?projeto_id={pid}').get_json()['ameacas'] == 'Risco climático'
+
+        item = client.post('/api/analise/arvore', json={
+            'projeto_id': pid,
+            'tipo': 'causa',
+            'descricao': 'Acesso limitado a serviços',
+        })
+        assert item.status_code == 201
+        item_id = item.get_json()['id']
+        updated = client.put(f'/api/analise/arvore/{item_id}', json={'descricao': 'Acesso limitado a serviços essenciais'})
+        assert updated.status_code == 200
+        arvore = client.get(f'/api/analise/arvore?projeto_id={pid}').get_json()
+        assert arvore[0]['descricao'] == 'Acesso limitado a serviços essenciais'
+
+        avaliacao = client.put('/api/avaliacao/Relevância', json={
+            'projeto_id': pid,
+            'questoes': 'Responde às necessidades?',
+            'indicadores': '% beneficiários satisfeitos',
+            'metodos': 'Inquéritos',
+            'fontes': 'Beneficiários',
+            'momento': 'Final',
+        })
+        assert avaliacao.status_code == 200
+        rows = client.get(f'/api/avaliacao?projeto_id={pid}').get_json()
+        relevancia = next(row for row in rows if row['criterio'] == 'Relevância')
+        assert relevancia['metodos'] == 'Inquéritos'
+
+    def test_analise_respeita_permissoes_de_projeto_privado(self, client):
+        login(client)
+        pid = self._criar_projeto(client, nome='Privado Analise', privado=True)
+        saved = client.put('/api/analise/pest', json={'projeto_id': pid, 'politico': 'Restrito'})
+        assert saved.status_code == 200
+
+        conn = app_module.get_db()
+        conn.execute(
+            'INSERT INTO utilizadores (username, password_hash, nome, papel) VALUES (?, ?, ?, ?)',
+            ('externo-analise', app_module.generate_password_hash('senha12345'), 'Externo Analise', 'membro')
+        )
+        conn.commit()
+        conn.close()
+
+        client.post('/api/auth/logout')
+        login_response = login(client, 'externo-analise', 'senha12345')
+        assert login_response.status_code == 200
+
+        denied_read = client.get(f'/api/analise/pest?projeto_id={pid}')
+        assert denied_read.status_code == 403
+        denied_write = client.put('/api/analise/pest', json={'projeto_id': pid, 'politico': 'Tentativa'})
+        assert denied_write.status_code == 403
+
+    def test_parse_document_json_preenche_campos(self, client):
+        login(client)
+        payload = b'''{
+          "nome": "Projeto Importado",
+          "descricao": "Descricao importada",
+          "objetivos": "Objetivo importado",
+          "data_inicio": "2026-01-01",
+          "data_fim": "2026-12-31",
+          "orcamento_total": 25000
+        }'''
+        parsed = client.post(
+            '/api/projects/parse-document',
+            data={'file': (io.BytesIO(payload), 'projeto.json')},
+            content_type='multipart/form-data',
+        )
+        assert parsed.status_code == 200
+        fields = parsed.get_json()['fields']
+        assert fields['name'] == 'Projeto Importado'
+        assert fields['budget'] == '25000'
+
+    def test_import_template_json_cria_projeto(self, client):
+        login(client)
+        payload = {
+            "tipo": "coopgest-template",
+            "projeto": {
+                "nome": "Projeto Template",
+                "descricao": "Descricao do template",
+                "objetivos": "Objetivos do template",
+                "data_inicio": "2026-01-01",
+                "data_fim": "2026-06-30",
+            },
+            "parceiros": [{"nome": "Parceiro A", "tipo": "ONG", "pais": "Portugal"}],
+            "milestones": [{"nome": "Arranque", "data_prevista": "2026-01-15"}],
+        }
+
+        imported = client.post('/api/projects/import-template', json=payload)
+
+        assert imported.status_code == 201
+        data = imported.get_json()
+        assert data['nome'] == 'Projeto Template'
+        assert data['criados']['parceiros'] == 1
+        assert data['criados']['milestones'] == 1
 
     def test_projeto_privado_escondido_de_nao_membro(self, client):
         login(client)

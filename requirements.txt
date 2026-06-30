@@ -5,3 +5,4 @@ Flask-Mail
 Flask-Limiter
 reportlab
 openpyxl
+pymupdf

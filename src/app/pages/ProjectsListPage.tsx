@@ -1,3 +1,5 @@
+import { useRef, useState } from "react";
+import { useNavigate } from "react-router";
 import { Header } from "../components/layout/Header";
 import { CreateProjectDialog } from "../components/projects/CreateProjectDialog";
 import { ProjectCard } from "../components/projects/ProjectCard";
@@ -18,6 +20,7 @@ import {
   FolderKanban,
   Download,
   Upload,
+  FileJson,
   X,
 } from "lucide-react";
 import {
@@ -29,8 +32,36 @@ import {
 } from "../components/ui/select";
 import { attentionFilters } from "../components/projects/projectsList.types";
 import { useProjectsList } from "../hooks/useProjectsList";
+import { apiPost } from "../lib/apiClient";
+import { toast } from "sonner";
 
 export function ProjectsListPage() {
+  const navigate = useNavigate();
+  const templateInputRef = useRef<HTMLInputElement>(null);
+  const [importingTemplate, setImportingTemplate] = useState(false);
+
+  const handleImportTemplate = async (file: File | null) => {
+    if (!file) return;
+    setImportingTemplate(true);
+    try {
+      const form = new FormData();
+      form.append("file", file);
+      const data = await apiPost<{ projeto_id?: number; nome?: string; criados?: Record<string, number> }>(
+        "/api/projects/import-template",
+        form,
+      );
+      const criados = data.criados ?? {};
+      const partes = Object.entries(criados).map(([k, v]) => `${v} ${k}`).join(", ");
+      toast.success(`Projeto "${data.nome}" importado — ${partes}`);
+      void navigate(`/projeto/${data.projeto_id}`);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erro ao importar template");
+    } finally {
+      setImportingTemplate(false);
+      if (templateInputRef.current) templateInputRef.current.value = "";
+    }
+  };
+
   const {
     projects,
     searchQuery,
@@ -122,6 +153,23 @@ export function ProjectsListPage() {
               <Archive className="size-4 mr-1" />
               {showArchived ? "Ocultar arquivados" : "Mostrar arquivados"}
             </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={importingTemplate}
+              onClick={() => templateInputRef.current?.click()}
+              title="Importa um projeto completo a partir de um template JSON CoopGest (parceiros, stakeholders, PEST, SWOT, Quadro Lógico, Avaliação, Orçamento e Riscos)"
+            >
+              <FileJson className="size-4 mr-1" />
+              {importingTemplate ? "A importar..." : "Importar Template"}
+            </Button>
+            <input
+              ref={templateInputRef}
+              type="file"
+              accept=".json"
+              className="hidden"
+              onChange={(e) => void handleImportTemplate(e.target.files?.[0] ?? null)}
+            />
             <CreateProjectDialog onCreateProject={handleCreateProject} />
           </div>
         </div>

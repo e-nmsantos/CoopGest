@@ -261,6 +261,61 @@ MIGRATIONS: tuple[Migration, ...] = (
             "CREATE INDEX IF NOT EXISTS idx_methodkit_projeto ON methodkit_seleccoes(projeto_id)",
         ),
     ),
+    (
+        "202606290000_projeto_ficha_identificacao",
+        (
+            'ALTER TABLE projetos ADD COLUMN localizacao TEXT DEFAULT ""',
+            'ALTER TABLE projetos ADD COLUMN entidade_proponente TEXT DEFAULT ""',
+            'ALTER TABLE projetos ADD COLUMN ods TEXT DEFAULT ""',
+        ),
+    ),
+    (
+        "202606290001_analise_contexto",
+        (
+            """CREATE TABLE IF NOT EXISTS analise_pest (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                projeto_id INTEGER NOT NULL UNIQUE,
+                politico TEXT DEFAULT '',
+                economico TEXT DEFAULT '',
+                social TEXT DEFAULT '',
+                tecnologico TEXT DEFAULT '',
+                FOREIGN KEY (projeto_id) REFERENCES projetos(id) ON DELETE CASCADE
+            )""",
+            "CREATE INDEX IF NOT EXISTS idx_pest_projeto ON analise_pest(projeto_id)",
+            """CREATE TABLE IF NOT EXISTS analise_swot (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                projeto_id INTEGER NOT NULL UNIQUE,
+                forcas TEXT DEFAULT '',
+                fraquezas TEXT DEFAULT '',
+                oportunidades TEXT DEFAULT '',
+                ameacas TEXT DEFAULT '',
+                FOREIGN KEY (projeto_id) REFERENCES projetos(id) ON DELETE CASCADE
+            )""",
+            "CREATE INDEX IF NOT EXISTS idx_swot_projeto ON analise_swot(projeto_id)",
+            """CREATE TABLE IF NOT EXISTS arvore_problemas (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                projeto_id INTEGER NOT NULL,
+                tipo TEXT NOT NULL DEFAULT 'causa',
+                descricao TEXT NOT NULL DEFAULT '',
+                ordem INTEGER DEFAULT 0,
+                FOREIGN KEY (projeto_id) REFERENCES projetos(id) ON DELETE CASCADE
+            )""",
+            "CREATE INDEX IF NOT EXISTS idx_arvore_projeto ON arvore_problemas(projeto_id)",
+            """CREATE TABLE IF NOT EXISTS plano_avaliacao (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                projeto_id INTEGER NOT NULL,
+                criterio TEXT NOT NULL DEFAULT '',
+                questoes TEXT DEFAULT '',
+                indicadores TEXT DEFAULT '',
+                metodos TEXT DEFAULT '',
+                fontes TEXT DEFAULT '',
+                momento TEXT DEFAULT '',
+                UNIQUE(projeto_id, criterio),
+                FOREIGN KEY (projeto_id) REFERENCES projetos(id) ON DELETE CASCADE
+            )""",
+            "CREATE INDEX IF NOT EXISTS idx_avaliacao_projeto ON plano_avaliacao(projeto_id)",
+        ),
+    ),
 )
 
 
