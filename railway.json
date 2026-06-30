@@ -1,6 +1,8 @@
 {
   "$schema": "https://railway.com/railway.schema.json",
   "deploy": {
-    "startCommand": "python wsgi.py"
+    "startCommand": "python wsgi.py",
+    "healthcheckPath": "/api/health",
+    "healthcheckTimeout": 300
   }
 }
