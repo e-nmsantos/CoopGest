@@ -8,7 +8,6 @@
 *.sqlite3
 uploads/
 node_modules/
-dist/
 build/
 release/
 __pycache__/
@@ -20,6 +19,7 @@ __pycache__/
 .vscode/
 *.spec
 *.log
+logs/
 *.tmp
 *.bak
 *.zip
