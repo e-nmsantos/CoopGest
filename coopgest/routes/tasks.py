@@ -39,11 +39,14 @@ def _task_to_kanban(row, conn=None):
     return {
         'id': str(d['id']),
         'title': d.get('nome', ''),
+        'nome': d.get('nome', ''),
         'description': d.get('descricao', '') or '',
         'priority': KANBAN_PRIORITY_REVERSE.get(d.get('prioridade', 'Normal'), 'medium'),
         'tags': tags,
         'collaborators': collaborators,
         'dueDate': d.get('data_fim') or None,
+        'data_inicio': d.get('data_inicio') or None,
+        'data_fim': d.get('data_fim') or None,
         'status': KANBAN_ESTADO_REVERSE.get(d.get('estado', 'Por fazer'), 'todo'),
         'projeto_id': d.get('projeto_id'),
         'subtasks': subtasks_info,
@@ -79,12 +82,13 @@ def api_project_tasks(projeto_id):
         recorrencia = payload.get('recorrencia') or None
         responsavel = payload.get('responsavel', '') or ''
         cursor = conn.execute(
-            'INSERT INTO tarefas (projeto_id, nome, descricao, responsavel, data_fim, prioridade, estado, tags, recorrencia) VALUES (?,?,?,?,?,?,?,?,?)',
+            'INSERT INTO tarefas (projeto_id, nome, descricao, responsavel, data_inicio, data_fim, prioridade, estado, tags, recorrencia) VALUES (?,?,?,?,?,?,?,?,?,?)',
             (
                 projeto_id,
                 payload['title'].strip(),
                 payload.get('description', '') or '',
                 responsavel,
+                payload.get('data_inicio') or payload.get('startDate') or '',
                 payload.get('dueDate', '') or '',
                 prioridade,
                 estado,
@@ -177,6 +181,10 @@ def api_task_detail(id):
         updates.append(('recorrencia', payload['recorrencia'] or None))
     if 'dueDate' in payload:
         updates.append(('data_fim', payload['dueDate'] or None))
+    if 'data_inicio' in payload:
+        updates.append(('data_inicio', payload['data_inicio'] or None))
+    if 'startDate' in payload:
+        updates.append(('data_inicio', payload['startDate'] or None))
     if 'description' in payload:
         updates.append(('descricao', str(payload['description'] or '')))
 

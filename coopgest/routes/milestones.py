@@ -49,7 +49,12 @@ def api_project_milestones(projeto_id):
         'SELECT * FROM milestones WHERE projeto_id=? ORDER BY data_prevista ASC', (projeto_id,)
     ).fetchall()
     conn.close()
-    return jsonify([row_to_dict(r) for r in rows])
+    result = []
+    for row in rows:
+        data = row_to_dict(row)
+        data["titulo"] = data.get("nome", "")
+        result.append(data)
+    return jsonify(result)
 
 
 @bp.route('/api/milestones/<int:id>', methods=['PATCH', 'DELETE'])
