@@ -46,7 +46,7 @@ def api_project_team(projeto_id):
         return jsonify({"message": "Membro adicionado"}), 201
 
     rows = [row_to_dict(row) for row in conn.execute(
-        """SELECT pm.*, u.nome, u.username, u.papel as papel_global
+        """SELECT pm.*, u.nome, u.nome as user_nome, u.username, u.papel as papel_global
            FROM projeto_membros pm
            JOIN utilizadores u ON pm.user_id = u.id
            WHERE pm.projeto_id=?""",
