@@ -124,7 +124,7 @@ def create_procurement(projeto_id: int):
                 tipo,
                 float(data.get("valor_estimado") or 0),
                 float(data.get("valor_real") or 0),
-                data.get("moeda", "EUR"),
+                data.get("moeda", "USD"),
                 estado,
                 data.get("data_lancamento", ""),
                 data.get("data_adjudicacao", ""),

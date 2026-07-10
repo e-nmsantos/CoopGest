@@ -3,10 +3,11 @@ import { Card } from "../ui/card";
 import { Badge } from "../ui/badge";
 import { Progress } from "../ui/progress";
 import { Checkbox } from "../ui/checkbox";
-import { Users, Euro, Calendar } from "lucide-react";
+import { Users, DollarSign, Calendar } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { pt } from "date-fns/locale";
 import { Project, statusColors } from "./projectsList.types";
+import { formatMoneyCompact } from "../../lib/currency";
 
 interface ProjectCardProps {
   project: Project;
@@ -76,8 +77,8 @@ export function ProjectCard({ project, selected, onToggleSelect }: ProjectCardPr
               <span>{project.members} membros</span>
             </div>
             <div className="flex items-center gap-1">
-              <Euro className="size-4" />
-              <span>{parseFloat(project.budget).toLocaleString("pt-PT")}€</span>
+              <DollarSign className="size-4" />
+              <span>{formatMoneyCompact(parseFloat(project.budget))}</span>
             </div>
           </div>
 

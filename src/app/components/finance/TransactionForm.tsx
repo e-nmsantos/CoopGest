@@ -137,9 +137,9 @@ export function TransactionForm({
             {MOEDAS.map((m) => <option key={m} value={m}>{m}</option>)}
           </select>
         </div>
-        {form.moeda !== "EUR" && (
+        {form.moeda !== "USD" && (
           <div className="flex items-center gap-2">
-            <span className="text-xs text-gray-500 whitespace-nowrap">Taxa {form.moeda}/EUR</span>
+            <span className="text-xs text-gray-500 whitespace-nowrap">Taxa {form.moeda}/USD</span>
             <Input
               type="number"
               min="0.0001"

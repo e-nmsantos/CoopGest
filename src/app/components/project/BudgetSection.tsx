@@ -6,6 +6,7 @@ import { useState } from "react";
 import { Download, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { apiDelete, apiPost } from "../../lib/apiClient";
+import { formatMoney } from "../../lib/currency";
 
 interface DbBudgetItem {
   id: number;
@@ -146,21 +147,21 @@ export function BudgetSection({ projectId, initialItems = [] }: BudgetSectionPro
         <Card className="p-4 bg-green-50 border-green-200">
           <div className="text-sm text-green-700 mb-1">Receitas (Previsto)</div>
           <div className="text-2xl font-semibold text-green-800">
-            {stats.receitasPlanned.toFixed(2)} €
+            {formatMoney(stats.receitasPlanned)}
           </div>
         </Card>
 
         <Card className="p-4 bg-red-50 border-red-200">
           <div className="text-sm text-red-700 mb-1">Despesas (Previsto)</div>
           <div className="text-2xl font-semibold text-red-800">
-            {stats.despesasPlanned.toFixed(2)} €
+            {formatMoney(stats.despesasPlanned)}
           </div>
         </Card>
 
         <Card className="p-4 bg-blue-50 border-blue-200">
           <div className="text-sm text-blue-700 mb-1">Despesas (Real)</div>
           <div className="text-2xl font-semibold text-blue-800">
-            {stats.despesasActual.toFixed(2)} €
+            {formatMoney(stats.despesasActual)}
           </div>
           <p className="text-xs text-blue-700 mt-1">{despesaExecution.toFixed(1)}% executado</p>
         </Card>
@@ -168,9 +169,9 @@ export function BudgetSection({ projectId, initialItems = [] }: BudgetSectionPro
         <Card className="p-4 bg-yellow-50 border-yellow-200">
           <div className="text-sm text-yellow-700 mb-1">Saldo (Real)</div>
           <div className="text-2xl font-semibold text-yellow-800">
-            {saldoActual.toFixed(2)} €
+            {formatMoney(saldoActual)}
           </div>
-          <p className="text-xs text-yellow-700 mt-1">Previsto: {saldoPlanned.toFixed(2)} €</p>
+          <p className="text-xs text-yellow-700 mt-1">Previsto: {formatMoney(saldoPlanned)}</p>
         </Card>
       </div>
 
@@ -209,14 +210,14 @@ export function BudgetSection({ projectId, initialItems = [] }: BudgetSectionPro
 
           <Input
             type="number"
-            placeholder="Previsto (€)"
+            placeholder="Previsto (USD)"
             value={planned}
             onChange={(e) => setPlanned(e.target.value)}
           />
 
           <Input
             type="number"
-            placeholder="Real (€)"
+            placeholder="Real (USD)"
             value={actual}
             onChange={(e) => setActual(e.target.value)}
           />
@@ -258,11 +259,11 @@ export function BudgetSection({ projectId, initialItems = [] }: BudgetSectionPro
                   <div className="flex gap-6 text-sm">
                     <div>
                       <span className="text-gray-500">Previsto: </span>
-                      <span className="font-medium">{item.planned.toFixed(2)} €</span>
+                      <span className="font-medium">{formatMoney(item.planned)}</span>
                     </div>
                     <div>
                       <span className="text-gray-500">Real: </span>
-                      <span className="font-medium">{item.actual.toFixed(2)} €</span>
+                      <span className="font-medium">{formatMoney(item.actual)}</span>
                     </div>
                   </div>
                   <Button

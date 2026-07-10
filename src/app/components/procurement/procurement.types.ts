@@ -1,3 +1,5 @@
+import { DEFAULT_CURRENCY, formatMoney } from "../../lib/currency";
+
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
@@ -58,7 +60,7 @@ export const emptyForm = {
   tipo: "",
   valor_estimado: "",
   valor_real: "",
-  moeda: "EUR",
+  moeda: DEFAULT_CURRENCY,
   estado: "A identificar",
   data_lancamento: "",
   data_adjudicacao: "",
@@ -71,16 +73,7 @@ export const emptyForm = {
 // Helpers
 // ---------------------------------------------------------------------------
 
-const moneyFmt = new Intl.NumberFormat("pt-PT", { style: "currency", currency: "EUR" });
-
 export function money(v: number, moeda?: string) {
   if (!v && v !== 0) return "—";
-  if (moeda && moeda !== "EUR") {
-    return new Intl.NumberFormat("pt-PT", {
-      style: "currency",
-      currency: moeda,
-      minimumFractionDigits: 2,
-    }).format(Number(v));
-  }
-  return moneyFmt.format(Number(v));
+  return formatMoney(Number(v), moeda || DEFAULT_CURRENCY);
 }

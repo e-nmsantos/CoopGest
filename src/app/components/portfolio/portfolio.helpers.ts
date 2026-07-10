@@ -1,3 +1,5 @@
+import { formatMoney } from "../../lib/currency";
+
 export function healthColor(status: string) {
   switch (status) {
     case "Excelente":
@@ -40,8 +42,6 @@ export function priorityColor(priority: string) {
   }
 }
 
-const moneyFmt = new Intl.NumberFormat("pt-PT", { style: "currency", currency: "EUR" });
-
 export function money(v: number) {
-  return moneyFmt.format(Number(v || 0));
+  return formatMoney(Number(v || 0));
 }

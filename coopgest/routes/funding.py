@@ -29,14 +29,15 @@ def api_project_funding(projeto_id):
             return api_error("Nome é obrigatório", 400, "VALIDATION_ERROR")
         cursor = conn.execute(
             """INSERT INTO fontes_financiamento
-               (projeto_id, nome, tipo, valor_aprovado, valor_executado, data_inicio, data_fim, referencia)
-               VALUES (?,?,?,?,?,?,?,?)""",
+               (projeto_id, nome, tipo, valor_aprovado, valor_executado, moeda, data_inicio, data_fim, referencia)
+               VALUES (?,?,?,?,?,?,?,?,?)""",
             (
                 projeto_id,
                 payload["nome"].strip(),
                 payload.get("tipo", "Fundo Europeu"),
                 float(payload.get("valor_aprovado", 0) or 0),
                 float(payload.get("valor_executado", 0) or 0),
+                str(payload.get("moeda") or "USD").strip().upper()[:3],
                 payload.get("data_inicio") or None,
                 payload.get("data_fim") or None,
                 payload.get("referencia", "") or "",
@@ -85,13 +86,14 @@ def api_funding_detail(id):
         ("tipo", "tipo"),
         ("valor_aprovado", "valor_aprovado"),
         ("valor_executado", "valor_executado"),
+        ("moeda", "moeda"),
         ("data_inicio", "data_inicio"),
         ("data_fim", "data_fim"),
         ("referencia", "referencia"),
     ]:
         if key in payload:
             fields.append(f"{column}=?")
-            values.append(float(payload[key]) if column.startswith("valor") else payload[key])
+            values.append(float(payload[key]) if column.startswith("valor") else str(payload[key]).strip().upper()[:3] if column == "moeda" else payload[key])
     if not fields:
         conn.close()
         return api_error("Nada para atualizar", 400, "BAD_REQUEST")

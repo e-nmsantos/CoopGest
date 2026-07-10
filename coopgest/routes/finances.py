@@ -58,9 +58,9 @@ def api_finance_transactions():
         conn.close()
         return attachment_error
 
-    moeda = str(payload.get("moeda") or "EUR").strip().upper()
+    moeda = str(payload.get("moeda") or "USD").strip().upper()
     if len(moeda) != 3:
-        moeda = "EUR"
+        moeda = "USD"
     taxa_cambio = float(payload.get("taxa_cambio") or 1.0)
     if taxa_cambio <= 0:
         taxa_cambio = 1.0
@@ -135,8 +135,8 @@ def api_finance_transaction_detail(id):
     payload = finance_payload()
     moeda_update = None
     if "moeda" in payload:
-        m = str(payload["moeda"] or "EUR").strip().upper()
-        moeda_update = m if len(m) == 3 else "EUR"
+        m = str(payload["moeda"] or "USD").strip().upper()
+        moeda_update = m if len(m) == 3 else "USD"
     taxa_update = None
     if "taxa_cambio" in payload:
         t = float(payload["taxa_cambio"] or 1.0)

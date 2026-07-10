@@ -1,0 +1,1 @@
+const n="USD";function m(t,r="USD"){return new Intl.NumberFormat("pt-PT",{style:"currency",currency:r,minimumFractionDigits:2}).format(Number(t||0))}function e(t,r="USD"){return new Intl.NumberFormat("pt-PT",{style:"currency",currency:r,maximumFractionDigits:0}).format(Number(t||0))}export{n as D,m as a,e as f};

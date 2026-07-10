@@ -2,8 +2,9 @@ import { Link } from "react-router";
 import { Badge } from "../ui/badge";
 import { Progress } from "../ui/progress";
 import { Checkbox } from "../ui/checkbox";
-import { Users, Euro } from "lucide-react";
+import { Users, DollarSign } from "lucide-react";
 import { Project, statusColors } from "./projectsList.types";
+import { formatMoneyCompact } from "../../lib/currency";
 
 interface ProjectListItemProps {
   project: Project;
@@ -60,8 +61,8 @@ export function ProjectListItem({ project, selected, onToggleSelect }: ProjectLi
           <span>{project.members}</span>
         </div>
         <div className="flex items-center gap-1">
-          <Euro className="size-4" />
-          <span>{parseFloat(project.budget).toLocaleString("pt-PT")}€</span>
+          <DollarSign className="size-4" />
+          <span>{formatMoneyCompact(parseFloat(project.budget))}</span>
         </div>
       </div>
     </Link>

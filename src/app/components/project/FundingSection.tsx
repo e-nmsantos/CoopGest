@@ -7,6 +7,7 @@ import { Progress } from "../ui/progress";
 import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { apiDelete, apiPost } from "../../lib/apiClient";
+import { DEFAULT_CURRENCY, formatMoney } from "../../lib/currency";
 
 interface DbFundingSource {
   id: number;
@@ -40,7 +41,7 @@ function fromDb(f: DbFundingSource): FundingSource {
     tipo: f.tipo || "Fundo Europeu",
     valorAprovado: f.valor_aprovado || 0,
     valorExecutado: f.valor_executado || 0,
-    moeda: f.moeda || "EUR",
+    moeda: f.moeda || DEFAULT_CURRENCY,
     dataInicio: f.data_inicio || "",
     dataFim: f.data_fim || "",
     referencia: f.referencia || "",
@@ -106,15 +107,15 @@ export function FundingSection({ projectId, initialFunding = [] }: FundingSectio
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card className="p-4 bg-blue-50 border-blue-200">
           <div className="text-sm text-blue-700 mb-1">Total Aprovado</div>
-          <div className="text-2xl font-semibold text-blue-800">{totalAprovado.toFixed(2)} €</div>
+          <div className="text-2xl font-semibold text-blue-800">{formatMoney(totalAprovado)}</div>
         </Card>
         <Card className="p-4 bg-green-50 border-green-200">
           <div className="text-sm text-green-700 mb-1">Total Executado</div>
-          <div className="text-2xl font-semibold text-green-800">{totalExecutado.toFixed(2)} €</div>
+          <div className="text-2xl font-semibold text-green-800">{formatMoney(totalExecutado)}</div>
         </Card>
         <Card className="p-4 bg-yellow-50 border-yellow-200">
           <div className="text-sm text-yellow-700 mb-1">Saldo Disponível</div>
-          <div className="text-2xl font-semibold text-yellow-800">{(totalAprovado - totalExecutado).toFixed(2)} €</div>
+          <div className="text-2xl font-semibold text-yellow-800">{formatMoney(totalAprovado - totalExecutado)}</div>
         </Card>
         <Card className="p-4 bg-purple-50 border-purple-200">
           <div className="text-sm text-purple-700 mb-1">% Executado</div>
@@ -147,13 +148,13 @@ export function FundingSection({ projectId, initialFunding = [] }: FundingSectio
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
           <Input
             type="number"
-            placeholder="Valor aprovado (€)"
+            placeholder="Valor aprovado (USD)"
             value={form.valorAprovado}
             onChange={(e) => setForm({ ...form, valorAprovado: e.target.value })}
           />
           <Input
             type="number"
-            placeholder="Valor executado (€)"
+            placeholder="Valor executado (USD)"
             value={form.valorExecutado}
             onChange={(e) => setForm({ ...form, valorExecutado: e.target.value })}
           />
@@ -189,7 +190,7 @@ export function FundingSection({ projectId, initialFunding = [] }: FundingSectio
                     <div className="flex items-center gap-3 mb-1">
                       <span className="font-semibold text-gray-900">{src.nome}</span>
                       <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full">{src.tipo}</span>
-                      {src.moeda && src.moeda !== "EUR" && (
+                      {src.moeda && src.moeda !== DEFAULT_CURRENCY && (
                         <span className="text-xs px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full">{src.moeda}</span>
                       )}
                       {src.referencia && (
@@ -197,9 +198,9 @@ export function FundingSection({ projectId, initialFunding = [] }: FundingSectio
                       )}
                     </div>
                     <div className="flex gap-6 text-sm text-gray-600 mb-2">
-                      <span>Aprovado: <strong>{src.valorAprovado.toFixed(2)} {src.moeda && src.moeda !== "EUR" ? src.moeda : "€"}</strong></span>
-                      <span>Executado: <strong>{src.valorExecutado.toFixed(2)} {src.moeda && src.moeda !== "EUR" ? src.moeda : "€"}</strong></span>
-                      <span>Saldo: <strong>{(src.valorAprovado - src.valorExecutado).toFixed(2)} {src.moeda && src.moeda !== "EUR" ? src.moeda : "€"}</strong></span>
+                      <span>Aprovado: <strong>{formatMoney(src.valorAprovado, src.moeda)}</strong></span>
+                      <span>Executado: <strong>{formatMoney(src.valorExecutado, src.moeda)}</strong></span>
+                      <span>Saldo: <strong>{formatMoney(src.valorAprovado - src.valorExecutado, src.moeda)}</strong></span>
                       {src.dataInicio && src.dataFim && (
                         <span className="text-gray-400">{src.dataInicio} → {src.dataFim}</span>
                       )}

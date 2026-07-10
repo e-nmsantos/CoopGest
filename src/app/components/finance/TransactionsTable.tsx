@@ -3,6 +3,7 @@ import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
 import { FinanceTransaction, money } from "./finance.types";
+import { DEFAULT_CURRENCY } from "../../lib/currency";
 
 interface TransactionsTableProps {
   transactions: FinanceTransaction[];
@@ -62,11 +63,11 @@ export function TransactionsTable({ transactions, onEdit, onDelete }: Transactio
                   </td>
                   <td className={`py-3 pr-3 text-right font-semibold ${transaction.tipo === "Receita" ? "text-emerald-700" : "text-red-700"}`}>
                     {transaction.tipo === "Receita" ? "+" : "-"}{
-                      transaction.moeda && transaction.moeda !== "EUR" && transaction.taxa_cambio
+                      transaction.moeda && transaction.moeda !== DEFAULT_CURRENCY && transaction.taxa_cambio
                         ? money(transaction.valor * transaction.taxa_cambio)
                         : money(transaction.valor)
                     }
-                    {transaction.moeda && transaction.moeda !== "EUR" && (
+                    {transaction.moeda && transaction.moeda !== DEFAULT_CURRENCY && (
                       <div className="text-xs text-gray-400 font-normal">
                         {Number(transaction.valor).toLocaleString("pt-PT", { minimumFractionDigits: 2 })} {transaction.moeda}
                         {transaction.taxa_cambio && transaction.taxa_cambio !== 1

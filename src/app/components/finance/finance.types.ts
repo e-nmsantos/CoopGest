@@ -1,3 +1,5 @@
+import { DEFAULT_CURRENCY, formatMoney } from "../../lib/currency";
+
 export interface FinanceProject {
   id: number;
   nome: string;
@@ -85,10 +87,8 @@ export const emptyPayload: FinancePayload = {
   },
 };
 
-const currency = new Intl.NumberFormat("pt-PT", { style: "currency", currency: "EUR" });
-
 export function money(value: number) {
-  return currency.format(Number(value || 0));
+  return formatMoney(Number(value || 0), DEFAULT_CURRENCY);
 }
 
 export function pct(value: number) {

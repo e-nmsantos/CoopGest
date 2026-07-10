@@ -2,6 +2,7 @@ import { Printer } from "lucide-react";
 import { Button } from "../ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
 import type { DbProject, DbPartner, DbMilestone, DbBudgetItem, DbFundingSource, DbRisk, DbBeneficiario, ExecutiveReport } from "../../types/project";
+import { formatMoney } from "../../lib/currency";
 
 interface Props {
   project: DbProject | null;
@@ -115,12 +116,12 @@ export function ExportReportDialog({
                 <div className="bg-green-50 p-3 rounded">
                   <div className="text-xs text-green-700">Receitas Previstas</div>
                   <div className="font-bold text-green-800">
-                    {budget.filter(b => b.tipo === "Receita").reduce((s, b) => s + b.valor_previsto, 0).toFixed(2)} €
+                    {formatMoney(budget.filter(b => b.tipo === "Receita").reduce((s, b) => s + b.valor_previsto, 0))}
                   </div>
                 </div>
                 <div className="bg-red-50 p-3 rounded">
                   <div className="text-xs text-red-700">Despesas Previstas</div>
-                  <div className="font-bold text-red-800">{totalDespesas.toFixed(2)} €</div>
+                  <div className="font-bold text-red-800">{formatMoney(totalDespesas)}</div>
                 </div>
               </div>
             </div>
@@ -133,8 +134,8 @@ export function ExportReportDialog({
                   <tr className="bg-gray-100">
                     <th className="text-left p-2 border">Nome</th>
                     <th className="text-left p-2 border">Tipo</th>
-                    <th className="text-right p-2 border">Aprovado (€)</th>
-                    <th className="text-right p-2 border">Executado (€)</th>
+                    <th className="text-right p-2 border">Aprovado (USD)</th>
+                    <th className="text-right p-2 border">Executado (USD)</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -142,14 +143,14 @@ export function ExportReportDialog({
                     <tr key={f.id}>
                       <td className="p-2 border">{f.nome}</td>
                       <td className="p-2 border">{f.tipo}</td>
-                      <td className="p-2 border text-right">{(f.valor_aprovado || 0).toFixed(2)}</td>
-                      <td className="p-2 border text-right">{(f.valor_executado || 0).toFixed(2)}</td>
+                      <td className="p-2 border text-right">{formatMoney(f.valor_aprovado || 0, f.moeda || "USD")}</td>
+                      <td className="p-2 border text-right">{formatMoney(f.valor_executado || 0, f.moeda || "USD")}</td>
                     </tr>
                   ))}
                   <tr className="font-bold bg-gray-50">
                     <td className="p-2 border" colSpan={2}>Total</td>
-                    <td className="p-2 border text-right">{totalAprovado.toFixed(2)}</td>
-                    <td className="p-2 border text-right">{funding.reduce((s, f) => s + (f.valor_executado || 0), 0).toFixed(2)}</td>
+                    <td className="p-2 border text-right">{formatMoney(totalAprovado)}</td>
+                    <td className="p-2 border text-right">{formatMoney(funding.reduce((s, f) => s + (f.valor_executado || 0), 0))}</td>
                   </tr>
                 </tbody>
               </table>

@@ -6,6 +6,7 @@ import {
 } from "recharts";
 import { toast } from "sonner";
 import { apiGet } from "../../lib/apiClient";
+import { formatMoneyCompact } from "../../lib/currency";
 
 interface DbTask {
   id: number;
@@ -156,7 +157,7 @@ export function AnalyticsSection({ projectId, tasks, budget }: AnalyticsSectionP
         </Card>
         <Card className="p-4 text-center">
           <div className="text-3xl font-bold text-orange-600">
-            {budget.filter(b => b.tipo === "Despesa").reduce((s, b) => s + (b.valor_previsto || 0), 0).toLocaleString("pt-PT", { maximumFractionDigits: 0 })}€
+            {formatMoneyCompact(budget.filter(b => b.tipo === "Despesa").reduce((s, b) => s + (b.valor_previsto || 0), 0))}
           </div>
           <div className="text-xs text-gray-500 mt-1 font-medium">Despesas Previstas</div>
         </Card>
@@ -218,13 +219,13 @@ export function AnalyticsSection({ projectId, tasks, budget }: AnalyticsSectionP
       {/* Row 2: Budget */}
       {budgetByCategory.length > 0 && (
         <Card className="p-5">
-          <h3 className="text-sm font-semibold text-gray-900 mb-4">Orçamento por Categoria — Previsto vs Real (€)</h3>
+          <h3 className="text-sm font-semibold text-gray-900 mb-4">Orcamento por Categoria - Previsto vs Real (USD)</h3>
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={budgetByCategory} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
               <XAxis dataKey="categoria" tick={{ fontSize: 11 }} />
               <YAxis tick={{ fontSize: 11 }} />
-              <Tooltip formatter={(v: number) => `${v.toLocaleString("pt-PT")}€`} />
+              <Tooltip formatter={(v: number) => formatMoneyCompact(v)} />
               <Legend />
               <Bar dataKey="previsto" name="Previsto" fill="#3b82f6" radius={[4, 4, 0, 0]} />
               <Bar dataKey="real" name="Real" fill="#22c55e" radius={[4, 4, 0, 0]} />

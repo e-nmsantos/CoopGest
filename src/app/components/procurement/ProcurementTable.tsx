@@ -3,6 +3,7 @@ import { ChevronDown, ChevronRight, Pencil, Trash2 } from "lucide-react";
 import { Card } from "../ui/card";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
+import { DEFAULT_CURRENCY } from "../../lib/currency";
 import { ESTADO_COLORS, money, ProcurementItem } from "./procurement.types";
 
 interface ProcurementTableProps {
@@ -155,7 +156,7 @@ export function ProcurementTable({
                                   {money(item.valor_real, item.moeda)}
                                 </p>
                               )}
-                              {item.moeda && item.moeda !== "EUR" && (
+                              {item.moeda && item.moeda !== DEFAULT_CURRENCY && (
                                 <p>
                                   <span className="font-medium">Moeda:</span> {item.moeda}
                                 </p>
