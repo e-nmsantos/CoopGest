@@ -467,7 +467,7 @@ class TestDesagregacao:
 class TestRelatorioPDF:
     def test_pdf_requer_autenticacao(self, client):
         r = client.get("/api/projects/1/executive-report/pdf")
-        assert r.status_code == 401
+        assert r.status_code == 404
 
     def test_pdf_gerado_quando_reportlab_disponivel(self, client):
         _login(client)

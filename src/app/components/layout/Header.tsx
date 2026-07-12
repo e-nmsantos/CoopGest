@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { ArrowLeft, FolderKanban, LogOut, Menu, Search, X } from "lucide-react";
+import { ArrowLeft, FolderKanban, Menu, Search, X } from "lucide-react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { useNavigate, Link } from "react-router";
@@ -23,7 +23,7 @@ interface HeaderProps {
 
 export function Header({ projectName, showBackButton }: HeaderProps) {
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const { toggle: toggleSidebar } = useSidebar();
   const { activeProject, activeProjectId, projects, projectsLoading, setActiveProjectId } = useProjectContext();
 
@@ -32,11 +32,6 @@ export function Header({ projectName, showBackButton }: HeaderProps) {
   const [results, setResults] = useState<SearchResult | null>(null);
   const [searching, setSearching] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
-
-  const handleLogout = async () => {
-    await logout();
-    navigate("/login", { replace: true });
-  };
 
   useEffect(() => {
     if (query.length < 2) { setResults(null); return; }
@@ -195,9 +190,6 @@ export function Header({ projectName, showBackButton }: HeaderProps) {
               <Link to="/perfil" className="text-sm text-gray-600 hidden sm:block hover:text-gray-900 hover:underline" title="O meu perfil">
                 {user.nome}
               </Link>
-              <Button variant="ghost" size="sm" onClick={handleLogout} title="Terminar sessão">
-                <LogOut className="size-4" />
-              </Button>
             </div>
           )}
         </div>

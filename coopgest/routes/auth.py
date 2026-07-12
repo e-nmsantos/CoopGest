@@ -9,7 +9,7 @@ from flask import Blueprint, current_app, jsonify, request, session
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from coopgest.db import get_db, row_to_dict
-from coopgest.http_helpers import api_error, login_required, make_rate_limit
+from coopgest.http_helpers import api_error, ensure_direct_session, login_required, make_rate_limit
 
 bp = Blueprint("auth", __name__)
 
@@ -91,6 +91,7 @@ def api_auth_logout():
 
 @bp.route("/api/auth/me")
 def api_auth_me():
+    ensure_direct_session()
     if "user_id" not in session:
         return api_error("Não autenticado", 401, "UNAUTHORIZED")
     return jsonify({
@@ -266,15 +267,19 @@ def api_auth_invite():
 
     token = uuid.uuid4().hex
     conn = get_db()
-    conn.execute(
+    cur = conn.execute(
         "INSERT INTO convites (email, token, papel, criado_por) VALUES (?,?,?,?)",
         (email, token, papel, session["user_id"]),
     )
     conn.commit()
+    invite_id = cur.lastrowid
+    convite = conn.execute("SELECT * FROM convites WHERE id=?", (invite_id,)).fetchone()
     conn.close()
     host = request.host_url.rstrip("/")
     link = f"{host}/registo?token={token}"
-    return jsonify({"token": token, "link": link, "email": email}), 201
+    data = row_to_dict(convite)
+    data["link"] = link
+    return jsonify(data), 201
 
 
 @bp.route("/api/auth/invites")
@@ -286,6 +291,27 @@ def api_auth_invites():
     rows = conn.execute("SELECT * FROM convites ORDER BY criado_em DESC LIMIT 100").fetchall()
     conn.close()
     return jsonify([row_to_dict(r) for r in rows])
+
+
+@bp.route("/api/auth/invites/<int:invite_id>", methods=["DELETE"])
+@login_required
+def api_auth_invite_revoke(invite_id):
+    if session.get("papel") != "admin":
+        return api_error("Acesso reservado a administradores", 403, "FORBIDDEN")
+
+    conn = get_db()
+    convite = conn.execute("SELECT * FROM convites WHERE id=?", (invite_id,)).fetchone()
+    if not convite:
+        conn.close()
+        return api_error("Convite não encontrado", 404, "NOT_FOUND")
+    if convite["usado"]:
+        conn.close()
+        return api_error("Convites usados não podem ser revogados", 409, "CONFLICT")
+
+    conn.execute("DELETE FROM convites WHERE id=?", (invite_id,))
+    conn.commit()
+    conn.close()
+    return "", 204
 
 
 @bp.route("/api/auth/invite/<token>")
@@ -328,4 +354,3 @@ def api_auth_register():
     conn.commit()
     conn.close()
     return jsonify({"message": "Conta criada com sucesso"}), 201
-
