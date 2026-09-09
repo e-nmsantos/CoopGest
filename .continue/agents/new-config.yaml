@@ -1,0 +1,28 @@
+# This is an example configuration file
+# To learn more, see the full config.yaml reference: https://docs.continue.dev/reference
+
+
+const endpoint = "https://api.iaedu.pt/agent-chat//api/v1/agent/cmoss7l0f658oko01vk2egfpg/stream";
+
+const formData = new FormData();
+
+// Required Fields
+formData.append("channel_id", "cmr3aml7y2st4ke01l69s45co");
+formData.append("thread_id", "1ncjP4FLLI5WNO17cPXq6");
+formData.append("user_info", "{}"); // Mandatory field, where you can enter user information
+formData.append("message", "What is the value of X?");
+
+// Optionally you can add these fields:
+// user_id: string
+// user_context: string object with any key-value pairs
+// image: File
+// Check documentation for more examples.
+
+const response = await fetch(endpoint, {
+  method: "POST",
+  headers: {
+    "Content-Type": "multipart/form-data",
+    'x-api-key': "sk-usr-wal4ec7rsbfy51ffdtb19iiqmq07yz4vlup",
+  },
+  body: formData,
+});

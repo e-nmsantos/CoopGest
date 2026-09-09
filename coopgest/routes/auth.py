@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import os
 import sqlite3
@@ -86,6 +86,7 @@ def api_auth_login():
 @bp.route("/api/auth/logout", methods=["POST"])
 def api_auth_logout():
     session.clear()
+    session["_logged_out"] = True
     return jsonify({"message": "Sessão terminada com sucesso"})
 
 

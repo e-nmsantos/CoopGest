@@ -58,6 +58,7 @@ copy /Y "run.bat"            "%OUT_DIR%\run.bat"             >nul
 copy /Y "coopgest_windows.py" "%OUT_DIR%\coopgest_windows.py" >nul
 copy /Y "INSTRUCOES_PROFESSOR_WINDOWS.md" "%OUT_DIR%\INSTRUCOES.md" >nul
 copy /Y "ATTRIBUTIONS.md"    "%OUT_DIR%\ATTRIBUTIONS.md"     >nul 2>nul
+for %%F in (template_*.json) do if exist "%%F" copy /Y "%%F" "%OUT_DIR%\%%F" >nul
 
 :: Pasta do package coopgest
 if exist "%OUT_DIR%\coopgest" rmdir /S /Q "%OUT_DIR%\coopgest"
@@ -95,7 +96,7 @@ if %errorlevel% neq 0 (
     echo        Compacte manualmente a pasta %OUT_DIR%
 ) else (
     echo       ZIP criado: %ZIP_FILE%
-    powershell -NoProfile -ExecutionPolicy Bypass -Command "$hash = (Get-FileHash -Algorithm SHA256 -LiteralPath '%ZIP_FILE%').Hash.ToLowerInvariant(); Add-Content -LiteralPath '%CHECKSUM_FILE%' -Value ''; Add-Content -LiteralPath '%CHECKSUM_FILE%' -Value '--- ZIP ---'; Add-Content -LiteralPath '%CHECKSUM_FILE%' -Value ($hash + '  %VERSION%.zip')"
+    powershell -NoProfile -ExecutionPolicy Bypass -Command "$hash = (Get-FileHash -Algorithm SHA256 -LiteralPath '%ZIP_FILE%').Hash.ToLowerInvariant(); $line = ($hash + '  %VERSION%.zip'); Set-Content -LiteralPath '%ZIP_FILE%.sha256' -Value $line -Encoding UTF8; Add-Content -LiteralPath '%CHECKSUM_FILE%' -Value ''; Add-Content -LiteralPath '%CHECKSUM_FILE%' -Value '--- ZIP ---'; Add-Content -LiteralPath '%CHECKSUM_FILE%' -Value $line"
 )
 
 echo [6/6] A validar com py -3.13 -m compileall...

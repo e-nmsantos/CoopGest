@@ -1,5 +1,6 @@
 Flask
 waitress
+gunicorn
 python-dotenv
 Flask-Mail
 Flask-Limiter

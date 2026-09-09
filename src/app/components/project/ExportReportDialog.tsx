@@ -143,8 +143,8 @@ export function ExportReportDialog({
                     <tr key={f.id}>
                       <td className="p-2 border">{f.nome}</td>
                       <td className="p-2 border">{f.tipo}</td>
-                      <td className="p-2 border text-right">{formatMoney(f.valor_aprovado || 0, f.moeda || "USD")}</td>
-                      <td className="p-2 border text-right">{formatMoney(f.valor_executado || 0, f.moeda || "USD")}</td>
+                      <td className="p-2 border text-right">{formatMoney(f.valor_aprovado || 0)}</td>
+                      <td className="p-2 border text-right">{formatMoney(f.valor_executado || 0)}</td>
                     </tr>
                   ))}
                   <tr className="font-bold bg-gray-50">

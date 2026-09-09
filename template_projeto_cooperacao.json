@@ -1,0 +1,294 @@
+{
+  "_info": "Template completo para projeto de cooperação — conforme estrutura PRAG/UCP/CAD-OCDE",
+  "_deadline": "15 de julho",
+
+  "ficha_identificacao": {
+    "designacao": "Projeto ECHO Angola — Literacia em IA para o Desenvolvimento Nacional",
+    "localizacao": {
+      "pais": "Angola",
+      "regiao": "Luanda (principal) e Huambo (extensão piloto)"
+    },
+    "duracao_meses": 12,
+    "orcamento_total": {
+      "valor": 500000,
+      "moeda": "USD"
+    },
+    "entidade_proponente": "CEPCEP — Universidade Católica Portuguesa",
+    "parceiros": [
+      "MINTTICS — Ministério das Telecomunicações e Tecnologias de Informação",
+      "MED — Ministério da Educação",
+      "FAS — Fundo de Apoio Social",
+      "UAN — Universidade Agostinho Neto"
+    ],
+    "beneficiarios_diretos": {
+      "numero": 5000,
+      "perfil": "Cidadãos de Luanda e Huambo com literacia digital básica"
+    },
+    "beneficiarios_indiretos": {
+      "numero": 60,
+      "perfil": "Facilitadores certificados que multiplicam a formação"
+    },
+    "alinhamento_ods": [4, 8, 16, 17],
+    "alinhamento_outros": [
+      "PDN Angola 2023–2027",
+      "Recomendação UNESCO sobre Ética da IA"
+    ]
+  },
+
+  "enquadramento": {
+    "revisao_literatura": "Síntese das abordagens teóricas sobre cooperação para o desenvolvimento — multilateral, bilateral, triangular, Sul-Sul. Referência ao Consenso Europeu de Desenvolvimento (2017) e aos critérios CAD/OCDE de eficácia da ajuda.",
+    "area_intervencao": "Literacia digital e em IA em contexto africano — lacunas de competências, desigualdades de acesso, impacto na empregabilidade e na inclusão social.",
+    "contexto_cooperacao": "Angola como país de rendimento médio-baixo, dependência de petróleo, diversificação económica como prioridade, parceria histórica com Portugal no âmbito da CPLP."
+  },
+
+  "analise_problema": {
+    "contexto_geografico": "Angola: 35 M habitantes, PIB per capita ~2.700 USD, IDH 0.586 (2022). Luanda concentra 30% da população. Infraestrutura digital em expansão mas heterogénea.",
+
+    "analise_pest": {
+      "politico": "Governo focado em diversificação económica pós-petróleo. Plano Nacional de Formação de Quadros. Estabilidade política desde 2017. Cooperação com UE e Portugal ativa.",
+      "economico": "Taxa de desemprego jovem ~28%. Inflação ~22%. Crescimento do setor das TIC. Dependência de importações tecnológicas. Potencial de mercado digital em expansão.",
+      "social": "Taxa de literacia 70%. Acesso à internet ~36%. 65% da população com menos de 25 anos. Desigualdades de género no acesso à tecnologia. Forte dinamismo comunitário.",
+      "tecnologico": "Expansão da cobertura 4G. Penetração de smartphones crescente. Iniciativas nacionais de transformação digital (ANGOLA DIGITAL). Défice de formadores certificados."
+    },
+
+    "problema_central": "Défice de literacia digital e em IA na população angolana limita a inclusão económica e o potencial de desenvolvimento humano.",
+
+    "arvore_problemas": {
+      "causas": [
+        "Ausência de curricula de literacia digital no sistema de ensino formal",
+        "Escassez de formadores certificados em IA e tecnologias digitais",
+        "Custo elevado de dispositivos e dados móveis",
+        "Barreiras linguísticas e culturais no acesso a conteúdos digitais"
+      ],
+      "problema_central": "Défice de literacia digital e em IA na população angolana",
+      "efeitos": [
+        "Exclusão do mercado de trabalho digital",
+        "Vulnerabilidade à desinformação e à manipulação tecnológica",
+        "Redução da competitividade económica nacional",
+        "Perpetuação de desigualdades socioeconómicas"
+      ]
+    },
+
+    "publico_alvo": [
+      {
+        "perfil": "Jovens adultos (18–35 anos) com ensino secundário",
+        "numero": 3000,
+        "necessidades": "Competências digitais para o mercado de trabalho",
+        "adaptacao": "Módulos práticos, exemplos locais, língua portuguesa"
+      },
+      {
+        "perfil": "Funcionários públicos e professores",
+        "numero": 1500,
+        "necessidades": "Literacia em IA para uso responsável em contexto profissional",
+        "adaptacao": "Formação presencial intensiva, certificação oficial"
+      },
+      {
+        "perfil": "Empreendedores e microempresários",
+        "numero": 500,
+        "necessidades": "Ferramentas de IA aplicadas a negócios locais",
+        "adaptacao": "Casos de uso angolanos, acesso offline"
+      }
+    ],
+
+    "analise_swot": {
+      "forcas": [
+        "Reconhecimento académico e institucional da UCP",
+        "Experiência prévia da equipa em projetos de cooperação em África",
+        "Parcerias estabelecidas com MINTTICS e MED",
+        "Metodologia pedagógica adaptada ao contexto local"
+      ],
+      "fraquezas": [
+        "Dependência de financiamento externo",
+        "Capacidade de escalagem limitada à duração do projeto",
+        "Rotatividade de pessoal técnico qualificado",
+        "Logística de implementação em Huambo (distância, recursos)"
+      ],
+      "oportunidades": [
+        "Agenda ANGOLA DIGITAL do Governo",
+        "Crescente mercado de formação profissional privada",
+        "Disponibilidade de ferramentas de IA gratuitas e de código aberto",
+        "Interesse crescente de doadores (UE, PNUD) nesta área"
+      ],
+      "ameacas": [
+        "Instabilidade cambial (devaluação do Kwanza)",
+        "Cortes orçamentais que afetam parceiros governamentais",
+        "Concorrência de programas de formação online internacionais",
+        "Falta de continuidade política após mudanças de governo"
+      ]
+    },
+
+    "areas_priorizacao": [
+      "Formação de formadores (efeito multiplicador máximo)",
+      "Literacia em uso ético e seguro da IA (alinhamento UNESCO)",
+      "Competências práticas para o mercado de trabalho digital"
+    ]
+  },
+
+  "projeto": {
+    "memoria_descritiva": "O Projeto ECHO Angola visa colmatar o défice de literacia digital e em Inteligência Artificial em Angola, através de um programa de formação modular dirigido a 5.000 cidadãos em Luanda e Huambo. A intervenção combina formação presencial certificada, recursos digitais offline e a capacitação de 60 facilitadores que assegurarão a sustentabilidade e o efeito multiplicador após o fim do projeto.",
+
+    "objetivos": {
+      "geral": "Contribuir para o reforço do capital humano e da resiliência informacional de Angola, promovendo a inclusão digital e a utilização ética da IA.",
+      "especifico": "No final de 12 meses, pelo menos 5.000 cidadãos de Luanda e Huambo adquiriram competências certificadas em literacia digital e IA.",
+      "resultados": [
+        "R1: 60 facilitadores certificados capazes de ministrar o programa autonomamente",
+        "R2: 5.000 cidadãos formados em literacia digital e IA básica",
+        "R3: Curricula e materiais pedagógicos adaptados ao contexto angolano publicados em acesso aberto",
+        "R4: Plataforma digital offline funcional com conteúdos em português"
+      ]
+    },
+
+    "teoria_mudanca": {
+      "pressuposto_geral": "SE disponibilizarmos formação acessível, certificada e culturalmente adaptada E SE os parceiros governamentais mantiverem o compromisso político, ENTÃO os beneficiários adquirirão competências que melhoram a sua empregabilidade e resiliência digital, PORQUE a literacia em IA reduz a vulnerabilidade e aumenta as oportunidades económicas.",
+      "cadeia": {
+        "inputs": [
+          "USD 500.000 de financiamento",
+          "Equipa de 8 especialistas (4 PT + 4 AO)",
+          "Plataforma digital offline",
+          "Parcerias com MINTTICS, MED, FAS, UAN"
+        ],
+        "atividades": [
+          "A1: Adaptação e tradução de curricula",
+          "A2: Formação de 60 facilitadores (ToT)",
+          "A3: 50 sessões de formação para beneficiários diretos",
+          "A4: Desenvolvimento da plataforma digital",
+          "A5: Monitorização e avaliação contínua"
+        ],
+        "outputs": [
+          "60 facilitadores certificados",
+          "5.000 cidadãos formados",
+          "Materiais pedagógicos em português (CC BY)",
+          "Plataforma offline funcional"
+        ],
+        "outcomes": [
+          "Aumento da empregabilidade em setores digitais",
+          "Uso mais seguro e ético da IA no quotidiano",
+          "Capacidade local instalada para continuar a formação"
+        ],
+        "impacto": "Redução das desigualdades digitais em Angola e contribuição para o ODS 4 (educação de qualidade) e ODS 8 (trabalho decente e crescimento económico)"
+      }
+    },
+
+    "plano_avaliacao": {
+      "Relevância": {
+        "questoes": "Em que medida o projeto responde às necessidades reais dos beneficiários? O projeto está alinhado com as prioridades nacionais de Angola?",
+        "indicadores": "% de beneficiários que afirmam que a formação corresponde às suas necessidades; grau de alinhamento com PDN 2023–2027",
+        "metodos": "Inquéritos de necessidades (pré-formação), análise de documentos estratégicos",
+        "fontes": "Questionários a beneficiários, documentos de política pública angolana",
+        "momento": "Avaliação ex ante (mês 1)"
+      },
+      "Coerência": {
+        "questoes": "Os objetivos, atividades e orçamento são internamente consistentes? O projeto complementa outras iniciativas?",
+        "indicadores": "Mapeamento de duplicações com outros programas; percentagem do orçamento alinhada com atividades do quadro lógico",
+        "metodos": "Análise documental, mapeamento de atores e iniciativas",
+        "fontes": "Quadro lógico, orçamento, entrevistas com parceiros",
+        "momento": "Avaliação de processo (mês 3)"
+      },
+      "Eficácia": {
+        "questoes": "O projeto está a atingir os resultados previstos? Que fatores facilitam ou impedem?",
+        "indicadores": "% de beneficiários formados vs. meta (5.000); % de facilitadores certificados vs. meta (60); taxa de conclusão da formação",
+        "metodos": "Monitorização de participação, testes de conhecimentos pré/pós formação",
+        "fontes": "Registos de presença, avaliações pedagógicas, sistema de M&A",
+        "momento": "Avaliação intermédia (mês 6) e final (mês 12)"
+      },
+      "Eficiência": {
+        "questoes": "Os recursos foram usados de forma otimizada? O custo por beneficiário é razoável?",
+        "indicadores": "Custo por beneficiário formado; % de execução orçamental; desvio temporal face ao cronograma",
+        "metodos": "Análise financeira, revisão de despesas vs. plano",
+        "fontes": "Relatórios financeiros, orçamento executado",
+        "momento": "Avaliação intermédia (mês 6) e final (mês 12)"
+      },
+      "Impacto": {
+        "questoes": "Que mudanças de longo prazo são atribuíveis ao projeto? Há efeitos não esperados?",
+        "indicadores": "% de beneficiários que relatam melhoria de empregabilidade 6 meses após formação; número de empregos criados ou melhorados",
+        "metodos": "Inquérito de seguimento (follow-up), grupos focais",
+        "fontes": "Entrevistas a beneficiários, dados de mercado de trabalho",
+        "momento": "Avaliação ex post (6 meses após conclusão)"
+      },
+      "Sustentabilidade": {
+        "questoes": "Os benefícios persistirão após o fim do financiamento? Existe capacidade local instalada?",
+        "indicadores": "Número de facilitadores que continuam a ministrar formação 6 meses após o projeto; grau de integração do curricula no sistema formal angolano",
+        "metodos": "Entrevistas com facilitadores e parceiros, análise de compromissos institucionais",
+        "fontes": "Entrevistas de saída, documentos de compromisso dos parceiros",
+        "momento": "Avaliação final (mês 12) e ex post"
+      }
+    },
+
+    "orcamento_rubricas_prag": {
+      "1_recursos_humanos": {
+        "descricao": "Equipa de projeto: coordenador, especialistas pedagógicos, técnicos TIC, assistentes de campo",
+        "valor_usd": 200000,
+        "percentagem": 40
+      },
+      "2_deslocacoes_diarias": {
+        "descricao": "Viagens PT-AO, deslocações internas Angola, alojamento e subsistência",
+        "valor_usd": 50000,
+        "percentagem": 10
+      },
+      "3_equipamento_materiais": {
+        "descricao": "Dispositivos offline (tablets), materiais pedagógicos, servidores locais",
+        "valor_usd": 75000,
+        "percentagem": 15
+      },
+      "4_servicos_locais": {
+        "descricao": "Aluguer de salas, comunicações, tradução, serviços de impressão",
+        "valor_usd": 50000,
+        "percentagem": 10
+      },
+      "5_outros_custos_diretos": {
+        "descricao": "Custos de certificação, plataforma digital, visibilidade e comunicação",
+        "valor_usd": 75000,
+        "percentagem": 15
+      },
+      "6_custos_indiretos": {
+        "descricao": "Overhead institucional (máx. 7% dos custos diretos elegíveis — PRAG)",
+        "valor_usd": 35000,
+        "percentagem": 7
+      },
+      "7_contingencia": {
+        "descricao": "Reserva para imprevistos (máx. 5% — PRAG)",
+        "valor_usd": 15000,
+        "percentagem": 3
+      },
+      "total": 500000
+    },
+
+    "riscos_principais": [
+      {
+        "risco": "Instabilidade cambial (devaluação do Kwanza)",
+        "probabilidade": "Alta",
+        "impacto": "Médio",
+        "mitigacao": "Orçamento em USD; cláusula de revisão cambial nos contratos"
+      },
+      {
+        "risco": "Abandono de beneficiários durante a formação",
+        "probabilidade": "Média",
+        "impacto": "Alto",
+        "mitigacao": "Incentivos de participação; módulos curtos e flexíveis; formação noturna/fim de semana"
+      },
+      {
+        "risco": "Resistência institucional dos parceiros governamentais",
+        "probabilidade": "Baixa",
+        "impacto": "Alto",
+        "mitigacao": "MOUs assinados; reuniões regulares de coordenação; advocacia política"
+      }
+    ]
+  },
+
+  "_mapeamento_coopgest": {
+    "ficha_identificacao": "ProjectPage — campos básicos do projeto",
+    "parceiros": "ParceirosPage — já implementado",
+    "beneficiarios": "BeneficiariosPage — já implementado",
+    "stakeholders": "StakeholdersPage — já implementado",
+    "pest": "AnalisePage (tab PEST) — NOVO",
+    "swot": "AnalisePage (tab SWOT) — NOVO",
+    "arvore_problemas": "AnalisePage (tab Árvore de Problemas) — NOVO",
+    "teoria_mudanca": "TeoriaPage — visualização do Quadro Lógico",
+    "quadro_logico": "ImpactPage — já implementado (completo)",
+    "plano_avaliacao": "AvaliacaoPage (CAD/OCDE) — NOVO",
+    "orcamento": "BudgetPage/FinancePage — já implementado",
+    "riscos": "RisksPage — já implementado",
+    "cronograma": "GanttPage/Milestones — já implementado",
+    "licoes_aprendidas": "LicoesPage — já implementado"
+  }
+}

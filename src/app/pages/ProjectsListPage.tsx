@@ -22,6 +22,7 @@ import {
   Upload,
   FileJson,
   X,
+  Sparkles,
 } from "lucide-react";
 import {
   Select,
@@ -39,6 +40,7 @@ export function ProjectsListPage() {
   const navigate = useNavigate();
   const templateInputRef = useRef<HTMLInputElement>(null);
   const [importingTemplate, setImportingTemplate] = useState(false);
+  const [loadingSample, setLoadingSample] = useState(false);
 
   const handleImportTemplate = async (file: File | null) => {
     if (!file) return;
@@ -59,6 +61,33 @@ export function ProjectsListPage() {
     } finally {
       setImportingTemplate(false);
       if (templateInputRef.current) templateInputRef.current.value = "";
+    }
+  };
+
+  const handleLoadSample = async () => {
+    setLoadingSample(true);
+    try {
+      const data = await apiPost<{
+        projeto_id?: number;
+        nome?: string;
+        message?: string;
+        already_exists?: boolean;
+        criados?: Record<string, number>;
+      }>("/api/projects/load-sample", {});
+      if (data.already_exists) {
+        toast.info(data.message || "O projeto exemplo já existe.");
+      } else {
+        const criados = data.criados ?? {};
+        const partes = Object.entries(criados).map(([k, v]) => `${v} ${k}`).join(", ");
+        toast.success(`Projeto Exemplo "${data.nome}" carregado com sucesso — ${partes}`);
+      }
+      if (data.projeto_id) {
+        void navigate(`/projeto/${data.projeto_id}`);
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erro ao carregar projeto exemplo");
+    } finally {
+      setLoadingSample(false);
     }
   };
 
@@ -156,7 +185,17 @@ export function ProjectsListPage() {
             <Button
               variant="outline"
               size="sm"
-              disabled={importingTemplate}
+              disabled={loadingSample || importingTemplate}
+              onClick={() => void handleLoadSample()}
+              title="Carregar o Projeto Exemplo completo ECHO Angola (literacia em IA, parceiros, marco lógico, orçamento e riscos)"
+            >
+              <Sparkles className="size-4 mr-1 text-blue-600" />
+              {loadingSample ? "A carregar..." : "Exemplo (ECHO Angola)"}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={importingTemplate || loadingSample}
               onClick={() => templateInputRef.current?.click()}
               title="Importa um projeto completo a partir de um template JSON CoopGest (parceiros, stakeholders, PEST, SWOT, Quadro Lógico, Avaliação, Orçamento e Riscos)"
             >
@@ -297,9 +336,24 @@ export function ProjectsListPage() {
           <EmptyState
             icon={FolderKanban}
             title={searchQuery ? "Nenhum projeto encontrado" : "Ainda não há projetos"}
-            description={searchQuery ? `Nenhum projeto corresponde a "${searchQuery}".` : "Crie o primeiro projeto da sua organização."}
-            action={!searchQuery ? { label: "Novo Projeto", onClick: () => document.querySelector<HTMLButtonElement>('[data-create-project]')?.click() } : undefined}
-          />
+            description={
+              searchQuery
+                ? `Nenhum projeto corresponde a "${searchQuery}".`
+                : "Crie o primeiro projeto da sua organização ou carregue o projeto exemplo com dados completos de cooperação internacional."
+            }
+          >
+            {!searchQuery && (
+              <div className="flex items-center gap-3 mt-4">
+                <Button size="sm" onClick={() => document.querySelector<HTMLButtonElement>('[data-create-project]')?.click()}>
+                  Novo Projeto
+                </Button>
+                <Button size="sm" variant="outline" disabled={loadingSample} onClick={() => void handleLoadSample()}>
+                  <Sparkles className="size-4 mr-1 text-blue-600" />
+                  {loadingSample ? "A carregar..." : "Carregar Exemplo (ECHO Angola)"}
+                </Button>
+              </div>
+            )}
+          </EmptyState>
         ) : viewMode === "grid" ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredProjects.map((project) => (

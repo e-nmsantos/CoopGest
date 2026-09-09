@@ -54,7 +54,7 @@ export function getGuideQuestions(id: string): string[] {
     sustainability: ["Como garantimos a continuidade?", "Que recursos são necessários a longo prazo?", "Quem assume responsabilidade após o projeto?"],
     scaling: ["O projeto pode crescer?", "Que condições são necessárias para escalar?", "Queremos replicar noutros contextos?"],
     exit: ["Como termina o projeto de forma responsável?", "Que processos de encerramento temos?", "Como entregamos o trabalho a outros?"],
-    legacy: ["O que fica depois do projeto?", "Que conhecimento ou estruturas perduam?", "Como garantimos que o legado é positivo?"],
+    legacy: ["O que fica depois do projeto?", "Que conhecimento ou estruturas perduram?", "Como garantimos que o legado é positivo?"],
     change: ["Como gerimos mudanças no âmbito?", "Que processo seguimos para aprovar mudanças?", "Como comunicamos mudanças à equipa?"],
   };
   return map[id] ?? ["Como abordamos este aspeto?", "Que prioridade tem no projeto?", "Quem é responsável por este tema?"];

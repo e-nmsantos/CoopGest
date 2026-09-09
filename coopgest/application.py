@@ -1,7 +1,9 @@
-﻿from flask import Flask, request
+from flask import Flask, g, request
 import os
+import logging
 import sys
 from datetime import timedelta
+from logging.handlers import RotatingFileHandler
 from urllib.parse import urlparse
 from werkzeug.security import generate_password_hash
 
@@ -67,13 +69,31 @@ app.config['MAIL_PORT']     = int(os.environ.get('MAIL_PORT', 587))
 app.config['MAIL_USE_TLS']  = True
 app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME', '')
 app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD', '')
-app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_SENDER', '')
+app.config['MAIL_DEFAULT_SENDER'] = (
+    os.environ.get('MAIL_SENDER')
+    or os.environ.get('MAIL_DEFAULT_SENDER')
+    or ''
+)
 
 mail = Mail(app) if _mail_available else None
 configure_email_service(app, mail, MailMessage if _mail_available else None, _mail_available)
 
 RESOURCE_DIR = getattr(sys, '_MEIPASS', PROJECT_ROOT)
 app.config['DIST_FOLDER'] = os.path.join(RESOURCE_DIR, 'dist')
+
+
+def configure_logging():
+    log_path = os.environ.get('LOG_FILE') or os.path.join(PROJECT_ROOT, 'logs', 'coopgest.log')
+    os.makedirs(os.path.dirname(log_path), exist_ok=True)
+    handler = RotatingFileHandler(log_path, maxBytes=1_000_000, backupCount=5, encoding='utf-8')
+    handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s [%(name)s] %(message)s'))
+    handler.setLevel(logging.INFO)
+    if not any(isinstance(existing, RotatingFileHandler) for existing in app.logger.handlers):
+        app.logger.addHandler(handler)
+    app.logger.setLevel(logging.INFO)
+
+
+configure_logging()
 
 
 def create_app():
@@ -92,6 +112,15 @@ def add_security_headers(response):
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
     response.headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()"
     return response
+
+
+@app.teardown_appcontext
+def close_open_dbs(exception=None):
+    for conn in g.get("_open_dbs", []):
+        try:
+            conn.close()
+        except Exception:
+            pass
 
 
 @app.before_request
@@ -140,5 +169,3 @@ def init_db():
 if __name__ == '__main__':
     init_db()
     app.run(debug=os.environ.get('FLASK_DEBUG', 'False') == 'True', threaded=True)
-
-

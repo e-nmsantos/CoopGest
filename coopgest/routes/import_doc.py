@@ -7,7 +7,7 @@ import os
 import re
 from datetime import date, timedelta
 
-from flask import Blueprint, jsonify, request, session
+from flask import Blueprint, current_app, jsonify, request, session
 
 from coopgest.db import get_db
 from coopgest.http_helpers import api_error, login_required
@@ -303,6 +303,334 @@ def _num(v, default: float = 0) -> float:
         return default
 
 
+def import_coopgest_template(db, user_id: int, data: dict) -> tuple[int, str, dict[str, int]]:
+    """
+    Parses a coopgest-template dictionary and inserts all elements into the DB.
+    Does not commit or rollback — caller controls transaction.
+    """
+    counts: dict[str, int] = {}
+
+    # ------------------------------------------------------------------
+    # 1. Projeto
+    # ------------------------------------------------------------------
+    p = data.get("projeto") or {}
+    nome = _str(p.get("nome") or p.get("name")) or "Projeto importado"
+    # ODS: accept list [4,8,16] or string "4,8,16"
+    ods_raw = p.get("ods") or p.get("alinhamento_ods") or \
+              data.get("ficha_identificacao", {}).get("alinhamento_ods", "")
+    if isinstance(ods_raw, list):
+        ods_str = ",".join(str(x) for x in ods_raw)
+    else:
+        ods_str = _str(ods_raw)
+    localizacao = _str(p.get("localizacao") or
+                       data.get("ficha_identificacao", {}).get("localizacao", {}).get("regiao") or "")
+    entidade = _str(p.get("entidade_proponente") or
+                    data.get("ficha_identificacao", {}).get("entidade_proponente") or "")
+    cur = db.execute(
+        """INSERT INTO projetos (nome, descricao, objetivos, data_inicio, data_fim, estado,
+                                localizacao, entidade_proponente, ods)
+           VALUES (?, ?, ?, ?, ?, 'Em curso', ?, ?, ?)""",
+        (
+            nome,
+            _str(p.get("descricao") or p.get("description")),
+            _str(p.get("objetivos") or p.get("objectives")),
+            _str(p.get("data_inicio") or p.get("startDate")),
+            _str(p.get("data_fim") or p.get("endDate")),
+            localizacao,
+            entidade,
+            ods_str,
+        ),
+    )
+    pid = cur.lastrowid
+
+    # Add creator as gestor
+    db.execute(
+        "INSERT INTO projeto_membros (projeto_id, user_id, papel) VALUES (?, ?, 'gestor')",
+        (pid, user_id),
+    )
+
+    # ------------------------------------------------------------------
+    # 2. Parceiros
+    # ------------------------------------------------------------------
+    count_parceiros = 0
+    for item in (data.get("parceiros") or []):
+        nome_p = _str(item.get("nome"))
+        if not nome_p:
+            continue
+        cur2 = db.execute(
+            """INSERT INTO parceiros (nome, tipo, pais, papel, descricao, contacto, email)
+               VALUES (?, ?, ?, ?, ?, ?, ?)""",
+            (
+                nome_p,
+                _str(item.get("tipo")),
+                _str(item.get("pais")),
+                _str(item.get("papel")),
+                _str(item.get("descricao")),
+                _str(item.get("contacto")),
+                _str(item.get("email")),
+            ),
+        )
+        db.execute(
+            "INSERT OR IGNORE INTO projeto_parceiro (projeto_id, parceiro_id, papel) VALUES (?, ?, ?)",
+            (pid, cur2.lastrowid, _str(item.get("papel"))),
+        )
+        count_parceiros += 1
+    counts["parceiros"] = count_parceiros
+
+    # ------------------------------------------------------------------
+    # 3. Stakeholders
+    # ------------------------------------------------------------------
+    count_sh = 0
+    for item in (data.get("stakeholders") or []):
+        nome_sh = _str(item.get("nome"))
+        if not nome_sh:
+            continue
+        db.execute(
+            """INSERT INTO stakeholders
+               (projeto_id, nome, organizacao, papel, interesse, influencia, posicao, estrategia, notas)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            (
+                pid,
+                nome_sh,
+                _str(item.get("organizacao")),
+                _str(item.get("papel")),
+                _str(item.get("interesse"), "Médio"),
+                _str(item.get("influencia"), "Médio"),
+                _str(item.get("posicao"), "Neutro"),
+                _str(item.get("estrategia")),
+                _str(item.get("notas")),
+            ),
+        )
+        count_sh += 1
+    counts["stakeholders"] = count_sh
+
+    # ------------------------------------------------------------------
+    # 4. Beneficiários
+    # ------------------------------------------------------------------
+    count_ben = 0
+    for item in (data.get("beneficiarios") or []):
+        nome_b = _str(item.get("nome"))
+        if not nome_b:
+            continue
+        db.execute(
+            """INSERT INTO beneficiarios (projeto_id, nome, tipo, numero, descricao, localizacao)
+               VALUES (?, ?, ?, ?, ?, ?)""",
+            (
+                pid,
+                nome_b,
+                _str(item.get("tipo"), "Grupo"),
+                int(_num(item.get("numero"))),
+                _str(item.get("descricao")),
+                _str(item.get("localizacao")),
+            ),
+        )
+        count_ben += 1
+    counts["beneficiarios"] = count_ben
+
+    # ------------------------------------------------------------------
+    # 5. PEST
+    # ------------------------------------------------------------------
+    pest = data.get("analise_pest") or {}
+    if any(_str(pest.get(k)) for k in ("politico", "economico", "social", "tecnologico")):
+        db.execute(
+            """INSERT OR REPLACE INTO analise_pest (projeto_id, politico, economico, social, tecnologico)
+               VALUES (?, ?, ?, ?, ?)""",
+            (pid, _str(pest.get("politico")), _str(pest.get("economico")),
+             _str(pest.get("social")), _str(pest.get("tecnologico"))),
+        )
+        counts["pest"] = 1
+
+    # ------------------------------------------------------------------
+    # 6. SWOT
+    # ------------------------------------------------------------------
+    swot = data.get("analise_swot") or {}
+    if any(_str(swot.get(k)) for k in ("forcas", "fraquezas", "oportunidades", "ameacas")):
+        db.execute(
+            """INSERT OR REPLACE INTO analise_swot (projeto_id, forcas, fraquezas, oportunidades, ameacas)
+               VALUES (?, ?, ?, ?, ?)""",
+            (pid, _str(swot.get("forcas")), _str(swot.get("fraquezas")),
+             _str(swot.get("oportunidades")), _str(swot.get("ameacas"))),
+        )
+        counts["swot"] = 1
+
+    # ------------------------------------------------------------------
+    # 7. Árvore de problemas
+    # ------------------------------------------------------------------
+    arvore = data.get("arvore_problemas") or {}
+    count_arv = 0
+    for i, causa in enumerate(arvore.get("causas") or [], 1):
+        if _str(causa):
+            db.execute(
+                "INSERT INTO arvore_problemas (projeto_id, tipo, descricao, ordem) VALUES (?,?,?,?)",
+                (pid, "causa", _str(causa), i),
+            )
+            count_arv += 1
+    pc = _str(arvore.get("problema_central"))
+    if pc:
+        db.execute(
+            "INSERT INTO arvore_problemas (projeto_id, tipo, descricao, ordem) VALUES (?,?,?,?)",
+            (pid, "problema_central", pc, 1),
+        )
+        count_arv += 1
+    for i, efeito in enumerate(arvore.get("efeitos") or [], 1):
+        if _str(efeito):
+            db.execute(
+                "INSERT INTO arvore_problemas (projeto_id, tipo, descricao, ordem) VALUES (?,?,?,?)",
+                (pid, "efeito", _str(efeito), i),
+            )
+            count_arv += 1
+    counts["arvore_problemas"] = count_arv
+
+    # ------------------------------------------------------------------
+    # 8. Quadro Lógico
+    # ------------------------------------------------------------------
+    count_ql = 0
+    for item in (data.get("quadro_logico") or []):
+        resultado = _str(item.get("resultado"))
+        indicador = _str(item.get("indicador"))
+        if not resultado and not indicador:
+            continue
+        nivel = _str(item.get("nivel"), "Resultado")
+        if nivel not in _VALID_NIVEIS:
+            nivel = "Resultado"
+        db.execute(
+            """INSERT INTO impacto_quadro_logico
+               (projeto_id, nivel, resultado, indicador, unidade, baseline, meta, valor_atual,
+                fonte_verificacao, pressupostos, frequencia_medicao, responsavel_medicao, estado)
+               VALUES (?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, 'Em acompanhamento')""",
+            (
+                pid, nivel, resultado, indicador,
+                _str(item.get("unidade")),
+                _num(item.get("baseline")),
+                _num(item.get("meta")),
+                _str(item.get("fonte_verificacao")),
+                _str(item.get("pressupostos")),
+                _str(item.get("frequencia_medicao"), "Trimestral"),
+                _str(item.get("responsavel_medicao")),
+            ),
+        )
+        count_ql += 1
+    counts["quadro_logico"] = count_ql
+
+    # ------------------------------------------------------------------
+    # 9. Plano de Avaliação
+    # ------------------------------------------------------------------
+    count_av = 0
+    plano = data.get("plano_avaliacao") or {}
+    for criterio, vals in plano.items():
+        if criterio not in _VALID_CRITERIOS:
+            continue
+        if not isinstance(vals, dict):
+            continue
+        db.execute(
+            """INSERT OR REPLACE INTO plano_avaliacao
+               (projeto_id, criterio, questoes, indicadores, metodos, fontes, momento)
+               VALUES (?, ?, ?, ?, ?, ?, ?)""",
+            (
+                pid, criterio,
+                _str(vals.get("questoes")), _str(vals.get("indicadores")),
+                _str(vals.get("metodos")), _str(vals.get("fontes")),
+                _str(vals.get("momento")),
+            ),
+        )
+        count_av += 1
+    counts["plano_avaliacao"] = count_av
+
+    # ------------------------------------------------------------------
+    # 10. Orçamento
+    # ------------------------------------------------------------------
+    count_orc = 0
+    for item in (data.get("orcamento") or []):
+        cat = _str(item.get("categoria") or item.get("rubrica"))
+        if not cat:
+            continue
+        db.execute(
+            """INSERT INTO orcamento (projeto_id, tipo, categoria, descricao, valor_previsto)
+               VALUES (?, ?, ?, ?, ?)""",
+            (
+                pid,
+                _str(item.get("tipo"), "Previsto"),
+                cat,
+                _str(item.get("descricao")),
+                _num(item.get("valor_previsto") or item.get("valor")),
+            ),
+        )
+        count_orc += 1
+    counts["orcamento"] = count_orc
+
+    # ------------------------------------------------------------------
+    # 11. Riscos
+    # ------------------------------------------------------------------
+    count_riscos = 0
+    for item in (data.get("riscos") or []):
+        desc = _str(item.get("descricao"))
+        if not desc:
+            continue
+        db.execute(
+            """INSERT INTO riscos
+               (projeto_id, descricao, probabilidade, impacto, estado, mitigacao, plano_contingencia)
+               VALUES (?, ?, ?, ?, 'Identificado', ?, ?)""",
+            (
+                pid, desc,
+                _str(item.get("probabilidade"), "Médio"),
+                _str(item.get("impacto"), "Médio"),
+                _str(item.get("mitigacao")),
+                _str(item.get("plano_contingencia")),
+            ),
+        )
+        count_riscos += 1
+    counts["riscos"] = count_riscos
+
+    # ------------------------------------------------------------------
+    # 12. Milestones
+    # ------------------------------------------------------------------
+    count_ms = 0
+    for item in (data.get("milestones") or []):
+        nome_ms = _str(item.get("nome"))
+        if not nome_ms:
+            continue
+        db.execute(
+            """INSERT INTO milestones (projeto_id, nome, descricao, data_prevista, estado)
+               VALUES (?, ?, ?, ?, ?)""",
+            (
+                pid, nome_ms,
+                _str(item.get("descricao")),
+                _str(item.get("data_prevista")),
+                _str(item.get("estado"), "Pendente"),
+            ),
+        )
+        count_ms += 1
+    counts["milestones"] = count_ms
+
+    # ------------------------------------------------------------------
+    # 13. Tarefas
+    # ------------------------------------------------------------------
+    count_tarefas = 0
+    for item in (data.get("tarefas") or []):
+        nome_t = _str(item.get("nome"))
+        if not nome_t:
+            continue
+        db.execute(
+            """INSERT INTO tarefas (projeto_id, nome, descricao, responsavel, data_inicio, data_fim, prioridade, estado, tags)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            (
+                pid,
+                nome_t,
+                _str(item.get("descricao")),
+                _str(item.get("responsavel")),
+                _str(item.get("data_inicio")),
+                _str(item.get("data_fim")),
+                _str(item.get("prioridade"), "Média"),
+                _str(item.get("estado"), "A Fazer"),
+                _str(item.get("tags")),
+            ),
+        )
+        count_tarefas += 1
+    counts["tarefas"] = count_tarefas
+
+    return pid, nome, counts
+
+
 @bp.route("/api/projects/import-template", methods=["POST"])
 @login_required
 def api_import_template():
@@ -333,305 +661,69 @@ def api_import_template():
 
     db = get_db()
     user_id = session["user_id"]
-    counts: dict[str, int] = {}
 
     try:
-        # ------------------------------------------------------------------
-        # 1. Projeto
-        # ------------------------------------------------------------------
-        p = data.get("projeto") or {}
-        nome = _str(p.get("nome") or p.get("name")) or "Projeto importado"
-        # ODS: accept list [4,8,16] or string "4,8,16"
-        ods_raw = p.get("ods") or p.get("alinhamento_ods") or \
-                  data.get("ficha_identificacao", {}).get("alinhamento_ods", "")
-        if isinstance(ods_raw, list):
-            ods_str = ",".join(str(x) for x in ods_raw)
-        else:
-            ods_str = _str(ods_raw)
-        localizacao = _str(p.get("localizacao") or
-                           data.get("ficha_identificacao", {}).get("localizacao", {}).get("regiao") or "")
-        entidade = _str(p.get("entidade_proponente") or
-                        data.get("ficha_identificacao", {}).get("entidade_proponente") or "")
-        cur = db.execute(
-            """INSERT INTO projetos (nome, descricao, objetivos, data_inicio, data_fim, estado,
-                                    localizacao, entidade_proponente, ods)
-               VALUES (?, ?, ?, ?, ?, 'Em curso', ?, ?, ?)""",
-            (
-                nome,
-                _str(p.get("descricao") or p.get("description")),
-                _str(p.get("objetivos") or p.get("objectives")),
-                _str(p.get("data_inicio") or p.get("startDate")),
-                _str(p.get("data_fim") or p.get("endDate")),
-                localizacao,
-                entidade,
-                ods_str,
-            ),
-        )
-        pid = cur.lastrowid
-
-        # Add creator as gestor
-        db.execute(
-            "INSERT INTO projeto_membros (projeto_id, user_id, papel) VALUES (?, ?, 'gestor')",
-            (pid, user_id),
-        )
-
-        # ------------------------------------------------------------------
-        # 2. Parceiros
-        # ------------------------------------------------------------------
-        count_parceiros = 0
-        for item in (data.get("parceiros") or []):
-            nome_p = _str(item.get("nome"))
-            if not nome_p:
-                continue
-            cur2 = db.execute(
-                """INSERT INTO parceiros (nome, tipo, pais, papel, descricao, contacto, email)
-                   VALUES (?, ?, ?, ?, ?, ?, ?)""",
-                (
-                    nome_p,
-                    _str(item.get("tipo")),
-                    _str(item.get("pais")),
-                    _str(item.get("papel")),
-                    _str(item.get("descricao")),
-                    _str(item.get("contacto")),
-                    _str(item.get("email")),
-                ),
-            )
-            db.execute(
-                "INSERT OR IGNORE INTO projeto_parceiro (projeto_id, parceiro_id, papel) VALUES (?, ?, ?)",
-                (pid, cur2.lastrowid, _str(item.get("papel"))),
-            )
-            count_parceiros += 1
-        counts["parceiros"] = count_parceiros
-
-        # ------------------------------------------------------------------
-        # 3. Stakeholders
-        # ------------------------------------------------------------------
-        count_sh = 0
-        for item in (data.get("stakeholders") or []):
-            nome_sh = _str(item.get("nome"))
-            if not nome_sh:
-                continue
-            db.execute(
-                """INSERT INTO stakeholders
-                   (projeto_id, nome, organizacao, papel, interesse, influencia, posicao, estrategia, notas)
-                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-                (
-                    pid,
-                    nome_sh,
-                    _str(item.get("organizacao")),
-                    _str(item.get("papel")),
-                    _str(item.get("interesse"), "Médio"),
-                    _str(item.get("influencia"), "Médio"),
-                    _str(item.get("posicao"), "Neutro"),
-                    _str(item.get("estrategia")),
-                    _str(item.get("notas")),
-                ),
-            )
-            count_sh += 1
-        counts["stakeholders"] = count_sh
-
-        # ------------------------------------------------------------------
-        # 4. Beneficiários
-        # ------------------------------------------------------------------
-        count_ben = 0
-        for item in (data.get("beneficiarios") or []):
-            nome_b = _str(item.get("nome"))
-            if not nome_b:
-                continue
-            db.execute(
-                """INSERT INTO beneficiarios (projeto_id, nome, tipo, numero, descricao, localizacao)
-                   VALUES (?, ?, ?, ?, ?, ?)""",
-                (
-                    pid,
-                    nome_b,
-                    _str(item.get("tipo"), "Grupo"),
-                    int(_num(item.get("numero"))),
-                    _str(item.get("descricao")),
-                    _str(item.get("localizacao")),
-                ),
-            )
-            count_ben += 1
-        counts["beneficiarios"] = count_ben
-
-        # ------------------------------------------------------------------
-        # 5. PEST
-        # ------------------------------------------------------------------
-        pest = data.get("analise_pest") or {}
-        if any(_str(pest.get(k)) for k in ("politico", "economico", "social", "tecnologico")):
-            db.execute(
-                """INSERT OR REPLACE INTO analise_pest (projeto_id, politico, economico, social, tecnologico)
-                   VALUES (?, ?, ?, ?, ?)""",
-                (pid, _str(pest.get("politico")), _str(pest.get("economico")),
-                 _str(pest.get("social")), _str(pest.get("tecnologico"))),
-            )
-            counts["pest"] = 1
-
-        # ------------------------------------------------------------------
-        # 6. SWOT
-        # ------------------------------------------------------------------
-        swot = data.get("analise_swot") or {}
-        if any(_str(swot.get(k)) for k in ("forcas", "fraquezas", "oportunidades", "ameacas")):
-            db.execute(
-                """INSERT OR REPLACE INTO analise_swot (projeto_id, forcas, fraquezas, oportunidades, ameacas)
-                   VALUES (?, ?, ?, ?, ?)""",
-                (pid, _str(swot.get("forcas")), _str(swot.get("fraquezas")),
-                 _str(swot.get("oportunidades")), _str(swot.get("ameacas"))),
-            )
-            counts["swot"] = 1
-
-        # ------------------------------------------------------------------
-        # 7. Árvore de problemas
-        # ------------------------------------------------------------------
-        arvore = data.get("arvore_problemas") or {}
-        count_arv = 0
-        for i, causa in enumerate(arvore.get("causas") or [], 1):
-            if _str(causa):
-                db.execute(
-                    "INSERT INTO arvore_problemas (projeto_id, tipo, descricao, ordem) VALUES (?,?,?,?)",
-                    (pid, "causa", _str(causa), i),
-                )
-                count_arv += 1
-        pc = _str(arvore.get("problema_central"))
-        if pc:
-            db.execute(
-                "INSERT INTO arvore_problemas (projeto_id, tipo, descricao, ordem) VALUES (?,?,?,?)",
-                (pid, "problema_central", pc, 1),
-            )
-            count_arv += 1
-        for i, efeito in enumerate(arvore.get("efeitos") or [], 1):
-            if _str(efeito):
-                db.execute(
-                    "INSERT INTO arvore_problemas (projeto_id, tipo, descricao, ordem) VALUES (?,?,?,?)",
-                    (pid, "efeito", _str(efeito), i),
-                )
-                count_arv += 1
-        counts["arvore_problemas"] = count_arv
-
-        # ------------------------------------------------------------------
-        # 8. Quadro Lógico
-        # ------------------------------------------------------------------
-        count_ql = 0
-        for item in (data.get("quadro_logico") or []):
-            resultado = _str(item.get("resultado"))
-            indicador = _str(item.get("indicador"))
-            if not resultado and not indicador:
-                continue
-            nivel = _str(item.get("nivel"), "Resultado")
-            if nivel not in _VALID_NIVEIS:
-                nivel = "Resultado"
-            db.execute(
-                """INSERT INTO impacto_quadro_logico
-                   (projeto_id, nivel, resultado, indicador, unidade, baseline, meta, valor_atual,
-                    fonte_verificacao, pressupostos, frequencia_medicao, responsavel_medicao, estado)
-                   VALUES (?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, 'Em acompanhamento')""",
-                (
-                    pid, nivel, resultado, indicador,
-                    _str(item.get("unidade")),
-                    _num(item.get("baseline")),
-                    _num(item.get("meta")),
-                    _str(item.get("fonte_verificacao")),
-                    _str(item.get("pressupostos")),
-                    _str(item.get("frequencia_medicao"), "Trimestral"),
-                    _str(item.get("responsavel_medicao")),
-                ),
-            )
-            count_ql += 1
-        counts["quadro_logico"] = count_ql
-
-        # ------------------------------------------------------------------
-        # 9. Plano de Avaliação
-        # ------------------------------------------------------------------
-        count_av = 0
-        plano = data.get("plano_avaliacao") or {}
-        for criterio, vals in plano.items():
-            if criterio not in _VALID_CRITERIOS:
-                continue
-            if not isinstance(vals, dict):
-                continue
-            db.execute(
-                """INSERT OR REPLACE INTO plano_avaliacao
-                   (projeto_id, criterio, questoes, indicadores, metodos, fontes, momento)
-                   VALUES (?, ?, ?, ?, ?, ?, ?)""",
-                (
-                    pid, criterio,
-                    _str(vals.get("questoes")), _str(vals.get("indicadores")),
-                    _str(vals.get("metodos")), _str(vals.get("fontes")),
-                    _str(vals.get("momento")),
-                ),
-            )
-            count_av += 1
-        counts["plano_avaliacao"] = count_av
-
-        # ------------------------------------------------------------------
-        # 10. Orçamento
-        # ------------------------------------------------------------------
-        count_orc = 0
-        for item in (data.get("orcamento") or []):
-            cat = _str(item.get("categoria") or item.get("rubrica"))
-            if not cat:
-                continue
-            db.execute(
-                """INSERT INTO orcamento (projeto_id, tipo, categoria, descricao, valor_previsto)
-                   VALUES (?, ?, ?, ?, ?)""",
-                (
-                    pid,
-                    _str(item.get("tipo"), "Previsto"),
-                    cat,
-                    _str(item.get("descricao")),
-                    _num(item.get("valor_previsto") or item.get("valor")),
-                ),
-            )
-            count_orc += 1
-        counts["orcamento"] = count_orc
-
-        # ------------------------------------------------------------------
-        # 11. Riscos
-        # ------------------------------------------------------------------
-        count_riscos = 0
-        for item in (data.get("riscos") or []):
-            desc = _str(item.get("descricao"))
-            if not desc:
-                continue
-            db.execute(
-                """INSERT INTO riscos
-                   (projeto_id, descricao, probabilidade, impacto, estado, mitigacao, plano_contingencia)
-                   VALUES (?, ?, ?, ?, 'Identificado', ?, ?)""",
-                (
-                    pid, desc,
-                    _str(item.get("probabilidade"), "Médio"),
-                    _str(item.get("impacto"), "Médio"),
-                    _str(item.get("mitigacao")),
-                    _str(item.get("plano_contingencia")),
-                ),
-            )
-            count_riscos += 1
-        counts["riscos"] = count_riscos
-
-        # ------------------------------------------------------------------
-        # 12. Milestones
-        # ------------------------------------------------------------------
-        count_ms = 0
-        for item in (data.get("milestones") or []):
-            nome_ms = _str(item.get("nome"))
-            if not nome_ms:
-                continue
-            db.execute(
-                """INSERT INTO milestones (projeto_id, nome, descricao, data_prevista, estado)
-                   VALUES (?, ?, ?, ?, ?)""",
-                (
-                    pid, nome_ms,
-                    _str(item.get("descricao")),
-                    _str(item.get("data_prevista")),
-                    _str(item.get("estado"), "Pendente"),
-                ),
-            )
-            count_ms += 1
-        counts["milestones"] = count_ms
-
+        pid, nome, counts = import_coopgest_template(db, user_id, data)
         db.commit()
-
     except Exception as exc:
         db.rollback()
         return api_error(f"Erro ao importar template: {exc}", 500, "INTERNAL_ERROR")
+
+    return jsonify({"projeto_id": pid, "nome": nome, "criados": counts}), 201
+
+
+@bp.route("/api/projects/load-sample", methods=["POST"])
+@login_required
+def api_load_sample_project():
+    """
+    Loads the sample cooperation project (ECHO Angola) into the DB.
+    """
+    import json as _json
+
+    possible_paths = [
+        os.path.join(current_app.root_path, "..", "template_coopgest_echo_angola.json"),
+        os.path.join(os.getcwd(), "template_coopgest_echo_angola.json"),
+        os.path.join(current_app.root_path, "template_coopgest_echo_angola.json"),
+    ]
+    template_path = None
+    for p in possible_paths:
+        if os.path.exists(p):
+            template_path = os.path.abspath(p)
+            break
+
+    if not template_path:
+        return api_error("Ficheiro de exemplo template_coopgest_echo_angola.json não encontrado", 404, "NOT_FOUND")
+
+    try:
+        with open(template_path, "r", encoding="utf-8") as f:
+            data = _json.load(f)
+    except Exception as exc:
+        return api_error(f"Erro ao ler template de exemplo: {exc}", 500, "READ_ERROR")
+
+    if data.get("tipo") != "coopgest-template":
+        return api_error("O ficheiro não é um template CoopGest válido.", 400, "INVALID_TEMPLATE")
+
+    db = get_db()
+    user_id = session.get("user_id", 1)
+
+    # Check if this exact project was already loaded to avoid duplicates
+    sample_nome = _str(data.get("projeto", {}).get("nome"))
+    if sample_nome:
+        existing = db.execute("SELECT id, nome FROM projetos WHERE nome = ?", (sample_nome,)).fetchone()
+        if existing:
+            return jsonify({
+                "projeto_id": existing["id"],
+                "nome": existing["nome"],
+                "criados": {},
+                "already_exists": True,
+                "message": "O projeto exemplo já se encontra carregado."
+            }), 200
+
+    try:
+        pid, nome, counts = import_coopgest_template(db, user_id, data)
+        db.commit()
+    except Exception as exc:
+        db.rollback()
+        return api_error(f"Erro ao carregar projeto exemplo: {exc}", 500, "INTERNAL_ERROR")
 
     return jsonify({"projeto_id": pid, "nome": nome, "criados": counts}), 201

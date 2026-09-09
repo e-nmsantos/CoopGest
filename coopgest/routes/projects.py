@@ -94,6 +94,9 @@ def api_project_detail(id):
             ('data_inicio', project_data.get('data_inicio')),
             ('data_fim', project_data.get('data_fim')),
             ('estado', project_data.get('estado')),
+            ('localizacao', project_data.get('localizacao')),
+            ('entidade_proponente', project_data.get('entidade_proponente')),
+            ('ods', project_data.get('ods')),
         ]
         if privado_val is not None:
             updatable_fields.append(('privado', int(bool(privado_val))))

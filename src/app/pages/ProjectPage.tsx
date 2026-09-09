@@ -22,7 +22,9 @@ import { useProject } from "../hooks/useProject";
 import { ProjectActionsBar } from "../components/project/ProjectActionsBar";
 import { ExecutiveDashboard } from "../components/project/ExecutiveDashboard";
 import { ProjectDescriptionCards } from "../components/project/ProjectDescriptionCards";
+import { FichaIdentificacaoCard } from "../components/project/FichaIdentificacaoCard";
 import { ErrorBoundary } from "../components/ui/ErrorBoundary";
+import { Skeleton } from "../components/ui/skeleton";
 
 export function ProjectPage() {
   const { id } = useParams();
@@ -31,8 +33,22 @@ export function ProjectPage() {
 
   if (project.loading) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-gray-50">
-        <p className="text-gray-400 text-sm">A carregar projeto...</p>
+      <div className="flex-1 min-h-0 flex flex-col bg-gray-50">
+        <Header projectName="A carregar..." showBackButton />
+        <div className="p-6 space-y-6 max-w-7xl mx-auto w-full">
+          <div className="flex justify-between items-center">
+            <Skeleton className="h-8 w-64" />
+            <Skeleton className="h-9 w-32" />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+            <Skeleton className="h-24 rounded-lg" />
+            <Skeleton className="h-24 rounded-lg" />
+            <Skeleton className="h-24 rounded-lg" />
+            <Skeleton className="h-24 rounded-lg" />
+          </div>
+          <Skeleton className="h-10 w-full rounded-md" />
+          <Skeleton className="h-96 w-full rounded-xl" />
+        </div>
       </div>
     );
   }
@@ -71,6 +87,14 @@ export function ProjectPage() {
             />
           )}
 
+          {project.project && (
+            <FichaIdentificacaoCard
+              project={project.project}
+              projectId={String(id)}
+              onUpdate={project.setProject}
+            />
+          )}
+
           <ProjectDescriptionCards
             project={project.project}
             editingField={project.editingField}
@@ -82,22 +106,22 @@ export function ProjectPage() {
           />
 
           <Tabs key={id} defaultValue="tarefas" className="w-full">
-            <TabsList className="mb-6 flex-wrap h-auto gap-1">
-              <TabsTrigger value="tarefas" aria-label="Tarefas"><span aria-hidden="true">📋</span> Tarefas</TabsTrigger>
-              <TabsTrigger value="milestones" aria-label="Milestones"><span aria-hidden="true">🏁</span> Milestones</TabsTrigger>
-              <TabsTrigger value="gantt" aria-label="Gantt"><span aria-hidden="true">📊</span> Gantt</TabsTrigger>
-              <TabsTrigger value="equipa" aria-label="Equipa"><span aria-hidden="true">👤</span> Equipa</TabsTrigger>
-              <TabsTrigger value="horas" aria-label="Horas"><span aria-hidden="true">⏱</span> Horas</TabsTrigger>
-              <TabsTrigger value="parceiros" aria-label="Parceiros"><span aria-hidden="true">🤝</span> Parceiros</TabsTrigger>
-              <TabsTrigger value="timeline" aria-label="Timeline"><span aria-hidden="true">📅</span> Timeline</TabsTrigger>
-              <TabsTrigger value="orcamento" aria-label="Orçamento"><span aria-hidden="true">💰</span> Orçamento</TabsTrigger>
-              <TabsTrigger value="financiamento" aria-label="Financiamento"><span aria-hidden="true">💶</span> Financiamento</TabsTrigger>
-              <TabsTrigger value="riscos" aria-label="Riscos"><span aria-hidden="true">⚠️</span> Riscos</TabsTrigger>
-              <TabsTrigger value="beneficiarios" aria-label="Beneficiários"><span aria-hidden="true">👥</span> Beneficiários</TabsTrigger>
-              <TabsTrigger value="chat" aria-label="Chat"><span aria-hidden="true">💬</span> Chat</TabsTrigger>
-              <TabsTrigger value="comentarios" aria-label="Comentários"><span aria-hidden="true">💬</span> Comentários</TabsTrigger>
-              <TabsTrigger value="analytics" aria-label="Analytics"><span aria-hidden="true">📈</span> Analytics</TabsTrigger>
-              <TabsTrigger value="atividade">Atividade</TabsTrigger>
+            <TabsList className="mb-6 flex w-full max-w-full overflow-x-auto h-auto py-1 px-1 gap-1.5 justify-start bg-slate-100 border border-slate-200 rounded-lg">
+              <TabsTrigger value="tarefas" aria-label="Tarefas" className="shrink-0 text-xs sm:text-sm py-1.5 px-3 data-[state=active]:bg-white data-[state=active]:shadow-sm"><span aria-hidden="true">📋</span> Tarefas</TabsTrigger>
+              <TabsTrigger value="milestones" aria-label="Milestones" className="shrink-0 text-xs sm:text-sm py-1.5 px-3 data-[state=active]:bg-white data-[state=active]:shadow-sm"><span aria-hidden="true">🏁</span> Milestones</TabsTrigger>
+              <TabsTrigger value="gantt" aria-label="Gantt" className="shrink-0 text-xs sm:text-sm py-1.5 px-3 data-[state=active]:bg-white data-[state=active]:shadow-sm"><span aria-hidden="true">📊</span> Gantt</TabsTrigger>
+              <TabsTrigger value="equipa" aria-label="Equipa" className="shrink-0 text-xs sm:text-sm py-1.5 px-3 data-[state=active]:bg-white data-[state=active]:shadow-sm"><span aria-hidden="true">👤</span> Equipa</TabsTrigger>
+              <TabsTrigger value="horas" aria-label="Horas" className="shrink-0 text-xs sm:text-sm py-1.5 px-3 data-[state=active]:bg-white data-[state=active]:shadow-sm"><span aria-hidden="true">⏱</span> Horas</TabsTrigger>
+              <TabsTrigger value="parceiros" aria-label="Parceiros" className="shrink-0 text-xs sm:text-sm py-1.5 px-3 data-[state=active]:bg-white data-[state=active]:shadow-sm"><span aria-hidden="true">🤝</span> Parceiros</TabsTrigger>
+              <TabsTrigger value="timeline" aria-label="Timeline" className="shrink-0 text-xs sm:text-sm py-1.5 px-3 data-[state=active]:bg-white data-[state=active]:shadow-sm"><span aria-hidden="true">📅</span> Timeline</TabsTrigger>
+              <TabsTrigger value="orcamento" aria-label="Orçamento" className="shrink-0 text-xs sm:text-sm py-1.5 px-3 data-[state=active]:bg-white data-[state=active]:shadow-sm"><span aria-hidden="true">💰</span> Orçamento</TabsTrigger>
+              <TabsTrigger value="financiamento" aria-label="Financiamento" className="shrink-0 text-xs sm:text-sm py-1.5 px-3 data-[state=active]:bg-white data-[state=active]:shadow-sm"><span aria-hidden="true">💶</span> Financiamento</TabsTrigger>
+              <TabsTrigger value="riscos" aria-label="Riscos" className="shrink-0 text-xs sm:text-sm py-1.5 px-3 data-[state=active]:bg-white data-[state=active]:shadow-sm"><span aria-hidden="true">⚠️</span> Riscos</TabsTrigger>
+              <TabsTrigger value="beneficiarios" aria-label="Beneficiários" className="shrink-0 text-xs sm:text-sm py-1.5 px-3 data-[state=active]:bg-white data-[state=active]:shadow-sm"><span aria-hidden="true">👥</span> Beneficiários</TabsTrigger>
+              <TabsTrigger value="chat" aria-label="Chat" className="shrink-0 text-xs sm:text-sm py-1.5 px-3 data-[state=active]:bg-white data-[state=active]:shadow-sm"><span aria-hidden="true">💬</span> Chat</TabsTrigger>
+              <TabsTrigger value="comentarios" aria-label="Comentários" className="shrink-0 text-xs sm:text-sm py-1.5 px-3 data-[state=active]:bg-white data-[state=active]:shadow-sm"><span aria-hidden="true">💬</span> Comentários</TabsTrigger>
+              <TabsTrigger value="analytics" aria-label="Analytics" className="shrink-0 text-xs sm:text-sm py-1.5 px-3 data-[state=active]:bg-white data-[state=active]:shadow-sm"><span aria-hidden="true">📈</span> Analytics</TabsTrigger>
+              <TabsTrigger value="atividade" aria-label="Atividade" className="shrink-0 text-xs sm:text-sm py-1.5 px-3 data-[state=active]:bg-white data-[state=active]:shadow-sm">Atividade</TabsTrigger>
             </TabsList>
 
             <TabsContent value="tarefas" className="mt-0">

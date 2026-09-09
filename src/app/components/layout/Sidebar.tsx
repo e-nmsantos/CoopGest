@@ -1,31 +1,69 @@
-import { LayoutDashboard, FolderKanban, Users, Vote, Target, BookUser, FolderOpen, UserCog, CalendarDays, LayoutList, Shield, X, Layers, ListChecks, Banknote, Lightbulb, ShoppingCart, LayoutGrid, GitBranch, GanttChart, Network } from "lucide-react";
+import { LayoutDashboard, FolderKanban, Users, Vote, Target, BookUser, FolderOpen, UserCog, CalendarDays, LayoutList, Shield, X, Layers, ListChecks, Banknote, Lightbulb, ShoppingCart, LayoutGrid, GitBranch, GanttChart, Network, ScanSearch, ClipboardCheck } from "lucide-react";
 import { Link, useLocation } from "react-router";
 import { useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { useSidebar } from "../../contexts/SidebarContext";
 
-const menuItems = [
-  { icon: LayoutDashboard, label: "Dashboard", path: "/" },
-  { icon: FolderKanban, label: "Projetos", path: "/projetos" },
-  { icon: ListChecks, label: "O Meu Trabalho", path: "/meu-trabalho" },
-  { icon: GanttChart, label: "Gantt", path: "/gantt" },
-  { icon: Users, label: "Parceiros", path: "/parceiros" },
-  { icon: Vote, label: "Votações", path: "/votacoes" },
-  { icon: FolderOpen, label: "Documentos", path: "/documentos" },
-  { icon: CalendarDays, label: "Calendário", path: "/calendario" },
-  { icon: LayoutList, label: "Recursos", path: "/recursos" },
-  { icon: Banknote, label: "Financas", path: "/financas" },
-  { icon: LayoutGrid, label: "Portfólio", path: "/portfolio" },
-  { icon: Target, label: "Impacto", path: "/impacto" },
-  { icon: GitBranch, label: "Teoria Mudança", path: "/teoria-mudanca" },
-  { icon: Lightbulb, label: "Lições", path: "/licoes" },
-  { icon: ShoppingCart, label: "Contratos", path: "/contratos" },
-  { icon: Network, label: "Stakeholders", path: "/stakeholders" },
-  { icon: BookUser, label: "Competências", path: "/competencias" },
-  { icon: Layers, label: "MethodKit", path: "/methodkit" },
+interface NavItem {
+  icon: React.ElementType;
+  label: string;
+  path: string;
+}
+
+interface NavGroup {
+  title: string;
+  items: NavItem[];
+}
+
+const navGroups: NavGroup[] = [
+  {
+    title: "Visão Geral",
+    items: [
+      { icon: LayoutDashboard, label: "Dashboard", path: "/" },
+      { icon: FolderKanban, label: "Projetos", path: "/projetos" },
+      { icon: ListChecks, label: "O Meu Trabalho", path: "/meu-trabalho" },
+      { icon: LayoutGrid, label: "Portfólio", path: "/portfolio" },
+    ],
+  },
+  {
+    title: "Estratégia & Impacto",
+    items: [
+      { icon: Target, label: "Impacto (LFA)", path: "/impacto" },
+      { icon: GitBranch, label: "Teoria da Mudança", path: "/teoria-mudanca" },
+      { icon: ScanSearch, label: "Análise de Contexto", path: "/analise-contexto" },
+      { icon: ClipboardCheck, label: "Plano de Avaliação", path: "/plano-avaliacao" },
+      { icon: Network, label: "Stakeholders", path: "/stakeholders" },
+    ],
+  },
+  {
+    title: "Operações & Prazos",
+    items: [
+      { icon: GanttChart, label: "Gantt", path: "/gantt" },
+      { icon: CalendarDays, label: "Calendário", path: "/calendario" },
+      { icon: LayoutList, label: "Recursos", path: "/recursos" },
+      { icon: FolderOpen, label: "Documentos", path: "/documentos" },
+    ],
+  },
+  {
+    title: "Finanças & Contratos",
+    items: [
+      { icon: Banknote, label: "Finanças", path: "/financas" },
+      { icon: ShoppingCart, label: "Contratos", path: "/contratos" },
+    ],
+  },
+  {
+    title: "Pessoas & Aprendizagem",
+    items: [
+      { icon: Users, label: "Parceiros", path: "/parceiros" },
+      { icon: Vote, label: "Votações", path: "/votacoes" },
+      { icon: BookUser, label: "Competências", path: "/competencias" },
+      { icon: Layers, label: "MethodKit", path: "/methodkit" },
+      { icon: Lightbulb, label: "Lições Aprendidas", path: "/licoes" },
+    ],
+  },
 ];
 
-const adminMenuItems = [
+const adminMenuItems: NavItem[] = [
   { icon: UserCog, label: "Utilizadores", path: "/utilizadores" },
   { icon: Shield, label: "Auditoria", path: "/auditoria" },
 ];
@@ -39,38 +77,50 @@ export function Sidebar() {
     close();
   }, [location.pathname]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const renderLink = (item: { icon: React.ElementType; label: string; path: string }) => {
+  const renderLink = (item: NavItem) => {
     const Icon = item.icon;
     const isActive = location.pathname === item.path;
     return (
       <li key={item.path}>
         <Link
           to={item.path}
-          className={`flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors ${
+          className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
             isActive
-              ? "bg-slate-700 text-white"
-              : "text-slate-300 hover:bg-slate-700/50 hover:text-white"
+              ? "bg-blue-600 text-white shadow-sm"
+              : "text-slate-300 hover:bg-slate-700/60 hover:text-white"
           }`}
         >
-          <Icon className="size-5" />
-          <span>{item.label}</span>
+          <Icon className="size-4 shrink-0" />
+          <span className="truncate">{item.label}</span>
         </Link>
       </li>
     );
   };
 
-  const navItems = (
-    <ul className="space-y-1">
-      {menuItems.map(renderLink)}
+  const navContent = (
+    <div className="space-y-4">
+      {navGroups.map((group) => (
+        <div key={group.title} className="space-y-1">
+          <div className="px-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+            {group.title}
+          </div>
+          <ul className="space-y-0.5">
+            {group.items.map(renderLink)}
+          </ul>
+        </div>
+      ))}
+
       {user?.papel === "admin" && (
-        <>
-          <li className="pt-2">
-            <div className="px-3 py-1 text-xs font-semibold text-slate-500 uppercase tracking-wide">Admin</div>
-          </li>
-          {adminMenuItems.map(renderLink)}
-        </>
+        <div className="space-y-1 pt-1 border-t border-slate-700/60">
+          <div className="px-3 pt-2 text-[11px] font-bold text-amber-400/90 uppercase tracking-wider">
+            Administração
+          </div>
+          <ul className="space-y-0.5">
+            {adminMenuItems.map(renderLink)}
+          </ul>
+        </div>
       )}
-    </ul>
+    </div>
   );
 
   return (
@@ -96,7 +146,7 @@ export function Sidebar() {
           </div>
         </div>
         <nav className="flex-1 overflow-y-auto px-3 pb-4">
-          {navItems}
+          {navContent}
         </nav>
       </aside>
 
@@ -126,7 +176,7 @@ export function Sidebar() {
               </button>
             </div>
             <nav className="flex-1 overflow-y-auto px-3 pb-4">
-              {navItems}
+              {navContent}
             </nav>
           </aside>
           <div className="flex-1 bg-black/50" onClick={close} />

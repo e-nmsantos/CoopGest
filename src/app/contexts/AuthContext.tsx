@@ -16,16 +16,28 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
+const AUTH_BOOTSTRAP_TIMEOUT_MS = 10000;
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    apiGet<User | null>("/api/auth/me")
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), AUTH_BOOTSTRAP_TIMEOUT_MS);
+
+    apiGet<User | null>("/api/auth/me", { signal: controller.signal })
       .then((data) => setUser(data))
       .catch(() => setUser(null))
-      .finally(() => setLoading(false));
+      .finally(() => {
+        window.clearTimeout(timeout);
+        setLoading(false);
+      });
+
+    return () => {
+      window.clearTimeout(timeout);
+      controller.abort();
+    };
   }, []);
 
   const login = async (username: string, password: string) => {

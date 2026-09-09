@@ -13,6 +13,8 @@ const ROUTES = [
   { path: "/contratos", label: "Contratos" },
   { path: "/portfolio", label: "Portfólio" },
   { path: "/teoria-mudanca", label: "Teoria da Mudança" },
+  { path: "/analise-contexto", label: "Análise de Contexto" },
+  { path: "/plano-avaliacao", label: "Plano de Avaliação" },
   { path: "/gantt", label: "Gantt" },
   { path: "/stakeholders", label: "Stakeholders" },
 ];

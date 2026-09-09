@@ -1,7 +1,13 @@
-﻿import contextlib
+import contextlib
 import os
 import sqlite3
 from werkzeug.security import generate_password_hash
+
+try:
+    from flask import g, has_app_context
+except ImportError:
+    has_app_context = lambda: False
+    g = None
 
 import coopgest.config
 from coopgest.migrations import apply_migrations
@@ -12,6 +18,8 @@ def get_db():
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys = ON")
     conn.execute("PRAGMA journal_mode=WAL")
+    if has_app_context() and g is not None:
+        g.setdefault("_open_dbs", []).append(conn)
     return conn
 
 

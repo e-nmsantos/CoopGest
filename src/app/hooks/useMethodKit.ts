@@ -81,7 +81,7 @@ const CARDS: MKCard[] = [
   { id: "sustainability", title: "Sustainability", titlePt: "Sustentabilidade", description: "Como garantimos a continuidade após o projeto? Que mecanismos asseguram a sustentabilidade?", category: "entrega", icon: "♻️" },
   { id: "scaling", title: "Scaling", titlePt: "Escalabilidade", description: "Como crescemos e replicamos o projeto? O que é necessário para escalar o impacto?", category: "entrega", icon: "📐" },
   { id: "exit", title: "Exit Strategy", titlePt: "Estratégia de Saída", description: "Como termina o projeto? Que processos asseguram uma conclusão ordenada e responsável?", category: "entrega", icon: "🚪" },
-  { id: "legacy", title: "Legacy", titlePt: "Legado", description: "O que fica depois do projeto terminar? Que conhecimento, estruturas ou mudanças perduam?", category: "entrega", icon: "🏛️" },
+  { id: "legacy", title: "Legacy", titlePt: "Legado", description: "O que fica depois do projeto terminar? Que conhecimento, estruturas ou mudanças perduram?", category: "entrega", icon: "🏛️" },
   { id: "change", title: "Change Management", titlePt: "Gestão da Mudança", description: "Como gerimos as mudanças durante o projeto? Que processos de adaptação temos?", category: "entrega", icon: "🔄" },
 ];
 

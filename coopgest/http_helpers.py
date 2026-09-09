@@ -1,10 +1,23 @@
+import os
 from functools import wraps
 
-from flask import jsonify, session
+from flask import current_app, jsonify, session
 
 
 def ensure_direct_session():
+    # Do not auto-login in test environment
+    if current_app and current_app.config.get("TESTING"):
+        return
+
+    # Do not auto-login if user explicitly logged out
+    if session.get("_logged_out"):
+        return
+
     if "user_id" in session:
+        return
+
+    # Allow disabling direct access via environment variable
+    if os.environ.get("ENABLE_DIRECT_ACCESS") == "0":
         return
 
     from coopgest.db import get_db

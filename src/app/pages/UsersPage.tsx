@@ -36,6 +36,8 @@ interface DbConvite {
   papel: string;
   criado_em: string;
   usado: number;
+  token?: string;
+  link?: string;
 }
 
 export function UsersPage() {
@@ -97,15 +99,14 @@ export function UsersPage() {
     }
   };
 
-  const copyLink = (invite: DbConvite & { link?: string }) => {
-    const link = invite.link || `${window.location.origin}/registo?token=${(invite as unknown as { token: string }).token}`;
+  const copyLink = (invite: DbConvite) => {
+    const link = invite.link || `${window.location.origin}/registo?token=${invite.token}`;
     navigator.clipboard.writeText(link).then(() => {
       setCopiedId(invite.id);
       setTimeout(() => setCopiedId(null), 2000);
     });
   };
 
-  // TODO: endpoint DELETE /api/auth/invites/<id> — revogar convite pendente
   const revokeInvite = async (id: number) => {
     setRevokingId(id);
     try {
@@ -271,7 +272,7 @@ export function UsersPage() {
                             <Button
                               size="sm"
                               variant="ghost"
-                              onClick={() => copyLink(inv as DbConvite & { link?: string })}
+                              onClick={() => copyLink(inv)}
                               title="Copiar link de convite"
                             >
                               {copiedId === inv.id ? (

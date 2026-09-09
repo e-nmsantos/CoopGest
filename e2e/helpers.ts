@@ -1,8 +1,24 @@
 import { Page } from "@playwright/test";
 
+async function openLoginPage(page: Page) {
+  let lastError: unknown;
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      await page.goto("/login", { waitUntil: "commit", timeout: 20000 });
+      const usernameInput = page.getByLabel("Utilizador");
+      await usernameInput.waitFor({ state: "visible", timeout: 15000 });
+      return usernameInput;
+    } catch (error) {
+      lastError = error;
+      await page.waitForTimeout(2000);
+    }
+  }
+  throw lastError;
+}
+
 export async function login(page: Page, username = "admin", password = "coopgest2025") {
-  await page.goto("/login");
-  await page.getByLabel("Utilizador").fill(username);
+  const usernameInput = await openLoginPage(page);
+  await usernameInput.fill(username);
   await page.getByLabel("Password").fill(password);
   await Promise.all([
     page.waitForResponse(

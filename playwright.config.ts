@@ -14,13 +14,14 @@ import { defineConfig, devices } from "@playwright/test";
 export default defineConfig({
   testDir: "./e2e",
   globalSetup: "./e2e/global-setup.ts",
+  timeout: 120000,
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 1,
   workers: 1,
   reporter: [["html", { open: "never" }], ["list"]],
   use: {
-    baseURL: "http://localhost:5173",
+    baseURL: "http://127.0.0.1:5173",
     trace: "on-first-retry",
     screenshot: "only-on-failure",
     video: "off",
@@ -33,14 +34,14 @@ export default defineConfig({
   ],
   webServer: [
     {
-      command: "npm run dev",
-      url: "http://localhost:5173",
+      command: "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/e2e_frontend.ps1",
+      url: "http://127.0.0.1:5173",
       reuseExistingServer: true,
       timeout: 120000,
     },
     {
       command: "py wsgi.py",
-      url: "http://localhost:8000",
+      url: "http://localhost:8000/api/health",
       reuseExistingServer: true,
       timeout: 60000,
       stdout: "pipe",

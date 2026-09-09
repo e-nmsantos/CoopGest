@@ -19,6 +19,9 @@ interface DbProject {
   data_fim?: string;
   estado?: ProjectState;
   privado?: number;
+  localizacao?: string;
+  entidade_proponente?: string;
+  ods?: string;
 }
 
 interface DbPartner {

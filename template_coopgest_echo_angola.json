@@ -1,0 +1,551 @@
+{
+  "versao": "1.0",
+  "tipo": "coopgest-template",
+
+  "projeto": {
+    "nome": "Projeto ECHO Angola — Literacia em IA para o Desenvolvimento Nacional",
+    "descricao": "O Projeto ECHO Angola visa colmatar o défice de literacia digital e em Inteligência Artificial em Angola, através de um programa de formação modular dirigido a 5.000 cidadãos em Luanda e Huambo. A intervenção combina formação presencial certificada, recursos digitais offline e a capacitação de 60 facilitadores que assegurarão a sustentabilidade e o efeito multiplicador após o fim do projeto.",
+    "objetivos": "Contribuir para o reforço do capital humano e da resiliência informacional de Angola, promovendo a inclusão digital e a utilização ética da Inteligência Artificial junto de 5.000 cidadãos de Luanda e Huambo.",
+    "data_inicio": "2026-09-01",
+    "data_fim": "2027-08-31",
+    "ods": "4,8,9,10",
+    "localizacao": "Angola (Luanda e Huambo)",
+    "entidade_proponente": "Consórcio Literacia Digital Angola / UAN"
+  },
+
+  "parceiros": [
+    {
+      "nome": "MINTTICS — Ministério das Telecomunicações e TI",
+      "pais": "Angola",
+      "tipo": "Institucional",
+      "papel": "Parceiro Governamental",
+      "descricao": "Ministério responsável pela estratégia digital nacional Angola Digital. Apoia a certificação e o reconhecimento oficial do programa.",
+      "contacto": "",
+      "email": ""
+    },
+    {
+      "nome": "MED — Ministério da Educação de Angola",
+      "pais": "Angola",
+      "tipo": "Institucional",
+      "papel": "Parceiro Governamental",
+      "descricao": "Facilita a integração dos conteúdos no sistema de ensino formal e disponibiliza infraestrutura de escolas para as sessões de formação.",
+      "contacto": "",
+      "email": ""
+    },
+    {
+      "nome": "FAS — Fundo de Apoio Social",
+      "pais": "Angola",
+      "tipo": "Institucional",
+      "papel": "Parceiro Operacional",
+      "descricao": "Garante o alcance das comunidades mais vulneráveis e a mobilização dos beneficiários diretos em Luanda e Huambo.",
+      "contacto": "",
+      "email": ""
+    },
+    {
+      "nome": "UAN — Universidade Agostinho Neto",
+      "pais": "Angola",
+      "tipo": "Académico",
+      "papel": "Parceiro Académico",
+      "descricao": "Providencia facilitadores locais certificados e espaços de formação universitários. Co-valida o currículo pedagógico adaptado ao contexto angolano.",
+      "contacto": "",
+      "email": ""
+    }
+  ],
+
+  "stakeholders": [
+    {
+      "nome": "Governo de Angola (MINTTICS / MED)",
+      "organizacao": "Governo de Angola",
+      "papel": "Parceiro estratégico e validador político",
+      "interesse": "Alto",
+      "influencia": "Alta",
+      "posicao": "Aliado",
+      "estrategia": "Reuniões de coordenação bimestrais. Envolver desde o início na co-definição dos objetivos e na validação do curricula.",
+      "notas": "Alinhamento com Agenda Angola Digital é essencial para sustentabilidade."
+    },
+    {
+      "nome": "Beneficiários diretos (cidadãos 18–35 anos)",
+      "organizacao": "Comunidades de Luanda e Huambo",
+      "papel": "Destinatários da formação",
+      "interesse": "Médio",
+      "influencia": "Baixa",
+      "posicao": "Aliado",
+      "estrategia": "Sessões de sensibilização prévia. Comunicação em português claro. Incentivos de participação (certificados reconhecidos).",
+      "notas": "Taxa de abandono é o risco principal — módulos curtos e flexíveis mitigam."
+    },
+    {
+      "nome": "Facilitadores locais (60 formadores certificados)",
+      "organizacao": "UAN + parceiros locais",
+      "papel": "Multiplicadores do programa",
+      "interesse": "Alto",
+      "influencia": "Média",
+      "posicao": "Aliado",
+      "estrategia": "Formação de Formadores (ToT) no mês 1–2. Acompanhamento e supervisão técnica contínua. Incentivo de certificação oficial.",
+      "notas": "Chave para sustentabilidade pós-projeto."
+    },
+    {
+      "nome": "Doador / Financiador",
+      "organizacao": "UE / PNUD / Financiador externo",
+      "papel": "Financiador e supervisor de conformidade",
+      "interesse": "Alto",
+      "influencia": "Alta",
+      "posicao": "Aliado",
+      "estrategia": "Relatórios de progresso trimestrais. Auditorias financeiras semestrais. Visitas de terreno.",
+      "notas": "Conformidade com PRAG é obrigatória."
+    },
+    {
+      "nome": "Sociedade civil angolana",
+      "organizacao": "ONGs e associações locais",
+      "papel": "Mobilizador comunitário e mediador",
+      "interesse": "Médio",
+      "influencia": "Média",
+      "posicao": "Aliado",
+      "estrategia": "Parcerias de mobilização comunitária. Sessões informativas com líderes comunitários.",
+      "notas": ""
+    }
+  ],
+
+  "beneficiarios": [
+    {
+      "nome": "Jovens adultos com ensino secundário (Luanda)",
+      "tipo": "Grupo",
+      "numero": 3000,
+      "descricao": "Cidadãos de 18 a 35 anos com ensino secundário completo, residentes em Luanda, com acesso a smartphone mas sem competências formais em IA ou digital.",
+      "localizacao": "Luanda, Angola"
+    },
+    {
+      "nome": "Funcionários públicos e professores (Luanda + Huambo)",
+      "tipo": "Grupo",
+      "numero": 1500,
+      "descricao": "Professores do ensino básico e secundário e funcionários públicos que necessitam de literacia em IA para uso responsável em contexto profissional.",
+      "localizacao": "Luanda e Huambo, Angola"
+    },
+    {
+      "nome": "Empreendedores e microempresários (Huambo)",
+      "tipo": "Grupo",
+      "numero": 500,
+      "descricao": "Pequenos empreendedores e microempresários de Huambo que podem beneficiar de ferramentas de IA aplicadas a negócios locais.",
+      "localizacao": "Huambo, Angola"
+    },
+    {
+      "nome": "Facilitadores certificados (beneficiários indiretos)",
+      "tipo": "Grupo",
+      "numero": 60,
+      "descricao": "Formadores locais certificados que continuarão a ministrar o programa autonomamente após o fim do financiamento.",
+      "localizacao": "Luanda e Huambo, Angola"
+    }
+  ],
+
+  "analise_pest": {
+    "politico": "Governo focado em diversificação económica pós-petróleo — Plano Nacional de Diversificação Económica. Agenda Angola Digital como política nacional prioritária. Estabilidade política desde 2017. Cooperação ativa com Portugal (CPLP) e com a União Europeia. Plano Nacional de Formação de Quadros vigente.",
+    "economico": "PIB per capita ~2.700 USD (2023). Taxa de desemprego jovem estimada em 28%. Inflação ~22% (pressão sobre poder de compra). Crescimento acelerado do setor das TIC (+15% ao ano). Dependência de importações tecnológicas (custo elevado de dispositivos). Potencial de mercado digital emergente.",
+    "social": "35 milhões de habitantes. Taxa de literacia de 70% (nacional) mas apenas 45% nas zonas rurais. Penetração de internet de 36%. 65% da população com menos de 25 anos — dividendo demográfico não aproveitado. Desigualdades de género persistentes no acesso à tecnologia. Forte dinamismo comunitário e redes de associativismo.",
+    "tecnologico": "Expansão da cobertura 4G em Luanda (90%) e Huambo (60%). Penetração de smartphones crescente (48%). Iniciativa Angola Digital do Governo. Défice crítico de formadores certificados em IA. Disponibilidade de ferramentas de IA open-source em português. Infraestrutura de servidores locais limitada fora de Luanda."
+  },
+
+  "analise_swot": {
+    "forcas": "Reconhecimento académico e institucional da UCP/CEPCEP. Experiência prévia da equipa em projetos de cooperação em África. Parcerias estabelecidas com MINTTICS, MED, FAS e UAN. Metodologia pedagógica comprovada e adaptável. Currículo em português com exemplos locais. Rede de alumni angolanos da UCP.",
+    "fraquezas": "Dependência total de financiamento externo. Capacidade de escalagem limitada à duração do projeto (12 meses). Rotatividade de pessoal técnico qualificado em Luanda. Logística de implementação em Huambo (distância, custos acrescidos, menor infraestrutura). Limitada presença permanente no terreno.",
+    "oportunidades": "Agenda Angola Digital como janela política favorável. Crescente mercado de formação profissional privada. Disponibilidade de ferramentas de IA gratuitas e de código aberto (ChatGPT, Gemini, etc.). Interesse crescente de doadores internacionais (UE, PNUD, AFD) na literacia digital em África. Potencial de replicação em outros países da CPLP.",
+    "ameacas": "Instabilidade cambial — desvalorização do Kwanza impacta custos reais. Cortes orçamentais nos ministérios parceiros que podem limitar a disponibilização de infraestruturas. Concorrência de plataformas de formação online internacionais (Coursera, edX) com maiores recursos. Risco de mudança de prioridades políticas após eleições."
+  },
+
+  "arvore_problemas": {
+    "causas": [
+      "Ausência de curricula de literacia digital e IA no sistema de ensino formal angolano",
+      "Escassez crítica de formadores certificados em IA e tecnologias digitais no país",
+      "Custo elevado de dispositivos eletrónicos e dados móveis (barreiras de acesso)",
+      "Barreiras linguísticas e culturais no acesso a conteúdos digitais (maioritariamente em inglês)",
+      "Falta de políticas nacionais estruturadas de formação em competências digitais avançadas"
+    ],
+    "problema_central": "Défice de literacia digital e em Inteligência Artificial na população angolana limita a inclusão económica e o potencial de desenvolvimento humano",
+    "efeitos": [
+      "Exclusão progressiva do mercado de trabalho digital e da economia do conhecimento",
+      "Vulnerabilidade acrescida à desinformação, manipulação e fraude digital",
+      "Redução da competitividade económica nacional face à 4ª Revolução Industrial",
+      "Perpetuação de desigualdades socioeconómicas e do fosso digital Norte-Sul",
+      "Dependência de tecnologia importada sem capacidade crítica de adaptação ou inovação local"
+    ]
+  },
+
+  "quadro_logico": [
+    {
+      "nivel": "Impacto",
+      "resultado": "Redução das desigualdades digitais em Angola e contribuição para o ODS 4 (educação de qualidade) e ODS 8 (trabalho decente)",
+      "indicador": "Índice de literacia digital nacional (IDH componente tecnológica)",
+      "unidade": "Índice 0-100",
+      "baseline": 36,
+      "meta": 45,
+      "fonte_verificacao": "Relatório PNUD sobre Desenvolvimento Humano; Estatísticas do MINTTICS",
+      "pressupostos": "Angola mantém estabilidade política e continua a investir em digitalização; contexto macroeconómico favorável à empregabilidade",
+      "frequencia_medicao": "Anual",
+      "responsavel_medicao": "Equipa de avaliação externa"
+    },
+    {
+      "nivel": "Resultado",
+      "resultado": "5.000 cidadãos de Luanda e Huambo com competências certificadas em literacia digital e IA básica",
+      "indicador": "Número de cidadãos com certificado de conclusão emitido",
+      "unidade": "Pessoas",
+      "baseline": 0,
+      "meta": 5000,
+      "fonte_verificacao": "Base de dados de certificados emitidos; lista de presença nas sessões",
+      "pressupostos": "Taxa de abandono inferior a 20%; certificação reconhecida pelos empregadores locais",
+      "frequencia_medicao": "Mensal",
+      "responsavel_medicao": "Coordenador do projeto"
+    },
+    {
+      "nivel": "Resultado",
+      "resultado": "60 facilitadores locais certificados capazes de ministrar o programa autonomamente após o projeto",
+      "indicador": "Número de facilitadores certificados com pelo menos 2 sessões lecionadas autonomamente",
+      "unidade": "Facilitadores",
+      "baseline": 0,
+      "meta": 60,
+      "fonte_verificacao": "Fichas de avaliação pedagógica; relatórios de supervisão de sessões",
+      "pressupostos": "Facilitadores mantêm disponibilidade durante o projeto; UAN apoia com espaços e credenciação",
+      "frequencia_medicao": "Trimestral",
+      "responsavel_medicao": "Responsável de formação"
+    },
+    {
+      "nivel": "Produção",
+      "resultado": "Currículo pedagógico adaptado ao contexto angolano publicado em acesso aberto",
+      "indicador": "Módulos curriculares publicados e disponíveis online/offline em português",
+      "unidade": "Módulos",
+      "baseline": 0,
+      "meta": 6,
+      "fonte_verificacao": "Plataforma digital do projeto; registo de downloads",
+      "pressupostos": "Aprovação pelo MED; equipa técnica cumpre o cronograma de produção",
+      "frequencia_medicao": "Mensal",
+      "responsavel_medicao": "Especialista pedagógico"
+    },
+    {
+      "nivel": "Produção",
+      "resultado": "Plataforma digital offline funcional com todos os conteúdos formativos",
+      "indicador": "Plataforma testada e aprovada em ambiente de baixa conectividade",
+      "unidade": "Plataforma",
+      "baseline": 0,
+      "meta": 1,
+      "fonte_verificacao": "Relatório de testes técnicos; avaliação de utilizadores",
+      "pressupostos": "Desenvolvimento técnico dentro do prazo; compatibilidade com dispositivos disponíveis localmente",
+      "frequencia_medicao": "Trimestral",
+      "responsavel_medicao": "Responsável técnico TIC"
+    },
+    {
+      "nivel": "Atividade",
+      "resultado": "50 sessões de formação presencial realizadas em Luanda e Huambo",
+      "indicador": "Número de sessões realizadas com pelo menos 80 participantes cada",
+      "unidade": "Sessões",
+      "baseline": 0,
+      "meta": 50,
+      "fonte_verificacao": "Relatórios de sessão; listas de presença assinadas",
+      "pressupostos": "Salas disponíveis; facilitadores presentes; mobilização comunitária eficaz",
+      "frequencia_medicao": "Mensal",
+      "responsavel_medicao": "Assistentes de campo"
+    }
+  ],
+
+  "plano_avaliacao": {
+    "Relevância": {
+      "questoes": "Em que medida o projeto responde às necessidades reais de literacia digital dos beneficiários? O projeto está alinhado com as prioridades da Agenda Angola Digital e com os ODS?",
+      "indicadores": "% de beneficiários que afirmam que a formação corresponde às suas necessidades (inquérito pré-formação); grau de alinhamento documentado com PDN 2023–2027 e Agenda Angola Digital",
+      "metodos": "Inquéritos de necessidades (pré-formação), análise de documentos estratégicos nacionais, entrevistas com parceiros governamentais",
+      "fontes": "Questionários a beneficiários, documentos de política pública angolana, entrevistas com MINTTICS e MED",
+      "momento": "Avaliação ex ante — mês 1 do projeto"
+    },
+    "Coerência": {
+      "questoes": "Os objetivos, atividades e orçamento são internamente consistentes? O projeto complementa ou duplica outras iniciativas de literacia digital em Angola?",
+      "indicadores": "Percentagem do orçamento alinhada com atividades do quadro lógico (100%); ausência de duplicações com outros programas em curso (mapeamento de iniciativas)",
+      "metodos": "Análise documental do quadro lógico e orçamento, mapeamento de atores e iniciativas similares, entrevistas com parceiros",
+      "fontes": "Quadro lógico do projeto, orçamento detalhado, mapeamento de programas em Angola, entrevistas de parceiros",
+      "momento": "Avaliação de processo — mês 3"
+    },
+    "Eficácia": {
+      "questoes": "O projeto está a atingir os resultados previstos — 5.000 cidadãos formados e 60 facilitadores certificados? Que fatores facilitam ou impedem o cumprimento das metas?",
+      "indicadores": "% de beneficiários formados vs. meta (5.000); % de facilitadores certificados vs. meta (60); taxa de conclusão da formação (meta: >80%); nota média nos testes pós-formação (meta: ≥70%)",
+      "metodos": "Monitorização de participação (listas de presença), testes de conhecimentos pré/pós formação, relatórios mensais de progresso",
+      "fontes": "Registos de presença, avaliações pedagógicas, sistema de M&A do projeto, relatórios de campo",
+      "momento": "Avaliação intermédia — mês 6; Avaliação final — mês 12"
+    },
+    "Eficiência": {
+      "questoes": "Os recursos foram utilizados de forma otimizada? O custo por beneficiário é razoável e justificado? O cronograma foi cumprido?",
+      "indicadores": "Custo por beneficiário formado (meta: <100 USD); % de execução orçamental no prazo (meta: >90%); desvio temporal face ao cronograma (meta: <10%)",
+      "metodos": "Análise financeira trimestral, revisão de despesas vs. plano orçamental, análise de relação custo-eficácia comparada com benchmarks regionais",
+      "fontes": "Relatórios financeiros trimestrais, orçamento executado, contratos e faturas, benchmarks OCDE para projetos similares",
+      "momento": "Avaliação intermédia — mês 6; Avaliação final — mês 12"
+    },
+    "Impacto": {
+      "questoes": "Que mudanças de longo prazo são atribuíveis ao projeto? Há efeitos não esperados — positivos ou negativos? Em que medida o projeto contribuiu para reduzir o fosso digital?",
+      "indicadores": "% de beneficiários que relatam melhoria de empregabilidade 6 meses após formação; número de beneficiários que usam IA no trabalho/negócio; contribuição para o IDH digital angolano",
+      "metodos": "Inquérito de seguimento (follow-up) 6 meses após conclusão, grupos focais com beneficiários, análise de casos de sucesso documentados",
+      "fontes": "Inquéritos de follow-up, entrevistas com beneficiários e empregadores, dados estatísticos do MINTTICS",
+      "momento": "Avaliação ex post — 6 meses após conclusão do projeto"
+    },
+    "Sustentabilidade": {
+      "questoes": "Os benefícios persistirão após o fim do financiamento? O curricula foi integrado no sistema formal angolano? Os facilitadores continuam activos?",
+      "indicadores": "Número de facilitadores que continuam a ministrar formação 6 meses após o projeto (meta: ≥40); grau de integração do curricula no sistema formal angolano; compromisso institucional do MED documentado",
+      "metodos": "Entrevistas com facilitadores e parceiros institucionais 6 meses após conclusão, análise de documentos de compromisso, visitas de acompanhamento",
+      "fontes": "Entrevistas de saída com facilitadores, documentos de compromisso do MED/MINTTICS, relatório de encerramento do projeto",
+      "momento": "Avaliação final — mês 12; Avaliação ex post — mês 18"
+    }
+  },
+
+  "orcamento": [
+    {
+      "tipo": "Previsto",
+      "categoria": "Recursos Humanos",
+      "descricao": "Coordenador de projeto (12m), 2 especialistas pedagógicos (12m), 2 técnicos TIC (12m), 4 assistentes de campo angolanos (10m)",
+      "valor_previsto": 200000
+    },
+    {
+      "tipo": "Previsto",
+      "categoria": "Deslocações e Diárias",
+      "descricao": "Viagens PT-Angola (6 missões × equipa), deslocações Luanda-Huambo, alojamento e subsistência em Huambo",
+      "valor_previsto": 50000
+    },
+    {
+      "tipo": "Previsto",
+      "categoria": "Equipamento e Materiais",
+      "descricao": "60 tablets com conteúdos offline, 2 servidores locais, material pedagógico impresso, kits de formação",
+      "valor_previsto": 75000
+    },
+    {
+      "tipo": "Previsto",
+      "categoria": "Serviços Locais",
+      "descricao": "Aluguer de salas de formação (50 sessões), comunicações locais, tradução e revisão de materiais, serviços de impressão",
+      "valor_previsto": 50000
+    },
+    {
+      "tipo": "Previsto",
+      "categoria": "Outros Custos Diretos",
+      "descricao": "Desenvolvimento da plataforma digital offline, custos de certificação oficial, comunicação e visibilidade, auditoria financeira",
+      "valor_previsto": 75000
+    },
+    {
+      "tipo": "Previsto",
+      "categoria": "Custos Indiretos",
+      "descricao": "Overhead institucional CEPCEP/UCP — 7% dos custos diretos elegíveis (conforme limite PRAG)",
+      "valor_previsto": 35000
+    },
+    {
+      "tipo": "Previsto",
+      "categoria": "Contingência",
+      "descricao": "Reserva para imprevistos e flutuação cambial — 3% do orçamento total (conforme limite PRAG)",
+      "valor_previsto": 15000
+    }
+  ],
+
+  "riscos": [
+    {
+      "descricao": "Instabilidade cambial — desvalorização do Kwanza aumenta custos reais denominados em moeda local",
+      "probabilidade": "Alto",
+      "impacto": "Médio",
+      "mitigacao": "Orçamento denominado em USD; cláusula de revisão cambial em todos os contratos com fornecedores locais",
+      "plano_contingencia": "Ativar linha de contingência (15.000 USD); renegociar contratos de fornecedores locais"
+    },
+    {
+      "descricao": "Taxa de abandono elevada durante a formação — beneficiários não completam os módulos",
+      "probabilidade": "Médio",
+      "impacto": "Alto",
+      "mitigacao": "Módulos curtos (máx. 4h); horários flexíveis (noturno e fim de semana); incentivos de participação (certificados reconhecidos pelo MED)",
+      "plano_contingencia": "Aumentar número de sessões em locais com menor taxa de conclusão; sessões de recuperação"
+    },
+    {
+      "descricao": "Resistência ou mudança de prioridades nos parceiros governamentais (MINTTICS / MED)",
+      "probabilidade": "Baixo",
+      "impacto": "Alto",
+      "mitigacao": "MOUs assinados com comprometimento de alto nível; reuniões de coordenação bimestrais; advocacia política contínua",
+      "plano_contingencia": "Ativar parceiros alternativos (ONGs, setor privado); reorientar atividades para implementação autónoma"
+    },
+    {
+      "descricao": "Dificuldades logísticas em Huambo — infraestrutura limitada, distância de Luanda",
+      "probabilidade": "Médio",
+      "impacto": "Médio",
+      "mitigacao": "Facilitadores locais contratados em Huambo; logística planeada com antecedência; plataforma offline independente de internet",
+      "plano_contingencia": "Reforço temporário da equipa de Luanda; parceria com ONG local para logística"
+    },
+    {
+      "descricao": "Atrasos no desenvolvimento da plataforma digital offline",
+      "probabilidade": "Médio",
+      "impacto": "Médio",
+      "mitigacao": "Contrato com empresa TIC experiente; marco de entrega no mês 3; testes beta no mês 4",
+      "plano_contingencia": "Utilizar plataformas open-source existentes (Kolibri, Moodle offline) como fallback"
+    }
+  ],
+
+  "milestones": [
+    {
+      "nome": "Kick-off e assinatura de MOUs com parceiros",
+      "descricao": "Reunião inaugural com MINTTICS, MED, FAS e UAN. Assinatura dos memorandos de entendimento. Constituição da equipa local.",
+      "data_prevista": "2026-09-30",
+      "estado": "Pendente"
+    },
+    {
+      "nome": "Curricula adaptado e aprovado pelo MED",
+      "descricao": "Entrega do currículo pedagógico de 6 módulos adaptado ao contexto angolano, validado pelo Ministério da Educação.",
+      "data_prevista": "2026-11-30",
+      "estado": "Pendente"
+    },
+    {
+      "nome": "60 facilitadores certificados (Formação de Formadores concluída)",
+      "descricao": "Conclusão do programa ToT. Todos os 60 facilitadores aprovados na avaliação pedagógica e certificados.",
+      "data_prevista": "2027-01-31",
+      "estado": "Pendente"
+    },
+    {
+      "nome": "Plataforma digital offline lançada",
+      "descricao": "Plataforma testada em ambiente de baixa conectividade, aprovada tecnicamente e distribuída para os 60 facilitadores.",
+      "data_prevista": "2027-01-31",
+      "estado": "Pendente"
+    },
+    {
+      "nome": "Avaliação intermédia — 2.500 beneficiários formados",
+      "descricao": "Ponto de controlo a meio do projeto. Avaliação de eficácia e ajuste do plano de implementação.",
+      "data_prevista": "2027-03-31",
+      "estado": "Pendente"
+    },
+    {
+      "nome": "5.000 beneficiários formados e certificados",
+      "descricao": "Conclusão de todas as sessões de formação. Emissão de certificados a todos os beneficiários que concluíram os módulos.",
+      "data_prevista": "2027-07-31",
+      "estado": "Pendente"
+    },
+    {
+      "nome": "Relatório final e encerramento do projeto",
+      "descricao": "Entrega do relatório final ao doador. Auditoria financeira concluída. Evento de disseminação de resultados em Luanda.",
+      "data_prevista": "2027-08-31",
+      "estado": "Pendente"
+    }
+  ],
+
+  "tarefas": [
+    {
+      "nome": "Assinatura de Acordos de Parceria e MOUs",
+      "descricao": "Formalização institucional com MINTTICS, MED, FAS e Universidade Agostinho Neto.",
+      "responsavel": "Nuno Santos (Coordenação)",
+      "data_inicio": "2026-09-01",
+      "data_fim": "2026-09-30",
+      "prioridade": "Alta",
+      "estado": "Concluída",
+      "tags": "Governança, Parcerias"
+    },
+    {
+      "nome": "Diagnóstico Inicial e Levantamento de Grupos-Alvo",
+      "descricao": "Mapeamento sociodemográfico e necessidades formativas em Luanda e Huambo com apoio do FAS.",
+      "responsavel": "Equipa de Campo FAS",
+      "data_inicio": "2026-09-10",
+      "data_fim": "2026-10-20",
+      "prioridade": "Alta",
+      "estado": "Em curso",
+      "tags": "Diagnóstico, Beneficiários"
+    },
+    {
+      "nome": "Adaptação Curricular dos 6 Módulos de IA",
+      "descricao": "Co-desenho e contextualização pedagógica dos conteúdos com docentes da UAN.",
+      "responsavel": "Especialista Pedagógico UAN",
+      "data_inicio": "2026-09-15",
+      "data_fim": "2026-11-15",
+      "prioridade": "Crítica",
+      "estado": "Em curso",
+      "tags": "Pedagogia, Curricula"
+    },
+    {
+      "nome": "Validação e Homologação do Curriculo pelo MED",
+      "descricao": "Submissão formal da matriz pedagógica para certificação oficial pelo Ministério da Educação.",
+      "responsavel": "Ponto Focal MED",
+      "data_inicio": "2026-11-16",
+      "data_fim": "2026-11-30",
+      "prioridade": "Alta",
+      "estado": "A Fazer",
+      "tags": "Institucional, Regulação"
+    },
+    {
+      "nome": "Recrutamento dos 60 Facilitadores Comunitários",
+      "descricao": "Concurso e seleção de 35 facilitadores em Luanda e 25 no Huambo (mínimo 50% mulheres).",
+      "responsavel": "Coordenação Pedagógica",
+      "data_inicio": "2026-10-01",
+      "data_fim": "2026-11-30",
+      "prioridade": "Média",
+      "estado": "A Fazer",
+      "tags": "Recursos Humanos"
+    },
+    {
+      "nome": "Desenvolvimento da Plataforma Digital Offline",
+      "descricao": "Configuração da solução offline com sincronização assíncrona para escolas e centros comunitários.",
+      "responsavel": "Responsável Técnico TIC",
+      "data_inicio": "2026-10-15",
+      "data_fim": "2027-01-31",
+      "prioridade": "Alta",
+      "estado": "A Fazer",
+      "tags": "Tecnologia, Infraestrutura"
+    },
+    {
+      "nome": "Formação de Formadores (ToT)",
+      "descricao": "Capacitação intensiva de 120 horas para os 60 facilitadores selecionados.",
+      "responsavel": "Formador Principal",
+      "data_inicio": "2026-12-01",
+      "data_fim": "2027-01-25",
+      "prioridade": "Crítica",
+      "estado": "A Fazer",
+      "tags": "ToT, Capacitação"
+    },
+    {
+      "nome": "Aquisição e Distribuição dos Kits de Formação",
+      "descricao": "Procurement e entrega de kits didáticos e equipamentos de apoio nos centros de Luanda e Huambo.",
+      "responsavel": "Oficial de Logística",
+      "data_inicio": "2027-01-05",
+      "data_fim": "2027-02-10",
+      "prioridade": "Alta",
+      "estado": "A Fazer",
+      "tags": "Logística, Procurement"
+    },
+    {
+      "nome": "Ciclo 1: Formações Comunitárias Luanda (1.500 formandos)",
+      "descricao": "Execução das primeiras turmas em escolas parceiras e centros comunitários de Luanda.",
+      "responsavel": "Supervisores Luanda",
+      "data_inicio": "2027-02-01",
+      "data_fim": "2027-04-30",
+      "prioridade": "Alta",
+      "estado": "A Fazer",
+      "tags": "Operações, Luanda"
+    },
+    {
+      "nome": "Ciclo 1: Formações Comunitárias Huambo (1.000 formandos)",
+      "descricao": "Execução das turmas de formação nas instalações do Huambo.",
+      "responsavel": "Supervisores Huambo",
+      "data_inicio": "2027-02-15",
+      "data_fim": "2027-05-15",
+      "prioridade": "Alta",
+      "estado": "A Fazer",
+      "tags": "Operações, Huambo"
+    },
+    {
+      "nome": "Avaliação Intermédia e Ajuste Metodológico",
+      "descricao": "Inquérito intermédio aos formandos e sessão de lições aprendidas com os facilitadores.",
+      "responsavel": "Especialista M&A",
+      "data_inicio": "2027-03-15",
+      "data_fim": "2027-04-15",
+      "prioridade": "Média",
+      "estado": "A Fazer",
+      "tags": "Monitorização, Qualidade"
+    },
+    {
+      "nome": "Ciclo 2: Formações Comunitárias Luanda e Huambo (2.500 formandos)",
+      "descricao": "Conclusão das metas de formação com acompanhamento prático.",
+      "responsavel": "Equipa de Facilitadores",
+      "data_inicio": "2027-05-01",
+      "data_fim": "2027-07-20",
+      "prioridade": "Alta",
+      "estado": "A Fazer",
+      "tags": "Operações, Conclusão"
+    },
+    {
+      "nome": "Conferência Final de Encerramento e Apresentação de Resultados",
+      "descricao": "Apresentação pública de resultados com presença de ministérios, parceiros e beneficiários.",
+      "responsavel": "Coordenação Geral",
+      "data_inicio": "2027-08-15",
+      "data_fim": "2027-08-31",
+      "prioridade": "Média",
+      "estado": "A Fazer",
+      "tags": "Comunicação, Encerramento"
+    }
+  ]
+}

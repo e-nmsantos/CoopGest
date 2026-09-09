@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<title>Projeto ECHO Angola — Template CoopGest</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Georgia, 'Times New Roman', serif; font-size: 10.5pt; color: #1a1a1a; background: #fff; }
+
+  /* PAGE LAYOUT */
+  .page { max-width: 210mm; margin: 0 auto; padding: 18mm 20mm; }
+
+  /* COVER */
+  .cover { text-align: center; padding: 30mm 20mm 20mm; border-bottom: 3px solid #1a4480; margin-bottom: 12mm; }
+  .cover .badge { display: inline-block; background: #1a4480; color: #fff; font-size: 8pt; letter-spacing: 1.5px; text-transform: uppercase; padding: 4px 12px; border-radius: 2px; margin-bottom: 10mm; }
+  .cover h1 { font-size: 18pt; font-weight: bold; color: #1a4480; line-height: 1.3; margin-bottom: 4mm; }
+  .cover .subtitle { font-size: 11pt; color: #555; margin-bottom: 10mm; }
+  .cover-meta { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6mm; margin-top: 8mm; text-align: left; }
+  .cover-meta-item { background: #f5f7fa; border-left: 3px solid #1a4480; padding: 4mm 5mm; }
+  .cover-meta-item .label { font-size: 7.5pt; text-transform: uppercase; letter-spacing: 1px; color: #666; margin-bottom: 1mm; }
+  .cover-meta-item .value { font-size: 10pt; font-weight: bold; color: #1a1a1a; }
+
+  /* SECTIONS */
+  .section { margin-bottom: 10mm; page-break-inside: avoid; }
+  .section-title {
+    font-size: 12pt; font-weight: bold; color: #fff;
+    background: #1a4480; padding: 3mm 5mm;
+    margin-bottom: 4mm; letter-spacing: 0.3px;
+  }
+  .section-title span { font-size: 8pt; font-weight: normal; opacity: 0.8; margin-left: 6px; }
+
+  /* FIELD */
+  .field { margin-bottom: 3mm; }
+  .field-label { font-size: 8pt; text-transform: uppercase; letter-spacing: 0.8px; color: #666; margin-bottom: 1mm; }
+  .field-value { font-size: 10pt; line-height: 1.5; }
+
+  /* TWO-COL */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm; }
+  .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6mm; }
+
+  /* CARD */
+  .card { background: #f9fafb; border: 1px solid #dde3ec; padding: 4mm 5mm; border-radius: 3px; margin-bottom: 3mm; }
+  .card-title { font-size: 10pt; font-weight: bold; margin-bottom: 2mm; color: #1a4480; }
+  .card-sub { font-size: 8.5pt; color: #555; line-height: 1.4; }
+  .card-tag { display: inline-block; background: #e8edf5; color: #1a4480; font-size: 7.5pt; padding: 1px 6px; border-radius: 10px; margin-right: 4px; margin-bottom: 2px; }
+
+  /* PEST / SWOT GRID */
+  .quad-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3mm; }
+  .quad { padding: 4mm 5mm; border-radius: 3px; }
+  .quad-title { font-size: 9pt; font-weight: bold; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 2mm; }
+  .quad-p { background: #e8f0fb; } .quad-p .quad-title { color: #1a4480; }
+  .quad-e { background: #fef9e7; } .quad-e .quad-title { color: #7d5a00; }
+  .quad-s { background: #eafaf1; } .quad-s .quad-title { color: #1a6635; }
+  .quad-t { background: #fdf2f8; } .quad-t .quad-title { color: #7b2d6a; }
+  .quad-f { background: #e8f8f0; } .quad-f .quad-title { color: #145a32; }
+  .quad-w { background: #fef9e7; } .quad-w .quad-title { color: #7e5109; }
+  .quad-o { background: #eaf4fb; } .quad-o .quad-title { color: #1a5276; }
+  .quad-a { background: #fdedec; } .quad-a .quad-title { color: #7b241c; }
+
+  /* PROBLEM TREE */
+  .tree-box { border: 1.5px solid; border-radius: 3px; padding: 3mm 5mm; margin: 2mm 0; font-size: 9.5pt; line-height: 1.4; }
+  .tree-efeito { border-color: #e74c3c; background: #fdf0ee; }
+  .tree-centro { border-color: #1a4480; background: #eaf0fb; font-weight: bold; font-size: 10pt; text-align: center; }
+  .tree-causa { border-color: #27ae60; background: #eafaf1; }
+  .tree-label { font-size: 7.5pt; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 1mm; font-weight: bold; }
+  .tree-efeito .tree-label { color: #c0392b; }
+  .tree-centro .tree-label { color: #1a4480; }
+  .tree-causa .tree-label { color: #1e8449; }
+  .tree-arrow { text-align: center; font-size: 14pt; color: #999; line-height: 1; margin: 1mm 0; }
+
+  /* TABLE */
+  table { width: 100%; border-collapse: collapse; font-size: 9pt; margin-bottom: 3mm; }
+  th { background: #e8edf5; color: #1a4480; padding: 2.5mm 3mm; text-align: left; font-size: 8pt; text-transform: uppercase; letter-spacing: 0.5px; border: 1px solid #c5d0e0; }
+  td { padding: 2.5mm 3mm; border: 1px solid #dde3ec; vertical-align: top; line-height: 1.4; }
+  tr:nth-child(even) td { background: #f7f9fc; }
+  .nivel-badge { display: inline-block; font-size: 7.5pt; font-weight: bold; padding: 1px 7px; border-radius: 10px; }
+  .nivel-Impacto { background: #d5e8fa; color: #0a3d7a; }
+  .nivel-Resultado { background: #d5f5e3; color: #145a32; }
+  .nivel-Produção { background: #fef9e7; color: #7d5a00; }
+  .nivel-Atividade { background: #f5eef8; color: #6c3483; }
+
+  /* RISKS */
+  .risk-alto { color: #c0392b; font-weight: bold; }
+  .risk-médio, .risk-medio { color: #d35400; font-weight: bold; }
+  .risk-baixo { color: #27ae60; }
+
+  /* BUDGET */
+  .budget-total { font-weight: bold; background: #e8edf5 !important; }
+
+  /* MILESTONES */
+  .milestone-row td:first-child { font-weight: bold; }
+
+  /* EVAL */
+  .eval-criterio { background: #1a4480; color: #fff; font-weight: bold; font-size: 10pt; padding: 3mm 5mm; margin-bottom: 2mm; margin-top: 4mm; }
+  .eval-field { margin-bottom: 2mm; }
+  .eval-field-label { font-size: 8pt; font-weight: bold; text-transform: uppercase; color: #1a4480; letter-spacing: 0.5px; }
+  .eval-field-value { font-size: 9.5pt; color: #333; line-height: 1.4; margin-top: 0.5mm; }
+
+  /* FOOTER */
+  .footer { text-align: center; font-size: 8pt; color: #aaa; border-top: 1px solid #dde3ec; padding-top: 5mm; margin-top: 10mm; }
+
+  /* PRINT */
+  @media print {
+    body { font-size: 9.5pt; }
+    .page { padding: 12mm 15mm; }
+    .section { page-break-inside: avoid; }
+    .cover { page-break-after: always; }
+    @page { margin: 0; size: A4; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- COVER -->
+<div class="cover">
+  <div class="badge">CoopGest · Template de Projeto de Cooperação</div>
+  <h1>Projeto ECHO Angola<br>Literacia em IA para o Desenvolvimento Nacional</h1>
+  <div class="subtitle">Angola · Luanda e Huambo · 2026–2027</div>
+  <div class="cover-meta">
+    <div class="cover-meta-item">
+      <div class="label">Entidade Proponente</div>
+      <div class="value">CEPCEP / Universidade Católica Portuguesa</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="label">Período</div>
+      <div class="value">Set 2026 – Ago 2027 (12 meses)</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="label">Orçamento Total</div>
+      <div class="value">500 000 USD</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="label">Beneficiários Diretos</div>
+      <div class="value">5 000 cidadãos</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="label">Localização</div>
+      <div class="value">Luanda e Huambo, Angola</div>
+    </div>
+    <div class="cover-meta-item">
+      <div class="label">Alinhamento ODS</div>
+      <div class="value">ODS 4, 8, 10, 17</div>
+    </div>
+  </div>
+</div>
+
+<!-- 1. DESCRIÇÃO E OBJETIVOS -->
+<div class="section">
+  <div class="section-title">1. Descrição e Objetivos</div>
+  <div class="field">
+    <div class="field-label">Descrição do Projeto</div>
+    <div class="field-value">O Projeto ECHO Angola visa colmatar o défice de literacia digital e em Inteligência Artificial em Angola, através de um programa de formação modular dirigido a 5 000 cidadãos em Luanda e Huambo. A intervenção combina formação presencial certificada, recursos digitais offline e a capacitação de 60 facilitadores que assegurarão a sustentabilidade e o efeito multiplicador após o fim do projeto.</div>
+  </div>
+  <div class="field" style="margin-top:4mm;">
+    <div class="field-label">Objetivo Geral</div>
+    <div class="field-value">Contribuir para o reforço do capital humano e da resiliência informacional de Angola, promovendo a inclusão digital e a utilização ética da Inteligência Artificial junto de 5 000 cidadãos de Luanda e Huambo.</div>
+  </div>
+</div>
+
+<!-- 2. PARCEIROS -->
+<div class="section">
+  <div class="section-title">2. Parceiros</div>
+  <div class="two-col">
+    <div class="card">
+      <div class="card-title">MINTTICS — Ministério das Telecomunicações e TI</div>
+      <div><span class="card-tag">Angola</span><span class="card-tag">Parceiro Governamental</span></div>
+      <div class="card-sub" style="margin-top:2mm;">Apoia a certificação e o reconhecimento oficial do programa. Alinhamento com a Agenda Angola Digital.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">MED — Ministério da Educação de Angola</div>
+      <div><span class="card-tag">Angola</span><span class="card-tag">Parceiro Governamental</span></div>
+      <div class="card-sub" style="margin-top:2mm;">Integração dos conteúdos no sistema de ensino formal; disponibiliza infraestrutura escolar.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">FAS — Fundo de Apoio Social</div>
+      <div><span class="card-tag">Angola</span><span class="card-tag">Parceiro Operacional</span></div>
+      <div class="card-sub" style="margin-top:2mm;">Alcance das comunidades vulneráveis e mobilização dos beneficiários diretos em Luanda e Huambo.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">UAN — Universidade Agostinho Neto</div>
+      <div><span class="card-tag">Angola</span><span class="card-tag">Parceiro Académico</span></div>
+      <div class="card-sub" style="margin-top:2mm;">Facilitadores locais certificados e espaços de formação universitários. Co-valida o currículo pedagógico.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. STAKEHOLDERS -->
+<div class="section">
+  <div class="section-title">3. Análise de Stakeholders</div>
+  <table>
+    <thead>
+      <tr><th>Stakeholder</th><th>Papel</th><th>Interesse</th><th>Influência</th><th>Posição</th><th>Estratégia de Envolvimento</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Governo de Angola (MINTTICS / MED)</td><td>Parceiro estratégico e validador político</td><td>Alto</td><td>Alta</td><td>Aliado</td><td>Reuniões de coordenação bimestrais; co-definição de objetivos e validação do curricula</td></tr>
+      <tr><td>Beneficiários diretos (cidadãos 18–35 anos)</td><td>Destinatários da formação</td><td>Médio</td><td>Baixa</td><td>Aliado</td><td>Sessões de sensibilização prévia; comunicação em português claro; incentivos (certificados reconhecidos)</td></tr>
+      <tr><td>Facilitadores locais (60 formadores)</td><td>Multiplicadores do programa</td><td>Alto</td><td>Média</td><td>Aliado</td><td>Formação de Formadores (ToT) nos meses 1–2; supervisão técnica contínua</td></tr>
+      <tr><td>Doador / Financiador (UE / PNUD)</td><td>Financiador e supervisor de conformidade</td><td>Alto</td><td>Alta</td><td>Aliado</td><td>Relatórios trimestrais; auditorias semestrais; visitas de terreno</td></tr>
+      <tr><td>Sociedade civil angolana (ONGs)</td><td>Mobilizador comunitário e mediador</td><td>Médio</td><td>Média</td><td>Aliado</td><td>Parcerias de mobilização; sessões com líderes comunitários</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- 4. BENEFICIÁRIOS -->
+<div class="section">
+  <div class="section-title">4. Beneficiários</div>
+  <table>
+    <thead>
+      <tr><th>Grupo</th><th>N.º</th><th>Localização</th><th>Descrição</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Jovens adultos com ensino secundário (Luanda)</td><td style="text-align:center;font-weight:bold;">3 000</td><td>Luanda</td><td>Cidadãos de 18–35 anos com ensino secundário completo, sem competências formais em IA.</td></tr>
+      <tr><td>Funcionários públicos e professores</td><td style="text-align:center;font-weight:bold;">1 500</td><td>Luanda e Huambo</td><td>Professores e funcionários que necessitam de literacia em IA para uso responsável em contexto profissional.</td></tr>
+      <tr><td>Empreendedores e microempresários</td><td style="text-align:center;font-weight:bold;">500</td><td>Huambo</td><td>Pequenos empreendedores que podem beneficiar de ferramentas de IA aplicadas a negócios locais.</td></tr>
+      <tr><td>Facilitadores certificados (indiretos)</td><td style="text-align:center;font-weight:bold;">60</td><td>Luanda e Huambo</td><td>Formadores que continuarão a ministrar o programa autonomamente após o financiamento.</td></tr>
+      <tr class="budget-total"><td><strong>TOTAL</strong></td><td style="text-align:center;font-weight:bold;">5 060</td><td colspan="2"></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- 5. PEST -->
+<div class="section">
+  <div class="section-title">5. Análise PEST</div>
+  <div class="quad-grid">
+    <div class="quad quad-p">
+      <div class="quad-title">P — Político</div>
+      <div style="font-size:9.5pt;line-height:1.5;">Governo focado em diversificação económica pós-petróleo. Agenda Angola Digital como política nacional prioritária. Estabilidade política desde 2017. Cooperação ativa com Portugal (CPLP) e com a UE. Plano Nacional de Formação de Quadros vigente.</div>
+    </div>
+    <div class="quad quad-e">
+      <div class="quad-title">E — Económico</div>
+      <div style="font-size:9.5pt;line-height:1.5;">PIB per capita ~2 700 USD (2023). Taxa de desemprego jovem estimada em 28%. Inflação ~22%. Crescimento do setor TIC (+15%/ano). Dependência de importações tecnológicas. Potencial de mercado digital emergente.</div>
+    </div>
+    <div class="quad quad-s">
+      <div class="quad-title">S — Social</div>
+      <div style="font-size:9.5pt;line-height:1.5;">35 milhões de habitantes. Taxa de literacia de 70% (nacional) — 45% nas zonas rurais. Penetração de internet de 36%. 65% da população com menos de 25 anos. Desigualdades de género no acesso à tecnologia. Forte dinamismo comunitário.</div>
+    </div>
+    <div class="quad quad-t">
+      <div class="quad-title">T — Tecnológico</div>
+      <div style="font-size:9.5pt;line-height:1.5;">Cobertura 4G em Luanda (90%) e Huambo (60%). Penetração de smartphones: 48%. Iniciativa Angola Digital. Défice crítico de formadores certificados em IA. Disponibilidade de ferramentas open-source em português. Infraestrutura de servidores limitada fora de Luanda.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 6. SWOT -->
+<div class="section">
+  <div class="section-title">6. Análise SWOT</div>
+  <div class="quad-grid">
+    <div class="quad quad-f">
+      <div class="quad-title">F — Forças</div>
+      <div style="font-size:9.5pt;line-height:1.5;">Reconhecimento académico e institucional da UCP/CEPCEP. Experiência prévia em projetos de cooperação em África. Parcerias estabelecidas com MINTTICS, MED, FAS e UAN. Metodologia pedagógica comprovada e adaptável. Currículo em português com exemplos locais. Rede de alumni angolanos.</div>
+    </div>
+    <div class="quad quad-w">
+      <div class="quad-title">Fr — Fraquezas</div>
+      <div style="font-size:9.5pt;line-height:1.5;">Dependência total de financiamento externo. Capacidade de escalagem limitada à duração do projeto (12 meses). Rotatividade de pessoal técnico qualificado em Luanda. Logística em Huambo (distância, custos). Limitada presença permanente no terreno.</div>
+    </div>
+    <div class="quad quad-o">
+      <div class="quad-title">O — Oportunidades</div>
+      <div style="font-size:9.5pt;line-height:1.5;">Agenda Angola Digital como janela política favorável. Crescente mercado de formação profissional privada. Ferramentas de IA gratuitas e de código aberto. Interesse crescente de doadores (UE, PNUD, AFD). Potencial de replicação em países da CPLP.</div>
+    </div>
+    <div class="quad quad-a">
+      <div class="quad-title">A — Ameaças</div>
+      <div style="font-size:9.5pt;line-height:1.5;">Instabilidade cambial — desvalorização do Kwanza impacta custos. Cortes orçamentais nos ministérios parceiros. Concorrência de plataformas online internacionais (Coursera, edX). Risco de mudança de prioridades políticas após eleições.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 7. ÁRVORE DE PROBLEMAS -->
+<div class="section">
+  <div class="section-title">7. Árvore de Problemas</div>
+
+  <div class="tree-box tree-efeito">
+    <div class="tree-label">↑ Efeitos</div>
+    <div>• Exclusão progressiva do mercado de trabalho digital e da economia do conhecimento</div>
+    <div>• Vulnerabilidade acrescida à desinformação, manipulação e fraude digital</div>
+    <div>• Redução da competitividade económica nacional face à 4.ª Revolução Industrial</div>
+    <div>• Perpetuação de desigualdades socioeconómicas e do fosso digital Norte-Sul</div>
+    <div>• Dependência de tecnologia importada sem capacidade crítica de adaptação local</div>
+  </div>
+
+  <div class="tree-arrow">↓</div>
+
+  <div class="tree-box tree-centro">
+    <div class="tree-label">◉ Problema Central</div>
+    Défice de literacia digital e em Inteligência Artificial na população angolana limita a inclusão económica e o potencial de desenvolvimento humano
+  </div>
+
+  <div class="tree-arrow">↓</div>
+
+  <div class="tree-box tree-causa">
+    <div class="tree-label">↓ Causas</div>
+    <div>• Ausência de curricula de literacia digital e IA no sistema de ensino formal angolano</div>
+    <div>• Escassez crítica de formadores certificados em IA e tecnologias digitais no país</div>
+    <div>• Custo elevado de dispositivos eletrónicos e dados móveis (barreiras de acesso)</div>
+    <div>• Barreiras linguísticas e culturais no acesso a conteúdos digitais (maioritariamente em inglês)</div>
+    <div>• Falta de políticas nacionais estruturadas de formação em competências digitais avançadas</div>
+  </div>
+</div>
+
+<!-- 8. QUADRO LÓGICO -->
+<div class="section">
+  <div class="section-title">8. Quadro Lógico (LFA)</div>
+  <table>
+    <thead>
+      <tr><th>Nível</th><th>Resultado / Objetivo</th><th>Indicador</th><th>Baseline</th><th>Meta</th><th>Fonte de Verificação</th><th>Pressupostos</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="nivel-badge nivel-Impacto">Impacto</span></td>
+        <td>Redução das desigualdades digitais em Angola; contribuição para ODS 4 e ODS 8</td>
+        <td>Índice de literacia digital nacional (IDH componente tecnológica)</td>
+        <td>36</td><td>45</td>
+        <td>Relatório PNUD; Estatísticas MINTTICS</td>
+        <td>Angola mantém estabilidade política e continua a investir em digitalização</td>
+      </tr>
+      <tr>
+        <td><span class="nivel-badge nivel-Resultado">Resultado</span></td>
+        <td>5 000 cidadãos de Luanda e Huambo com competências certificadas em literacia digital e IA básica</td>
+        <td>N.º de cidadãos com certificado emitido</td>
+        <td>0</td><td>5 000</td>
+        <td>Base de dados de certificados; listas de presença</td>
+        <td>Taxa de abandono &lt;20%; certificação reconhecida pelos empregadores</td>
+      </tr>
+      <tr>
+        <td><span class="nivel-badge nivel-Resultado">Resultado</span></td>
+        <td>60 facilitadores locais certificados capazes de ministrar o programa autonomamente</td>
+        <td>N.º de facilitadores com ≥2 sessões lecionadas autonomamente</td>
+        <td>0</td><td>60</td>
+        <td>Fichas de avaliação pedagógica; relatórios de supervisão</td>
+        <td>Facilitadores mantêm disponibilidade; UAN apoia com espaços</td>
+      </tr>
+      <tr>
+        <td><span class="nivel-badge nivel-Produção">Produção</span></td>
+        <td>Currículo pedagógico adaptado ao contexto angolano publicado em acesso aberto</td>
+        <td>Módulos curriculares publicados online/offline em português</td>
+        <td>0</td><td>6 módulos</td>
+        <td>Plataforma digital do projeto; registo de downloads</td>
+        <td>Aprovação pelo MED; equipa cumpre cronograma de produção</td>
+      </tr>
+      <tr>
+        <td><span class="nivel-badge nivel-Produção">Produção</span></td>
+        <td>Plataforma digital offline funcional com todos os conteúdos formativos</td>
+        <td>Plataforma testada e aprovada em ambiente de baixa conectividade</td>
+        <td>0</td><td>1</td>
+        <td>Relatório de testes técnicos; avaliação de utilizadores</td>
+        <td>Desenvolvimento dentro do prazo; compatibilidade com dispositivos locais</td>
+      </tr>
+      <tr>
+        <td><span class="nivel-badge nivel-Atividade">Atividade</span></td>
+        <td>50 sessões de formação presencial realizadas em Luanda e Huambo</td>
+        <td>N.º de sessões com ≥80 participantes cada</td>
+        <td>0</td><td>50</td>
+        <td>Relatórios de sessão; listas de presença assinadas</td>
+        <td>Salas disponíveis; facilitadores presentes; mobilização comunitária eficaz</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- 9. PLANO DE AVALIAÇÃO -->
+<div class="section">
+  <div class="section-title">9. Plano de Avaliação (CAD/OCDE)</div>
+
+  <div class="eval-criterio">1. Relevância</div>
+  <div class="eval-field"><div class="eval-field-label">Questões de avaliação</div><div class="eval-field-value">Em que medida o projeto responde às necessidades reais de literacia digital dos beneficiários? O projeto está alinhado com as prioridades da Agenda Angola Digital e com os ODS?</div></div>
+  <div class="two-col">
+    <div class="eval-field"><div class="eval-field-label">Indicadores</div><div class="eval-field-value">% de beneficiários que afirmam que a formação corresponde às suas necessidades (inquérito pré-formação); grau de alinhamento com PDN 2023–2027 e Agenda Angola Digital</div></div>
+    <div class="eval-field"><div class="eval-field-label">Métodos / Fontes / Momento</div><div class="eval-field-value">Inquéritos de necessidades; análise de documentos estratégicos; entrevistas com MINTTICS e MED · <em>Avaliação ex ante — mês 1</em></div></div>
+  </div>
+
+  <div class="eval-criterio">2. Coerência</div>
+  <div class="eval-field"><div class="eval-field-label">Questões de avaliação</div><div class="eval-field-value">Os objetivos, atividades e orçamento são internamente consistentes? O projeto complementa ou duplica outras iniciativas de literacia digital em Angola?</div></div>
+  <div class="two-col">
+    <div class="eval-field"><div class="eval-field-label">Indicadores</div><div class="eval-field-value">% do orçamento alinhada com atividades do quadro lógico (100%); ausência de duplicações com outros programas em curso</div></div>
+    <div class="eval-field"><div class="eval-field-label">Métodos / Fontes / Momento</div><div class="eval-field-value">Análise documental; mapeamento de atores e iniciativas similares; entrevistas com parceiros · <em>Avaliação de processo — mês 3</em></div></div>
+  </div>
+
+  <div class="eval-criterio">3. Eficácia</div>
+  <div class="eval-field"><div class="eval-field-label">Questões de avaliação</div><div class="eval-field-value">O projeto está a atingir os resultados previstos — 5 000 cidadãos formados e 60 facilitadores certificados? Que fatores facilitam ou impedem o cumprimento das metas?</div></div>
+  <div class="two-col">
+    <div class="eval-field"><div class="eval-field-label">Indicadores</div><div class="eval-field-value">% de beneficiários formados vs. meta (5 000); % de facilitadores certificados vs. meta (60); taxa de conclusão (meta: &gt;80%); nota média nos testes pós-formação (meta: ≥70%)</div></div>
+    <div class="eval-field"><div class="eval-field-label">Métodos / Fontes / Momento</div><div class="eval-field-value">Monitorização de participação; testes pré/pós formação; relatórios mensais · <em>Intermédia — mês 6; Final — mês 12</em></div></div>
+  </div>
+
+  <div class="eval-criterio">4. Eficiência</div>
+  <div class="eval-field"><div class="eval-field-label">Questões de avaliação</div><div class="eval-field-value">Os recursos foram utilizados de forma otimizada? O custo por beneficiário é razoável? O cronograma foi cumprido?</div></div>
+  <div class="two-col">
+    <div class="eval-field"><div class="eval-field-label">Indicadores</div><div class="eval-field-value">Custo por beneficiário formado (meta: &lt;100 USD); % de execução orçamental no prazo (meta: &gt;90%); desvio temporal (meta: &lt;10%)</div></div>
+    <div class="eval-field"><div class="eval-field-label">Métodos / Fontes / Momento</div><div class="eval-field-value">Análise financeira trimestral; revisão despesas vs. plano; análise custo-eficácia comparada com benchmarks regionais · <em>Intermédia — mês 6; Final — mês 12</em></div></div>
+  </div>
+
+  <div class="eval-criterio">5. Impacto</div>
+  <div class="eval-field"><div class="eval-field-label">Questões de avaliação</div><div class="eval-field-value">Que mudanças de longo prazo são atribuíveis ao projeto? Há efeitos não esperados — positivos ou negativos? Em que medida o projeto contribuiu para reduzir o fosso digital?</div></div>
+  <div class="two-col">
+    <div class="eval-field"><div class="eval-field-label">Indicadores</div><div class="eval-field-value">% de beneficiários que relatam melhoria de empregabilidade 6 meses após formação; n.º que usam IA no trabalho/negócio; contribuição para o IDH digital angolano</div></div>
+    <div class="eval-field"><div class="eval-field-label">Métodos / Fontes / Momento</div><div class="eval-field-value">Inquérito de follow-up (6 meses pós); grupos focais; análise de casos de sucesso · <em>Ex post — 6 meses após conclusão</em></div></div>
+  </div>
+
+  <div class="eval-criterio">6. Sustentabilidade</div>
+  <div class="eval-field"><div class="eval-field-label">Questões de avaliação</div><div class="eval-field-value">Os benefícios persistirão após o fim do financiamento? O curricula foi integrado no sistema formal angolano? Os facilitadores continuam ativos?</div></div>
+  <div class="two-col">
+    <div class="eval-field"><div class="eval-field-label">Indicadores</div><div class="eval-field-value">N.º de facilitadores a ministrar formação 6 meses após o projeto (meta: ≥40); grau de integração do curricula no sistema formal; compromisso institucional do MED documentado</div></div>
+    <div class="eval-field"><div class="eval-field-label">Métodos / Fontes / Momento</div><div class="eval-field-value">Entrevistas com facilitadores e parceiros; documentos de compromisso · <em>Final — mês 12; Ex post — mês 18</em></div></div>
+  </div>
+</div>
+
+<!-- 10. ORÇAMENTO -->
+<div class="section">
+  <div class="section-title">10. Orçamento (estrutura PRAG)</div>
+  <table>
+    <thead>
+      <tr><th>Categoria</th><th>Descrição</th><th style="text-align:right;">Valor Previsto (USD)</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Recursos Humanos</td><td>Coordenador (12m), 2 especialistas pedagógicos (12m), 2 técnicos TIC (12m), 4 assistentes de campo (10m)</td><td style="text-align:right;">200 000</td></tr>
+      <tr><td>Deslocações e Diárias</td><td>Viagens PT-Angola (6 missões × equipa), deslocações Luanda-Huambo, alojamento e subsistência em Huambo</td><td style="text-align:right;">50 000</td></tr>
+      <tr><td>Equipamento e Materiais</td><td>60 tablets com conteúdos offline, 2 servidores locais, material pedagógico impresso, kits de formação</td><td style="text-align:right;">75 000</td></tr>
+      <tr><td>Serviços Locais</td><td>Aluguer de salas (50 sessões), comunicações locais, tradução e revisão de materiais, serviços de impressão</td><td style="text-align:right;">50 000</td></tr>
+      <tr><td>Outros Custos Diretos</td><td>Desenvolvimento da plataforma offline, certificação oficial, comunicação e visibilidade, auditoria financeira</td><td style="text-align:right;">75 000</td></tr>
+      <tr><td>Custos Indiretos</td><td>Overhead institucional CEPCEP/UCP — 7% dos custos diretos elegíveis (limite PRAG)</td><td style="text-align:right;">35 000</td></tr>
+      <tr><td>Contingência</td><td>Reserva para imprevistos e flutuação cambial — 3% do orçamento total (limite PRAG)</td><td style="text-align:right;">15 000</td></tr>
+      <tr class="budget-total"><td colspan="2"><strong>TOTAL</strong></td><td style="text-align:right;"><strong>500 000 USD</strong></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- 11. RISCOS -->
+<div class="section">
+  <div class="section-title">11. Gestão de Riscos</div>
+  <table>
+    <thead>
+      <tr><th>Risco</th><th>Prob.</th><th>Impacto</th><th>Mitigação</th><th>Plano de Contingência</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Instabilidade cambial — desvalorização do Kwanza aumenta custos reais</td>
+        <td class="risk-alto">Alto</td><td class="risk-médio">Médio</td>
+        <td>Orçamento em USD; cláusula de revisão cambial em contratos locais</td>
+        <td>Ativar linha de contingência (15 000 USD); renegociar contratos</td>
+      </tr>
+      <tr>
+        <td>Taxa de abandono elevada durante a formação</td>
+        <td class="risk-médio">Médio</td><td class="risk-alto">Alto</td>
+        <td>Módulos curtos (máx. 4h); horários flexíveis; incentivos de participação</td>
+        <td>Aumentar sessões em locais com menor taxa de conclusão; sessões de recuperação</td>
+      </tr>
+      <tr>
+        <td>Resistência ou mudança de prioridades nos parceiros governamentais</td>
+        <td class="risk-baixo">Baixo</td><td class="risk-alto">Alto</td>
+        <td>MOUs assinados com comprometimento de alto nível; reuniões bimestrais</td>
+        <td>Ativar parceiros alternativos (ONGs, setor privado); implementação autónoma</td>
+      </tr>
+      <tr>
+        <td>Dificuldades logísticas em Huambo — infraestrutura limitada</td>
+        <td class="risk-médio">Médio</td><td class="risk-médio">Médio</td>
+        <td>Facilitadores locais em Huambo; plataforma offline independente de internet</td>
+        <td>Reforço temporário da equipa de Luanda; parceria com ONG local para logística</td>
+      </tr>
+      <tr>
+        <td>Atrasos no desenvolvimento da plataforma digital offline</td>
+        <td class="risk-médio">Médio</td><td class="risk-médio">Médio</td>
+        <td>Contrato com empresa TIC experiente; marco de entrega no mês 3; testes beta mês 4</td>
+        <td>Utilizar plataformas open-source existentes (Kolibri, Moodle offline) como fallback</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- 12. MILESTONES -->
+<div class="section">
+  <div class="section-title">12. Milestones e Cronograma</div>
+  <table>
+    <thead>
+      <tr><th>Milestone</th><th>Data Prevista</th><th>Estado</th></tr>
+    </thead>
+    <tbody>
+      <tr class="milestone-row"><td>Kick-off e assinatura de MOUs com parceiros<br><span style="font-weight:normal;font-size:8.5pt;color:#555;">Reunião inaugural com MINTTICS, MED, FAS e UAN. Constituição da equipa local.</span></td><td>30 Set 2026</td><td>Pendente</td></tr>
+      <tr class="milestone-row"><td>Curricula adaptado e aprovado pelo MED<br><span style="font-weight:normal;font-size:8.5pt;color:#555;">Entrega do currículo de 6 módulos adaptado ao contexto angolano.</span></td><td>30 Nov 2026</td><td>Pendente</td></tr>
+      <tr class="milestone-row"><td>60 facilitadores certificados (ToT concluído)<br><span style="font-weight:normal;font-size:8.5pt;color:#555;">Todos os facilitadores aprovados na avaliação pedagógica e certificados.</span></td><td>31 Jan 2027</td><td>Pendente</td></tr>
+      <tr class="milestone-row"><td>Plataforma digital offline lançada<br><span style="font-weight:normal;font-size:8.5pt;color:#555;">Testada em ambiente de baixa conectividade e distribuída para os 60 facilitadores.</span></td><td>31 Jan 2027</td><td>Pendente</td></tr>
+      <tr class="milestone-row"><td>Avaliação intermédia — 2 500 beneficiários formados<br><span style="font-weight:normal;font-size:8.5pt;color:#555;">Ponto de controlo a meio do projeto. Avaliação de eficácia e ajuste do plano.</span></td><td>31 Mar 2027</td><td>Pendente</td></tr>
+      <tr class="milestone-row"><td>5 000 beneficiários formados e certificados<br><span style="font-weight:normal;font-size:8.5pt;color:#555;">Conclusão de todas as sessões; emissão de certificados.</span></td><td>31 Jul 2027</td><td>Pendente</td></tr>
+      <tr class="milestone-row"><td>Relatório final e encerramento do projeto<br><span style="font-weight:normal;font-size:8.5pt;color:#555;">Entrega do relatório ao doador. Auditoria financeira. Evento de disseminação em Luanda.</span></td><td>31 Ago 2027</td><td>Pendente</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="footer">
+  Gerado pelo CoopGest · Plataforma de Gestão de Projetos de Cooperação · Template ECHO Angola v1.0
+</div>
+
+</div>
+</body>
+</html>

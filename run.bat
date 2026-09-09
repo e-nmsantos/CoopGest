@@ -1,6 +1,7 @@
 @echo off
 setlocal EnableExtensions
 cd /d "%~dp0"
+cd /d "%~dp0" || exit /b 1
 title CoopGest - Menu
 
 :menu
@@ -15,6 +16,7 @@ echo   [2] Backup local completo (BD + uploads)
 echo   [3] Restore local completo
 echo   [0] Sair
 echo.
+echo. 
 set /p choice=Escolha uma opcao: 
 
 if "%choice%"=="1" goto start_server
@@ -50,8 +52,8 @@ echo [3/3] A iniciar o servidor CoopGest...
 echo Nao feche esta janela enquanto estiver a usar o programa.
 echo.
 set "HOST=127.0.0.1"
-set "PORT=8000"
-start "Abrir CoopGest" /min cmd /c "timeout /t 3 >nul & start "" "http://127.0.0.1:8000""
+set "PORT=8050"
+start "Abrir CoopGest" /min cmd /c "timeout /t 3 >nul & start """" "http://%HOST%:%PORT%""
 py wsgi.py
 
 echo.
@@ -63,11 +65,19 @@ goto menu
 echo.
 echo A preparar backup local completo...
 
+set "BACKUP_ROOT=backups"
 for /f %%i in ('powershell -NoProfile -Command "Get-Date -Format yyyyMMdd-HHmmss"') do set "STAMP=%%i"
 set "BACKUP_DIR=backups\coopgest-full-%STAMP%"
+set "BACKUP_DIR=%BACKUP_ROOT%\coopgest-full-%STAMP%"
 
 if not exist "backups" mkdir "backups"
 mkdir "%BACKUP_DIR%"
+if not exist "%BACKUP_ROOT%" mkdir "%BACKUP_ROOT%"
+mkdir "%BACKUP_DIR%" || (
+    echo ERRO: Nao foi possivel criar a pasta de backup.
+    pause
+    goto menu
+)
 
 if exist "projetos.db" (
     copy /Y "projetos.db" "%BACKUP_DIR%\projetos.db" >nul
@@ -77,6 +87,7 @@ if exist "projetos.db" (
 
 if exist "uploads" (
     xcopy "uploads" "%BACKUP_DIR%\uploads\" /E /I /Y >nul
+    xcopy "uploads" "%BACKUP_DIR%\uploads\" /E /I /Y /Q >nul
 ) else (
     echo AVISO: pasta uploads nao encontrada.
 )
@@ -95,6 +106,7 @@ goto menu
 echo.
 echo AVISO: faça restore apenas com o servidor parado.
 echo.
+echo Pressione Enter para ver as pastas de backup disponiveis ou indique o caminho.
 set /p SRC=Indique a pasta de backup (ex: backups\coopgest-full-20260421-120000): 
 
 if "%SRC%"=="" (
@@ -111,10 +123,12 @@ if not exist "%SRC%" (
 
 for /f %%i in ('powershell -NoProfile -Command "Get-Date -Format yyyyMMdd-HHmmss"') do set "PRESTAMP=%%i"
 set "PRE_DIR=backups\pre-restore-%PRESTAMP%"
+set "PRE_DIR=%BACKUP_ROOT%\pre-restore-%PRESTAMP%"
 mkdir "%PRE_DIR%"
 
 if exist "projetos.db" copy /Y "projetos.db" "%PRE_DIR%\projetos.db" >nul
 if exist "uploads" xcopy "uploads" "%PRE_DIR%\uploads\" /E /I /Y >nul
+if exist "uploads" xcopy "uploads" "%PRE_DIR%\uploads\" /E /I /Y /Q >nul
 
 if exist "%SRC%\projetos.db" (
     copy /Y "%SRC%\projetos.db" "projetos.db" >nul
@@ -125,6 +139,7 @@ if exist "%SRC%\projetos.db" (
 if exist "%SRC%\uploads" (
     if exist "uploads" rmdir /S /Q "uploads"
     xcopy "%SRC%\uploads" "uploads\" /E /I /Y >nul
+    xcopy "%SRC%\uploads" "uploads\" /E /I /Y /Q >nul
 ) else (
     echo AVISO: uploads nao existe no backup.
 )

@@ -73,6 +73,56 @@ npm run build
 npm audit --audit-level=high
 ```
 
+Validacao completa local:
+
+```powershell
+npm run validate
+```
+
+E2E estrito, sem retries:
+
+```powershell
+npm run e2e:strict
+```
+
+## Release Windows
+
+Gerar pacote de distribuicao:
+
+```powershell
+.\build_release.bat --no-pause
+```
+
+O script cria uma pasta e um ZIP em `release/`, inclui `checksums.txt` e valida Python com `compileall`.
+
+Testar o ZIP numa extracao limpa:
+
+```powershell
+npm run release:smoke -- .\release\CoopGest-Windows-AAAAMMDD-HHMMSS.zip
+```
+
+Para entrega final, testar ainda:
+
+- descompactar o ZIP numa pasta fora do repositorio;
+- iniciar com `arrancar.bat`;
+- entrar com o admin inicial;
+- criar um projeto;
+- fazer backup;
+- restaurar esse backup.
+
+## CI/CD
+
+Existe uma pipeline GitHub Actions em `.github/workflows/ci.yml` que corre:
+
+- install frontend/backend;
+- lint;
+- typecheck;
+- build;
+- `npm audit --audit-level=high`;
+- `compileall`;
+- `pytest`;
+- Playwright E2E sem retries.
+
 ## Estrutura
 
 - `coopgest/application.py`: configuracao Flask, seguranca, handlers e registo de blueprints.

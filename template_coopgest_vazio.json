@@ -1,0 +1,227 @@
+{
+  "versao": "1.0",
+  "tipo": "coopgest-template",
+
+  "projeto": {
+    "nome": "",
+    "descricao": "",
+    "objetivos": "",
+    "data_inicio": "YYYY-MM-DD",
+    "data_fim": "YYYY-MM-DD"
+  },
+
+  "parceiros": [
+    {
+      "nome": "",
+      "pais": "",
+      "tipo": "",
+      "papel": "",
+      "descricao": "",
+      "contacto": "",
+      "email": ""
+    }
+  ],
+
+  "stakeholders": [
+    {
+      "nome": "",
+      "organizacao": "",
+      "papel": "",
+      "interesse": "Alto",
+      "influencia": "Alta",
+      "posicao": "Aliado",
+      "estrategia": "",
+      "notas": ""
+    }
+  ],
+
+  "beneficiarios": [
+    {
+      "nome": "",
+      "tipo": "Grupo",
+      "numero": 0,
+      "descricao": "",
+      "localizacao": ""
+    }
+  ],
+
+  "analise_pest": {
+    "politico": "",
+    "economico": "",
+    "social": "",
+    "tecnologico": ""
+  },
+
+  "analise_swot": {
+    "forcas": "",
+    "fraquezas": "",
+    "oportunidades": "",
+    "ameacas": ""
+  },
+
+  "arvore_problemas": {
+    "causas": [
+      "",
+      ""
+    ],
+    "problema_central": "",
+    "efeitos": [
+      "",
+      ""
+    ]
+  },
+
+  "quadro_logico": [
+    {
+      "nivel": "Impacto",
+      "resultado": "",
+      "indicador": "",
+      "unidade": "",
+      "baseline": 0,
+      "meta": 0,
+      "fonte_verificacao": "",
+      "pressupostos": "",
+      "frequencia_medicao": "Anual",
+      "responsavel_medicao": ""
+    },
+    {
+      "nivel": "Resultado",
+      "resultado": "",
+      "indicador": "",
+      "unidade": "",
+      "baseline": 0,
+      "meta": 0,
+      "fonte_verificacao": "",
+      "pressupostos": "",
+      "frequencia_medicao": "Semestral",
+      "responsavel_medicao": ""
+    },
+    {
+      "nivel": "Produção",
+      "resultado": "",
+      "indicador": "",
+      "unidade": "",
+      "baseline": 0,
+      "meta": 0,
+      "fonte_verificacao": "",
+      "pressupostos": "",
+      "frequencia_medicao": "Trimestral",
+      "responsavel_medicao": ""
+    },
+    {
+      "nivel": "Atividade",
+      "resultado": "",
+      "indicador": "",
+      "unidade": "",
+      "baseline": 0,
+      "meta": 0,
+      "fonte_verificacao": "",
+      "pressupostos": "",
+      "frequencia_medicao": "Mensal",
+      "responsavel_medicao": ""
+    }
+  ],
+
+  "plano_avaliacao": {
+    "Relevância": {
+      "questoes": "",
+      "indicadores": "",
+      "metodos": "",
+      "fontes": "",
+      "momento": ""
+    },
+    "Coerência": {
+      "questoes": "",
+      "indicadores": "",
+      "metodos": "",
+      "fontes": "",
+      "momento": ""
+    },
+    "Eficácia": {
+      "questoes": "",
+      "indicadores": "",
+      "metodos": "",
+      "fontes": "",
+      "momento": ""
+    },
+    "Eficiência": {
+      "questoes": "",
+      "indicadores": "",
+      "metodos": "",
+      "fontes": "",
+      "momento": ""
+    },
+    "Impacto": {
+      "questoes": "",
+      "indicadores": "",
+      "metodos": "",
+      "fontes": "",
+      "momento": ""
+    },
+    "Sustentabilidade": {
+      "questoes": "",
+      "indicadores": "",
+      "metodos": "",
+      "fontes": "",
+      "momento": ""
+    }
+  },
+
+  "orcamento": [
+    {
+      "tipo": "Previsto",
+      "categoria": "Recursos Humanos",
+      "descricao": "",
+      "valor_previsto": 0
+    },
+    {
+      "tipo": "Previsto",
+      "categoria": "Deslocações e Diárias",
+      "descricao": "",
+      "valor_previsto": 0
+    },
+    {
+      "tipo": "Previsto",
+      "categoria": "Equipamento e Materiais",
+      "descricao": "",
+      "valor_previsto": 0
+    },
+    {
+      "tipo": "Previsto",
+      "categoria": "Serviços Locais",
+      "descricao": "",
+      "valor_previsto": 0
+    },
+    {
+      "tipo": "Previsto",
+      "categoria": "Outros Custos Diretos",
+      "descricao": "",
+      "valor_previsto": 0
+    },
+    {
+      "tipo": "Previsto",
+      "categoria": "Custos Indiretos",
+      "descricao": "Overhead institucional (máx. 7% PRAG)",
+      "valor_previsto": 0
+    }
+  ],
+
+  "riscos": [
+    {
+      "descricao": "",
+      "probabilidade": "Médio",
+      "impacto": "Médio",
+      "mitigacao": "",
+      "plano_contingencia": ""
+    }
+  ],
+
+  "milestones": [
+    {
+      "nome": "",
+      "descricao": "",
+      "data_prevista": "YYYY-MM-DD",
+      "estado": "Pendente"
+    }
+  ]
+}

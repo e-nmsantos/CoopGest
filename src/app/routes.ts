@@ -172,6 +172,20 @@ export const router = createBrowserRouter([
         },
       },
       {
+        path: "analise-contexto",
+        lazy: async () => {
+          const { AnalisePage } = await import("./pages/AnalisePage");
+          return { Component: AnalisePage };
+        },
+      },
+      {
+        path: "plano-avaliacao",
+        lazy: async () => {
+          const { AvaliacaoPage } = await import("./pages/AvaliacaoPage");
+          return { Component: AvaliacaoPage };
+        },
+      },
+      {
         path: "gantt",
         lazy: async () => {
           const { GanttPage } = await import("./pages/GanttPage");

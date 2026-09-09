@@ -42,6 +42,9 @@ def validate_project_payload(payload, partial=False):
         "data_inicio": payload.get("data_inicio"),
         "data_fim": payload.get("data_fim"),
         "estado": payload.get("estado", "Planeamento") if not partial else payload.get("estado"),
+        "localizacao": str(payload.get("localizacao", "")).strip() if "localizacao" in payload else None,
+        "entidade_proponente": str(payload.get("entidade_proponente", "")).strip() if "entidade_proponente" in payload else None,
+        "ods": str(payload.get("ods", "")).strip() if "ods" in payload else None,
     }
     return sanitized, None
 
